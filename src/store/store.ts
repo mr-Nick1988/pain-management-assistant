@@ -1,10 +1,17 @@
-import { configureStore } from '@reduxjs/toolkit';
+import {configureStore} from '@reduxjs/toolkit';
+import {apiAdminSlice} from "../features/api/apiAdminSlice.ts";
+import {apiPersonSlice} from "../features/api/apiPersonSlice.ts";
 // Импортируй свои slices здесь, когда создашь их
 
 export const store = configureStore({
     reducer: {
-        // Добавь свои reducers здесь
+        [apiAdminSlice.reducerPath]: apiAdminSlice.reducer,
+        [apiPersonSlice.reducerPath]: apiPersonSlice.reducer,
     },
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware()
+            .concat(apiAdminSlice.middleware)
+            .concat(apiPersonSlice.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

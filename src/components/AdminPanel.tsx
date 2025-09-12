@@ -1,10 +1,10 @@
 import React, {useState} from "react";
-import {type UserRegister, UserRole} from "../types/userRegister.ts";
-import {useCreatePersonMutation, useGetPersonsQuery} from "../features/api/apiSlice.ts";
+import {type PersonRegister, UserRole} from "../types/personRegister.ts";
+import {useCreatePersonMutation, useGetPersonsQuery} from "../features/api/apiAdminSlice.ts";
 
 
 const AdminPanel: React.FC = () => {
-    const [formData, setFormData] = useState<UserRegister>({
+    const [formData, setFormData] = useState<PersonRegister>({
         firstName: "",
         lastName: "",
         login: "",
@@ -32,7 +32,6 @@ const AdminPanel: React.FC = () => {
             role: UserRole.NURSE,
         });
     }
-
     return (
         <div className="admin-panel">
             <h2>Admin Panel</h2>
@@ -137,7 +136,7 @@ const AdminPanel: React.FC = () => {
                         </tr>
                         </thead>
                         <tbody>
-                        {users?.map((user: UserRegister) => (
+                        {users?.map((user: PersonRegister) => (
                             <tr key={user.id}>
                                 <td>{user.firstName}</td>
                                 <td>{user.lastName}</td>

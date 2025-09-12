@@ -5,7 +5,7 @@ export enum UserRole {
     ADMIN = "ADMIN"
 }
 
-export interface UserRegister {
+export interface PersonRegister {
     firstName: string;
     lastName: string;
     login: string;
@@ -14,7 +14,7 @@ export interface UserRegister {
     id: string;
 }
 
-export interface UserLogin {
+export interface PersonLogin {
     login: string;
     password: string;
 }

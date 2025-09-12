@@ -1,9 +1,10 @@
-import type {UserLogin} from "../types/userRegister.ts";
+import type {PersonLogin} from "../types/personRegister.ts";
 import React, {useState} from "react";
-import {useLoginMutation} from "../features/api/apiSlice.ts";
+import {useLoginMutation} from "../features/api/apiPersonSlice.ts";
+
 
 const Login: React.FC = () => {
-    const [formData, setFormData] = useState<UserLogin>({
+    const [formData, setFormData] = useState<PersonLogin>({
         login: "",
         password: "",
     });
