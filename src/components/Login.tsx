@@ -4,10 +4,11 @@ import {useLoginMutation} from "../features/api/apiSlice.ts";
 
 const Login: React.FC = () => {
     const [formData, setFormData] = useState<UserLogin>({
-        email: "",
+        login: "",
         password: "",
     });
 
+    const [isFirstLogin, setIsFirstLogin] = useState<boolean>(false);
     const [login, {isLoading, error}] = useLoginMutation();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -15,37 +16,54 @@ const Login: React.FC = () => {
     };
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await login(formData);
+        const response = await login(formData).unwrap();
+        if (response?.isTemporaryCredentials) {
+            setIsFirstLogin(true);
+        }
     };
-
     return (
-        <div>
+        <div className="">
             <h2>Login</h2>
             <form onSubmit={handleSubmit}>
-                <input
-                    name="email"
-                    placeholder="Email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                />
-                <input
-                    name="password"
-                    placeholder="Password"
-                    type="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    required
-                />
-                <button type="submit" disabled={isLoading}>
+                <div className="form-group">
+                    <label htmlFor="username">User login:</label>
+                    <input
+                        id="login"
+                        placeholder="Enter login"
+                        name="login"
+                        value={formData.login}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="password">Password:</label>
+                    <input
+                        id="password"
+                        name="password"
+                        placeholder="Enter password"
+                        type="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                    />
+                </div>
+                <button type="submit" disabled={isLoading} className="login-button">
                     {isLoading ? "Logging in..." : "Login"}
                 </button>
             </form>
-            {error && <p>Error: {JSON.stringify(error)}</p>}
-        </div>
 
+            {isFirstLogin && (
+                <div className="first-login-mjessage">
+                    <p>You have logged in with temporary credentials.Please change them for security.</p>
+                    <button onClick={() => window.location.href = "/change-credentials"}>
+                        Change Credentials
+                    </button>
+                </div>
+            )}
+            {error && <p className="error-message">Error: {JSON.stringify(error)}</p>}
+        </div>
     )
 }
-
 export default Login;

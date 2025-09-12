@@ -1,12 +1,13 @@
 import './App.css';
-import {Login, Register} from "./exports/exports.ts";
+import {AdminPanel, ChangeCredentials, Login} from "./exports/exports.ts";
 
 
 function App() {
     return (
         <div>
-            <Register/>
             <Login/>
+            <ChangeCredentials/>
+            <AdminPanel/>
         </div>
     );
 }
