@@ -1,22 +1,26 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import type {UserLogin, UserRegister, ChangeCredentialsType} from "../../types/userRegister.ts";
 import {base_url} from "../../utils/constants";
 
+interface RootState {
+    auth?: {
+        token?: string;
+    }
+}
 
 export const apiSlice = createApi({
     reducerPath: "api",
     tagTypes: ["User"],
     baseQuery: fetchBaseQuery({
         baseUrl: base_url,
-        prepareHeaders: (headers, { getState }) => {
+        prepareHeaders: (headers, {getState}) => {
             // Get token from state (assuming it's stored in state.auth.token)
-            const token = (getState() as any).auth?.token;
-            
+            const state = getState() as RootState;
+            const token = state.auth?.token;
             // If token exists, add it to headers
             if (token) {
                 headers.set('authorization', `Bearer ${token}`);
             }
-            
             return headers;
         },
     }),
@@ -37,9 +41,9 @@ export const apiSlice = createApi({
             }),
             invalidatesTags: ["User"],
         }),
-        createUser: builder.mutation({
+        createPerson: builder.mutation({
             query: (userData: UserRegister) => ({
-                url: "/admin/users",
+                url: "/admin/persons",
                 method: "POST",
                 body: userData,
             }),
@@ -53,16 +57,16 @@ export const apiSlice = createApi({
             }),
             invalidatesTags: ["User"],
         }),
-        getUsers: builder.query({
-            query: () => "/admin/users",
+        getPersons: builder.query<UserRegister[],void>({
+            query: () => "/admin/persons",
             providesTags: ["User"],
         }),
     }),
 });
 export const {
-    useRegisterMutation, 
-    useLoginMutation, 
-    useCreateUserMutation, 
+    useRegisterMutation,
+    useLoginMutation,
+    useCreatePersonMutation,
     useChangeCredentialsMutation,
-    useGetUsersQuery
+    useGetPersonsQuery
 } = apiSlice;

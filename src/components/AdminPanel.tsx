@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {type UserRegister, UserRole} from "../types/userRegister.ts";
-import {useCreateUserMutation, useGetUsersQuery} from "../features/api/apiSlice.ts";
+import {useCreatePersonMutation, useGetPersonsQuery} from "../features/api/apiSlice.ts";
 
 
 const AdminPanel: React.FC = () => {
@@ -13,8 +13,8 @@ const AdminPanel: React.FC = () => {
         role: UserRole.NURSE,
     });
 
-    const [createUser, {isLoading, error}] = useCreateUserMutation();
-    const {data: users, isLoading: isLoadingUsers} = useGetUsersQuery(undefined);
+    const [createUser, {isLoading, error}] = useCreatePersonMutation();
+    const {data: users, isLoading: isLoadingUsers} = useGetPersonsQuery(undefined);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({...formData, [e.target.name]: e.target.value});
