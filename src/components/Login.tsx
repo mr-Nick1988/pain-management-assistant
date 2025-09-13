@@ -1,9 +1,10 @@
 import type {PersonLogin} from "../types/personRegister.ts";
 import React, {useState} from "react";
 import {useLoginMutation} from "../features/api/apiPersonSlice.ts";
-
+import {useNavigate} from "react-router-dom";
 
 const Login: React.FC = () => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState<PersonLogin>({
         login: "",
         password: "",
@@ -15,19 +16,34 @@ const Login: React.FC = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({...formData, [e.target.name]: e.target.value});
     };
+    
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const response = await login(formData).unwrap();
-        if (response?.isTemporaryCredentials) {
-            setIsFirstLogin(true);
+        try {
+            const response = await login(formData).unwrap();
+            if (response?.token) {
+                localStorage.setItem('token', response.token);
+            }
+            if (response?.isTemporaryCredentials) {
+                setIsFirstLogin(true);
+            } else {
+                navigate('/admin');
+            }
+        } catch (err) {
+            console.error("Login failed:", err);
         }
     };
+    
+    const handleChangeCredentials = () => {
+        navigate('/change-credentials');
+    };
+    
     return (
-        <div className="">
+        <div className="login-container">
             <h2>Login</h2>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label htmlFor="username">User login:</label>
+                    <label htmlFor="login">User login:</label>
                     <input
                         id="login"
                         placeholder="Enter login"
@@ -56,9 +72,9 @@ const Login: React.FC = () => {
             </form>
 
             {isFirstLogin && (
-                <div className="first-login-mjessage">
-                    <p>You have logged in with temporary credentials.Please change them for security.</p>
-                    <button onClick={() => window.location.href = "/change-credentials"}>
+                <div className="first-login-message">
+                    <p>You have logged in with temporary credentials. Please change them for security.</p>
+                    <button onClick={handleChangeCredentials}>
                         Change Credentials
                     </button>
                 </div>
@@ -67,4 +83,5 @@ const Login: React.FC = () => {
         </div>
     )
 }
+
 export default Login;

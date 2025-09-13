@@ -42,10 +42,11 @@ export const apiAdminSlice = createApi({
             }),
             invalidatesTags: ["User"],
         }),
-        updatePerson: builder.mutation({
-            query: (id) => ({
-                url: `/admin/persons/${id}`,
+        updatePerson: builder.mutation<PersonRegister, PersonRegister>({
+            query: (person) => ({
+                url: `/admin/persons/${person.id}`,
                 method: "PUT",
+                body: person,
             }),
             invalidatesTags: ["User"],
         }),
