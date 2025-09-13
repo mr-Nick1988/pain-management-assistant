@@ -1,6 +1,12 @@
 import React, {useState} from "react";
 import {type PersonRegister, UserRole} from "../types/personRegister.ts";
-import {useCreatePersonMutation, useGetPersonsQuery} from "../features/api/apiAdminSlice.ts";
+import {
+    useCreatePersonMutation,
+    useGetPersonsQuery,
+    useDeletePersonMutation,
+    useUpdatePersonMutation
+} from "../features/api/apiAdminSlice.ts";
+import {PersonsList} from "../exports/exports.ts";
 
 
 const AdminPanel: React.FC = () => {
@@ -9,12 +15,15 @@ const AdminPanel: React.FC = () => {
         lastName: "",
         login: "",
         password: "",
-        id: "",
         role: UserRole.NURSE,
+        id: "" // id будет генерироваться на сервере
     });
+    const [isEditing, setIsEditing] = useState(false);
 
-    const [createUser, {isLoading, error}] = useCreatePersonMutation();
-    const {data: users, isLoading: isLoadingUsers} = useGetPersonsQuery(undefined);
+    const [createPerson, {isLoading: isCreating, error: createError}] = useCreatePersonMutation();
+    const [updatePerson, {isLoading: isUpdating, error: updateError}] = useUpdatePersonMutation();
+    const [deletePerson, {isLoading: isDeleting, error: deleteError}] = useDeletePersonMutation();
+    const {data: persons, isLoading: isLoadingPersons} = useGetPersonsQuery(undefined);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({...formData, [e.target.name]: e.target.value});
@@ -22,36 +31,56 @@ const AdminPanel: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        await createUser(formData);
+
+        if (isEditing) {
+            await updatePerson(formData);
+            setIsEditing(false);
+        } else {
+            await createPerson(formData);
+        }
+
+        resetForm();
+    };
+
+    const handleEdit = (person: PersonRegister) => {
+        setFormData(person);
+        setIsEditing(true);
+    };
+
+    const handleDelete = async (personId: string) => {
+        if (window.confirm("Are you sure you want to delete this person?")) {
+            await deletePerson(personId);
+        }
+    };
+
+    const resetForm = () => {
         setFormData({
             firstName: "",
             lastName: "",
             login: "",
             password: "",
-            id: "",
             role: UserRole.NURSE,
+            id: ""
         });
-    }
+    };
+
+    const cancelEdit = () => {
+        setIsEditing(false);
+        resetForm();
+    };
+
+    const isLoading = isCreating || isUpdating || isDeleting;
+    const error = createError || updateError || deleteError;
+
     return (
         <div className="admin-panel">
             <h2>Admin Panel</h2>
 
-            <div className="create-user-section">
-                <h3>Create New Person</h3>
+            <div className="create-person-section">
+                <h3>{isEditing ? "Edit Person" : "Create New Person"}</h3>
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">
-                        <label htmlFor="id">ID:</label>
-                        <input
-                            id="id"
-                            name="id"
-                            placeholder="ID"
-                            value={formData.id}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="firstName">First Name:</label>
+                        <label htmlFor="firstName">First Name</label>
                         <input
                             id="firstName"
                             name="firstName"
@@ -61,8 +90,9 @@ const AdminPanel: React.FC = () => {
                             required
                         />
                     </div>
+
                     <div className="form-group">
-                        <label htmlFor="lastName">Last Name:</label>
+                        <label htmlFor="lastName">Last Name</label>
                         <input
                             id="lastName"
                             name="lastName"
@@ -74,7 +104,7 @@ const AdminPanel: React.FC = () => {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="login">Temporary Login:</label>
+                        <label htmlFor="login">Temporary Login</label>
                         <input
                             id="login"
                             name="login"
@@ -85,21 +115,23 @@ const AdminPanel: React.FC = () => {
                         />
                     </div>
 
-                    <div className="form-group">
-                        <label htmlFor="password">Temporary Password:</label>
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            placeholder="Temporary Password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
+                    {!isEditing && (
+                        <div className="form-group">
+                            <label htmlFor="password">Temporary Password</label>
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                placeholder="Temporary Password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                required={!isEditing}
+                            />
+                        </div>
+                    )}
 
                     <div className="form-group">
-                        <label htmlFor="role">Role:</label>
+                        <label htmlFor="role">Role</label>
                         <select
                             id="role"
                             name="role"
@@ -114,40 +146,27 @@ const AdminPanel: React.FC = () => {
                         </select>
                     </div>
 
-                    <button type="submit" disabled={isLoading}>
-                        {isLoading ? "Creating..." : "Create Person"}
-                    </button>
+                    <div className="form-buttons">
+                        <button type="submit" disabled={isLoading}>
+                            {isLoading ? "Processing..." : isEditing ? "Update Person" : "Create Person"}
+                        </button>
+
+                        {isEditing && (
+                            <button type="button" onClick={cancelEdit}>
+                                Cancel
+                            </button>
+                        )}
+                    </div>
                 </form>
                 {error && <p className="error">Error: {JSON.stringify(error)}</p>}
             </div>
 
-            <div className="users-list-section">
-                <h3>Users List</h3>
-                {isLoadingUsers ? (
-                    <p>Loading users...</p>
-                ) : (
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>First Name</th>
-                            <th>Last Name</th>
-                            <th>Login</th>
-                            <th>Role</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {users?.map((user: PersonRegister) => (
-                            <tr key={user.id}>
-                                <td>{user.firstName}</td>
-                                <td>{user.lastName}</td>
-                                <td>{user.login}</td>
-                                <td>{user.role}</td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                )}
-            </div>
+            <PersonsList
+                persons={persons}
+                isLoading={isLoadingPersons}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+            />
         </div>
     );
 };

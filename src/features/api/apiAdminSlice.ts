@@ -35,10 +35,26 @@ export const apiAdminSlice = createApi({
             query: () => "/admin/persons",
             providesTags: ["User"],
         }),
+        deletePerson: builder.mutation<void, string>({
+            query: (id) => ({
+                url: `/admin/persons/${id}`,
+                method: "DELETE",
+            }),
+            invalidatesTags: ["User"],
+        }),
+        updatePerson: builder.mutation({
+            query: (id) => ({
+                url: `/admin/persons/${id}`,
+                method: "PUT",
+            }),
+            invalidatesTags: ["User"],
+        }),
     }),
 });
 
 export const {
     useCreatePersonMutation,
     useGetPersonsQuery,
+    useDeletePersonMutation,
+    useUpdatePersonMutation,
 } = apiAdminSlice;

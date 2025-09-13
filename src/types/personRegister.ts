@@ -24,3 +24,4 @@ export interface ChangeCredentialsType {
     newPassword: string;
     newLogin: string;
 }
+
