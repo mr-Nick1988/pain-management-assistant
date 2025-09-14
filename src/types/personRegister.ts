@@ -11,7 +11,7 @@ export interface PersonRegister {
     login: string;
     password: string;
     role: UserRole;
-    id: string;
+    personId: string;
 }
 
 export interface PersonLogin {

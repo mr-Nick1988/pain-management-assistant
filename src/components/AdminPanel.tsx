@@ -16,7 +16,7 @@ const AdminPanel: React.FC = () => {
         login: "",
         password: "",
         role: UserRole.NURSE,
-        id: "" // id будет генерироваться на сервере
+        personId: "" // Изменено с id на personId
     });
     const [isEditing, setIsEditing] = useState(false);
 
@@ -60,7 +60,7 @@ const AdminPanel: React.FC = () => {
             login: "",
             password: "",
             role: UserRole.NURSE,
-            id: ""
+            personId: "" // Изменено с id на personId
         });
     };
 
@@ -79,6 +79,18 @@ const AdminPanel: React.FC = () => {
             <div className="create-person-section">
                 <h3>{isEditing ? "Edit Person" : "Create New Person"}</h3>
                 <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label htmlFor="personId">Document ID</label>
+                        <input
+                            id="personId"
+                            name="personId"
+                            placeholder="Document ID"
+                            value={formData.personId}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
+
                     <div className="form-group">
                         <label htmlFor="firstName">First Name</label>
                         <input
@@ -115,20 +127,18 @@ const AdminPanel: React.FC = () => {
                         />
                     </div>
 
-                    {!isEditing && (
-                        <div className="form-group">
-                            <label htmlFor="password">Temporary Password</label>
-                            <input
-                                id="password"
-                                name="password"
-                                type="password"
-                                placeholder="Temporary Password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                required={!isEditing}
-                            />
-                        </div>
-                    )}
+                    <div className="form-group">
+                        <label htmlFor="password">Temporary Password</label>
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            placeholder="Temporary Password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            required
+                        />
+                    </div>
 
                     <div className="form-group">
                         <label htmlFor="role">Role</label>
@@ -146,11 +156,10 @@ const AdminPanel: React.FC = () => {
                         </select>
                     </div>
 
-                    <div className="form-buttons">
+                    <div className="form-actions">
                         <button type="submit" disabled={isLoading}>
                             {isLoading ? "Processing..." : isEditing ? "Update Person" : "Create Person"}
                         </button>
-
                         {isEditing && (
                             <button type="button" onClick={cancelEdit}>
                                 Cancel
@@ -158,15 +167,25 @@ const AdminPanel: React.FC = () => {
                         )}
                     </div>
                 </form>
-                {error && <p className="error">Error: {JSON.stringify(error)}</p>}
+
+                {error && <p className="error-message">Error: {JSON.stringify(error)}</p>}
             </div>
 
-            <PersonsList
-                persons={persons}
-                isLoading={isLoadingPersons}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-            />
+            <div className="persons-list-section">
+                <h3>Persons List</h3>
+                {isLoadingPersons ? (
+                    <p>Loading persons...</p>
+                ) : persons && persons.length > 0 ? (
+                    <PersonsList
+                        persons={persons}
+                        onEdit={handleEdit}
+                        onDelete={handleDelete}
+                        isLoading={isLoadingPersons}
+                    />
+                ) : (
+                    <p>No persons found.</p>
+                )}
+            </div>
         </div>
     );
 };
