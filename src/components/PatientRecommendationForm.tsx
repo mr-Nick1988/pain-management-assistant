@@ -91,7 +91,7 @@ const PatientRecommendationForm: React.FC<PatientRecommendationFormProps> = ({
             <div className="recommendation-details">
                 <h4>Recommendation details</h4>
                 <div className="info-row">
-                    <span className="label">Статус:</span>
+                    <span className="label">Status:</span>
                     <span className={`status ${recommendation.status.toLowerCase()}`}>
                         {recommendation.status === RecommendationStatus.PENDING && "Ожидает рассмотрения"}
                         {recommendation.status === RecommendationStatus.APPROVED && "Одобрено"}
