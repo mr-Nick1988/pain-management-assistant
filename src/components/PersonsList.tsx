@@ -28,8 +28,8 @@ const PersonsList: React.FC<PersonListProps> = ({persons, isLoading, onEdit, onD
                     </thead>
                     <tbody>
                     {persons?.map((person) => (
-                        <tr key={person.id}>
-                            <td>{person.id}</td>
+                        <tr key={person.personId}>
+                            <td>{person.personId}</td>
                             <td>{person.firstName}</td>
                             <td>{person.lastName}</td>
                             <td>{person.login}</td>
@@ -46,7 +46,7 @@ const PersonsList: React.FC<PersonListProps> = ({persons, isLoading, onEdit, onD
                                     )}
                                     {onDelete && (
                                         <button
-                                            onClick={() => onDelete(person.id)}
+                                            onClick={() => onDelete(person.personId)}
                                             className="delete-button"
                                         >
                                             Delete

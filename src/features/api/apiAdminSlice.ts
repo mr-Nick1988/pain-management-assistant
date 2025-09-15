@@ -44,7 +44,7 @@ export const apiAdminSlice = createApi({
         }),
         updatePerson: builder.mutation<PersonRegister, PersonRegister>({
             query: (person) => ({
-                url: `/admin/persons/${person.id}`,
+                url: `/admin/persons/${person.personId}`,
                 method: "PATCH",
                 body: person,
             }),

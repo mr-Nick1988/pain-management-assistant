@@ -38,7 +38,6 @@ const AdminPanel: React.FC = () => {
         } else {
             await createPerson(formData);
         }
-
         resetForm();
     };
 
