@@ -68,7 +68,7 @@ const DoctorDashboard: React.FC = () => {
                     </div>
 
                     <div className="recommendations-section">
-                        <h3>Одобренные ({approvedRecommendations.length})</h3>
+                        <h3>Approved ({approvedRecommendations.length})</h3>
                         {approvedRecommendations.length > 0 ? (
                             <ul className="recommendations-list">
                                 {approvedRecommendations.map((rec) => (
@@ -99,7 +99,7 @@ const DoctorDashboard: React.FC = () => {
                     </div>
 
                     <div className="recommendations-section">
-                        <h3>Отклоненные ({rejectedRecommendations.length})</h3>
+                        <h3>Rejected ({rejectedRecommendations.length})</h3>
                         {rejectedRecommendations.length > 0 ? (
                             <ul className="recommendations-list">
                                 {rejectedRecommendations.map((rec) => (

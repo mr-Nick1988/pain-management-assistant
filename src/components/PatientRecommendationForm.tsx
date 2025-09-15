@@ -93,9 +93,9 @@ const PatientRecommendationForm: React.FC<PatientRecommendationFormProps> = ({
                 <div className="info-row">
                     <span className="label">Status:</span>
                     <span className={`status ${recommendation.status.toLowerCase()}`}>
-                        {recommendation.status === RecommendationStatus.PENDING && "Ожидает рассмотрения"}
-                        {recommendation.status === RecommendationStatus.APPROVED && "Одобрено"}
-                        {recommendation.status === RecommendationStatus.REJECTED && "Отклонено"}
+                        {recommendation.status === RecommendationStatus.PENDING && "Pending"}
+                        {recommendation.status === RecommendationStatus.APPROVED && "Approved"}
+                        {recommendation.status === RecommendationStatus.REJECTED && "Rejected"}
                     </span>
                 </div>
                 <div className="info-row">

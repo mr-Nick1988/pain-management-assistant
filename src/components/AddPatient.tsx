@@ -92,7 +92,7 @@ const AddPatient: React.FC<AddPatientProps> = ({onClose, onSuccess}) => {
 
                 {error && (
                     <div className="error-message">
-                        Ошибка: {JSON.stringify(error)}
+                        Error: {JSON.stringify(error)}
                     </div>
                 )}
 
