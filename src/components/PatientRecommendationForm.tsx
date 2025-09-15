@@ -78,7 +78,7 @@ const PatientRecommendationForm: React.FC<PatientRecommendationFormProps> = ({
             <div className="patient-info">
                 <h4>Patient info</h4>
                 <div className="info-row">
-                    <span className="label">Имя:</span>
+                    <span className="label">Name:</span>
                     <span
                         className="value">{recommendation.patient?.firstName} {recommendation.patient?.lastName}</span>
                 </div>
@@ -152,7 +152,7 @@ const PatientRecommendationForm: React.FC<PatientRecommendationFormProps> = ({
                                 onClick={() => setShowRejectionForm(true)}
                                 disabled={isLoading || showRejectionForm}
                             >
-                                Отклонить
+                                Reject
                             </button>
                         </>
                     ) : (
@@ -191,7 +191,7 @@ const PatientRecommendationForm: React.FC<PatientRecommendationFormProps> = ({
                                 onClick={() => setShowRejectionForm(false)}
                                 disabled={isLoading}
                             >
-                                Отмена
+                                Cancel
                             </button>
                         </div>
                     </div>
