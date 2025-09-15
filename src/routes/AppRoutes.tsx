@@ -1,6 +1,6 @@
 import React from "react";
 import {Navigate, Route, Routes} from "react-router-dom";
-import {AdminPanel, ChangeCredentials, Login} from "../exports/exports.ts";
+import {AdminPanel, ChangeCredentials, Login, DoctorDashboard} from "../exports/exports.ts";
 import ProtectedRoute from "./ProtectedRoute.tsx";
 
 const AppRoutes: React.FC = () => {
@@ -11,6 +11,11 @@ const AppRoutes: React.FC = () => {
             <Route path="/admin" element={
                 <ProtectedRoute>
                     <AdminPanel/>
+                </ProtectedRoute>
+            }/>
+            <Route path="/doctor" element={
+                <ProtectedRoute>
+                    <DoctorDashboard/>
                 </ProtectedRoute>
             }/>
             <Route path="change-credentials" element={
