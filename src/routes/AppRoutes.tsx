@@ -18,7 +18,7 @@ const AppRoutes: React.FC = () => {
                     <DoctorDashboard/>
                 </ProtectedRoute>
             }/>
-            <Route path="change-credentials" element={
+            <Route path="/change-credentials" element={
                 <ProtectedRoute>
                     <ChangeCredentials/>
                 </ProtectedRoute>
