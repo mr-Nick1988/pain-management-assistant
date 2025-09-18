@@ -16,28 +16,51 @@ const Login: React.FC = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({...formData, [e.target.name]: e.target.value});
     };
-    
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             const response = await login(formData).unwrap();
-            if (response?.token) {
-                localStorage.setItem('token', response.token);
+
+            if (response?.firstName) {
+                localStorage.setItem('userFirstName', response.firstName)
             }
-            if (response?.isTemporaryCredentials) {
-                setIsFirstLogin(true);
+            if (response?.role) {
+                localStorage.setItem('userRole', response.role)
+            }
+            // Сохраняем логин пользователя для смены креденшиалов
+            localStorage.setItem('userLogin', formData.login);
+            
+            if (response?.temporaryCredentials) {
+                setIsFirstLogin(true)
             } else {
-                navigate('/admin');
+                switch (response?.role) {
+                    case 'ADMIN':
+                        navigate('/admin');
+                        break;
+                    case 'DOCTOR':
+                        navigate('/doctor');
+                        break;
+                    case 'NURSE':
+                        navigate('/nurse');
+                        break;
+                    case 'ANESTHESIOLOGIST':
+                        navigate('/anesthesiologist');
+                        break;
+                    default:
+                        console.error('Unknown role: ' + response?.role);
+                        navigate('/');
+                }
             }
-        } catch (err) {
-            console.error("Login failed:", err);
+        } catch (error) {
+            console.error('Login failed: ' + error);
         }
     };
-    
+
     const handleChangeCredentials = () => {
         navigate('/change-credentials');
     };
-    
+
     return (
         <div className="login-container">
             <h2>Login</h2>

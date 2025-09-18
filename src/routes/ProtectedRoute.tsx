@@ -8,7 +8,10 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({children}) => {
 
-    const isAuth = localStorage.getItem("token") !== null;
+    // Проверяем наличие роли пользователя вместо токена
+    const userRole = localStorage.getItem("userRole");
+    const isAuth = userRole !== null;
+    
     if (!isAuth) {
         return <Navigate to="/login" replace/>;
     }

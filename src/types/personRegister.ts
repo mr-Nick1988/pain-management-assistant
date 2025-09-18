@@ -20,6 +20,7 @@ export interface PersonLogin {
 }
 
 export interface ChangeCredentialsType {
+    currentLogin: string;
     oldPassword: string;
     newPassword: string;
     newLogin: string;

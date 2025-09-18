@@ -25,7 +25,7 @@ export const apiPersonSlice = createApi({
     endpoints: (builder) => ({
         login: builder.mutation({
             query: (credentials: PersonLogin) => ({
-                url: "/login",
+                url: "/person/login",
                 method: "POST",
                 body: credentials,
             }),
@@ -33,8 +33,8 @@ export const apiPersonSlice = createApi({
         }),
         changeCredentials: builder.mutation({
             query: (credentialsData: ChangeCredentialsType) => ({
-                url: "/user/change-credentials",
-                method: "PUT",
+                url: "/person/change-credentials",
+                method: "POST",
                 body: credentialsData,
             }),
             invalidatesTags: ["User"],

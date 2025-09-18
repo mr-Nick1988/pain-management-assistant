@@ -1,10 +1,11 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import type {ChangeCredentialsType} from "../types/personRegister.ts";
 import {useChangeCredentialsMutation} from "../features/api/apiPersonSlice.ts";
 
 
 const ChangeCredentials: React.FC = () => {
     const [formData, setFormData] = useState<ChangeCredentialsType>({
+        currentLogin: "",
         oldPassword: "",
         newPassword: "",
         newLogin: "",
@@ -14,6 +15,17 @@ const ChangeCredentials: React.FC = () => {
     const [success, setSuccess] = useState<boolean>(false);
 
     const [changeCredentials, {isLoading, error}] = useChangeCredentialsMutation();
+
+    useEffect(() => {
+        // Get current user login from localStorage
+        const currentLogin = localStorage.getItem('userLogin');
+        if (currentLogin) {
+            setFormData(prev => ({
+                ...prev,
+                currentLogin: currentLogin
+            }));
+        }
+    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = e.target;
@@ -40,14 +52,16 @@ const ChangeCredentials: React.FC = () => {
             setSuccess(true);
 
             setFormData({
+                currentLogin: "",
                 oldPassword: "",
                 newPassword: "",
                 newLogin: "",
             });
             setConfirmPassword("");
 
-            // Redirect to login page after 3 seconds
+            // Clear localStorage and redirect to login page after 3 seconds
             setTimeout(() => {
+                localStorage.clear();
                 window.location.href = "/login";
             }, 3000);
         } catch (err) {
@@ -100,23 +114,22 @@ const ChangeCredentials: React.FC = () => {
                             onChange={handleChange}
                             required
                         />
-                        <div className="form-group">
-                            <label htmlFor="newLogin">New Login:</label>
-                            <input
-                                id="newLogin"
-                                name="newLogin"
-                                placeholder="Enter new login"
-                                value={formData.newLogin}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-
-                        {!passwordsMatch && (
-                            <p className="error-text">Passwords do not match</p>
-                        )}
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="newLogin">New Login:</label>
+                        <input
+                            id="newLogin"
+                            name="newLogin"
+                            placeholder="Enter new login"
+                            value={formData.newLogin}
+                            onChange={handleChange}
+                            required
+                        />
                     </div>
 
+                    {!passwordsMatch && (
+                        <p className="error-text">Passwords do not match</p>
+                    )}
                     <button
                         type="submit"
                         disabled={isLoading || !passwordsMatch}
