@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
 import type {ChangeCredentialsType} from "../types/personRegister.ts";
-import {useChangeCredentialsMutation} from "../features/api/apiPersonSlice.ts";
+import {useChangeCredentialsMutation} from "../api/api/apiPersonSlice.ts";
 
 
 const ChangeCredentials: React.FC = () => {

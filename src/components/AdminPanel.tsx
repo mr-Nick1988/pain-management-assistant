@@ -5,7 +5,7 @@ import {
     useGetPersonsQuery,
     useDeletePersonMutation,
     useUpdatePersonMutation
-} from "../features/api/apiAdminSlice.ts";
+} from "../api/api/apiAdminSlice.ts";
 import {PersonsList} from "../exports/exports.ts";
 
 

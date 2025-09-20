@@ -1,6 +1,6 @@
 // import React, {useState} from "react";
 //
-// import {useRegisterMutation} from "../features/api/apiSlice.js";
+// import {useRegisterMutation} from "../api/api/apiSlice.js";
 // import type {UserRegister} from "../types/userRegister.ts";
 //
 // const Register: React.FC = () => {

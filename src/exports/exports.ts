@@ -7,4 +7,8 @@ export {default as Navigation} from "../components/Navigation"
 export {default as DoctorDashboard} from "../components/DoctorDashboard"
 export {default as PatientRecommendationForm} from "../components/PatientRecommendationForm"
 export {default as AddPatient} from "../components/AddPatient"
+export {default as AnesthesiologistDashboard} from "../components/AnesthesiologistDashboard"
+export {default as EscalationsList} from "../components/EscalationsList.tsx"
+export {default as ProtocolEditor} from "../components/ProtocolEditor.tsx"
+
 

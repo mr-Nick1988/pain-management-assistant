@@ -1,7 +1,8 @@
 import {configureStore} from '@reduxjs/toolkit';
-import {apiAdminSlice} from "../features/api/apiAdminSlice.ts";
-import {apiPersonSlice} from "../features/api/apiPersonSlice.ts";
-import {apiDoctorSlice} from "../features/api/apiDoctorSlice.ts";
+import {apiAdminSlice} from "../api/api/apiAdminSlice.ts";
+import {apiPersonSlice} from "../api/api/apiPersonSlice.ts";
+import {apiDoctorSlice} from "../api/api/apiDoctorSlice.ts";
+import {apiAnesthesiologistSlice} from "../api/api/apiAnesthesiologistSlice.ts";
 // Импортируй свои slices здесь, когда создашь их
 
 export const store = configureStore({
@@ -9,12 +10,14 @@ export const store = configureStore({
         [apiAdminSlice.reducerPath]: apiAdminSlice.reducer,
         [apiPersonSlice.reducerPath]: apiPersonSlice.reducer,
         [apiDoctorSlice.reducerPath]: apiDoctorSlice.reducer,
+        [apiAnesthesiologistSlice.reducerPath]: apiAnesthesiologistSlice.reducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware()
             .concat(apiAdminSlice.middleware)
             .concat(apiPersonSlice.middleware)
-            .concat(apiDoctorSlice.middleware),
+            .concat(apiDoctorSlice.middleware)
+            .concat(apiAnesthesiologistSlice.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import type {Recommendation} from "../types/recommendation.ts";
-import {useGetRecommendationsQuery} from "../features/api/apiDoctorSlice.ts";
+import {useGetRecommendationsQuery} from "../api/api/apiDoctorSlice.ts";
 import {PatientRecommendationForm} from "../exports/exports.ts";
 
 

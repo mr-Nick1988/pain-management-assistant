@@ -1,69 +1,203 @@
-# React + TypeScript + Vite
+# Pain Management Assistant - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Описание проекта
+Фронтенд приложения для управления болью в медицинских учреждениях. Построен на React + TypeScript + Vite с использованием Redux Toolkit Query для управления состоянием и API.
 
-Currently, two official plugins are available:
+## Технологический стек
+- **React 19.1.1** - основной фреймворк
+- **TypeScript 5.8.3** - типизация
+- **Vite 7.1.2** - сборщик и dev-сервер
+- **Redux Toolkit 2.9.0** - управление состоянием
+- **React Router DOM 7.9.1** - роутинг
+- **Tailwind CSS 4.0.0** - стилизация
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Структура проекта
 
-## Expanding the ESLint configuration
+### Компоненты (`/src/components/`)
+Реализованные компоненты:
+- **Login.tsx** (4KB) - Авторизация пользователей
+- **AdminPanel.tsx** (7KB) - Панель администратора для управления пользователями
+- **DoctorDashboard.tsx** (7KB) - Дашборд доктора с рекомендациями
+- **AddPatient.tsx** (4KB) - Форма добавления пациента
+- **PatientRecommendationForm.tsx** (8KB) - Форма работы с рекомендациями
+- **PersonsList.tsx** (2KB) - Список пользователей системы
+- **ChangeCredentials.tsx** (5KB) - Смена логина и пароля
+- **Navigation.tsx** (1KB) - Навигационное меню
+- **Register.tsx** (2KB) - Регистрация пользователей
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Заготовки компонентов (пустые файлы):
+- **AnesthesiologistDashboard.tsx** (0 байт) - планируется дашборд анестезиолога
+- **EscalationsList.tsx** (0 байт) - планируется список эскалаций
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### API слои (`/src/api/api/`)
+- **apiPersonSlice.ts** (1KB) - API для авторизации и смены креденшиалов
+- **apiAdminSlice.ts** (1KB) - API для управления пользователями
+- **apiDoctorSlice.ts** (3KB) - API для работы с пациентами и рекомендациями
+- **apiAnesthesiologistSlice.ts** (1KB) - API для анестезиолога (в разработке)
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+### Типы данных (`/src/types/`)
+- **personRegister.ts** - Типы для пользователей, ролей, авторизации
+- **recommendation.ts** - Типы для рекомендаций и пациентов
+- **anesthesiologist.ts** - Типы для модуля анестезиолога
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### Роутинг (`/src/routes/`)
+- **AppRoutes.tsx** - Основные маршруты приложения
+- **ProtectedRoute.tsx** - Компонент защищенных маршрутов
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Настроенные маршруты:
+- `/login` - Авторизация
+- `/admin` - Панель администратора
+- `/doctor` - Дашборд доктора
+- `/anesthesiologist` - Дашборд анестезиолога (компонент пустой)
+- `/change-credentials` - Смена креденшиалов
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Redux Store (`/src/store/`)
+Настроен store с подключенными API слайсами:
+- apiAdminSlice
+- apiPersonSlice  
+- apiDoctorSlice
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## Реализованный функционал
+
+### Модуль авторизации
+- Логин с сохранением данных в localStorage
+- Смена временных креденшиалов при первом входе
+- Защищенные маршруты с проверкой авторизации
+
+### Модуль администратора
+- Создание пользователей с ролями (ADMIN, DOCTOR, NURSE, ANESTHESIOLOGIST)
+- Просмотр списка всех пользователей
+- Удаление пользователей по personId
+- Обновление данных пользователей
+
+### Модуль доктора
+- Просмотр списка рекомендаций
+- Создание новых пациентов
+- Работа с рекомендациями (одобрение/отклонение)
+- Добавление комментариев к рекомендациям
+
+### UI/UX
+- Современный дизайн с Tailwind CSS
+- Адаптивная верстка
+- Модальные окна для форм
+- Обработка состояний загрузки и ошибок
+
+## В разработке
+- Модуль анестезиолога (компоненты созданы, но пустые)
+- Список эскалаций
+- Расширенная работа с протоколами
+
+## Архитектурные решения
+- Использование RTK Query для кэширования и управления API запросами
+- Разделение API по доменам (admin, doctor, person, anesthesiologist)
+- Строгая типизация всех компонентов и API
+- Модульная структура с четким разделением ответственности
+
+
+
+
+
+## Хронология разработки модуля анестезиолога
+
+### 20.09.2025 - Реализация модуля анестезиолога
+**Разработчик:** Ник
+
+#### Созданные компоненты и файлы:
+
+**1. Типы данных (`/src/types/anesthesiologist.ts`)**
+- `EscalationStatus` enum - статусы эскалаций (PENDING, IN_REVIEW, RESOLVED, REJECTED)
+- `ProtocolStatus` enum - статусы протоколов (DRAFT, PENDING_APPROVAL, APPROVED, REJECTED)
+- `EscalationPriority` enum - приоритеты эскалаций (LOW, MEDIUM, HIGH, CRITICAL)
+- `Escalation` interface - структура эскалации с полями patientName, doctorName, rejectedReason, priority, status
+- `Protocol` interface - структура протокола с версионированием, комментариями, статусом
+- `ProtocolComment` interface - комментарии к протоколам с автором и временными метками
+- `CreateProtocolRequest` и `UpdateProtocolRequest` - DTO для создания и обновления протоколов
+
+**2. API слой (`/src/api/api/apiAnesthesiologistSlice.ts`)**
+Создан RTK Query API слайс с эндпоинтами:
+- `getEscalations` - получение списка эскалаций
+- `takeEscalation` - взятие эскалации в работу
+- `getProtocolsByEscalation` - получение протоколов по эскалации
+- `createProtocol` - создание нового протокола
+- `updateProtocol` - обновление протокола
+- `approveProtocol` - утверждение протокола
+- `rejectProtocol` - отклонение протокола
+- `getProtocolComments` - получение комментариев к протоколу
+- `addProtocolComment` - добавление комментария
+- `sendQuestionToDoctor` - отправка вопроса доктору
+- `resolveEscalation` - завершение эскалации
+
+**3. Основной компонент (`/src/components/AnesthesiologistDashboard.tsx`)**
+Реализован главный дашборд анестезиолога с:
+- **Вкладочной навигацией:** Overview, Escalations, Protocols
+- **Статистическими карточками:** Pending, Critical, High Priority, In Review escalations
+- **Быстрыми действиями:** переход к эскалациям и создание протоколов
+- **Превью последних эскалаций** с возможностью выбора для работы
+- **Интеграцией с дочерними компонентами:** EscalationsList и ProtocolEditor
+- **Обработкой состояний загрузки и ошибок**
+
+**4. Список эскалаций (`/src/components/EscalationsList.tsx`)**
+Компонент для работы со списком эскалаций:
+- **Фильтрация по статусу и приоритету**
+- **Поиск по имени пациента и доктора**
+- **Сортировка по дате создания и приоритету**
+- **Действия:** взятие в работу, отправка вопроса доктору
+- **Отображение детальной информации** по каждой эскалации
+
+**5. Редактор протоколов (`/src/components/ProtocolEditor.tsx`)**
+Продвинутый компонент для работы с протоколами:
+- **Создание новых протоколов** с заголовком и содержимым
+- **Редактирование существующих протоколов** с версионированием
+- **Система комментариев** с возможностью добавления и просмотра
+- **Утверждение/отклонение протоколов** с обязательными комментариями
+- **Завершение эскалаций** после утверждения протокола
+- **Безопасная работа с optional chains** (исправлены ESLint ошибки)
+
+#### Интеграция с системой:
+
+**1. Роутинг (`/src/routes/AppRoutes.tsx`)**
+- Добавлен защищенный маршрут `/anesthesiologist`
+- Подключен AnesthesiologistDashboard компонент
+
+**2. Экспорты (`/src/exports/exports.ts`)**
+- Добавлены экспорты всех компонентов модуля анестезиолога
+- Обеспечена правильная структура импортов
+
+**3. Redux Store **
+-  подключил `apiAnesthesiologistSlice` к основному store
+- Добавил middleware для корректной работы RTK Query
+
+
+
+#### Архитектурные особенности модуля:
+
+**1. Разделение ответственности:**
+- Dashboard - общий обзор и навигация
+- EscalationsList - работа со списком эскалаций
+- ProtocolEditor - создание и редактирование протоколов
+
+**2. Типизация:**
+- Строгая типизация всех API запросов и ответов
+- Использование TypeScript enums для статусов и приоритетов
+- Валидация данных на уровне интерфейсов
+
+**3. Состояние и кэширование:**
+- RTK Query для автоматического кэширования API данных
+- Оптимистичные обновления для улучшения UX
+- Правильная обработка состояний загрузки и ошибок
+
+**4. UX/UI особенности:**
+- Адаптивный дизайн с использованием CSS Grid и Flexbox
+- Модальные окна для форм создания и редактирования
+- Цветовая индикация приоритетов и статусов эскалаций
+- Быстрые действия и горячие клавиши для повышения продуктивности
+
+#### Следующие шаги:
+1. Подключение `apiAnesthesiologistSlice` к Redux store
+2. Тестирование интеграции с backend API
+3. Добавление unit тестов для компонентов
+4. Оптимизация производительности и UX
+
+---
+*Разработчик: Ник*  
+*Последнее обновление: 20.09.2025*

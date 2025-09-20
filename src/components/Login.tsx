@@ -1,6 +1,6 @@
 import type {PersonLogin} from "../types/personRegister.ts";
 import React, {useState} from "react";
-import {useLoginMutation} from "../features/api/apiPersonSlice.ts";
+import {useLoginMutation} from "../api/api/apiPersonSlice.ts";
 import {useNavigate} from "react-router-dom";
 
 const Login: React.FC = () => {

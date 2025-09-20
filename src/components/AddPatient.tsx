@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import type {PatientCreation} from "../types/recommendation.ts";
-import {useCreatePatientMutation} from "../features/api/apiDoctorSlice.ts";
+import {useCreatePatientMutation} from "../api/api/apiDoctorSlice.ts";
 
 
 interface AddPatientProps {

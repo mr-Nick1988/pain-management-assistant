@@ -4,7 +4,7 @@ import {
     useApproveRecommendationMutation,
     useRejectRecommendationMutation,
     useUpdateRecommendationMutation
-} from "../features/api/apiDoctorSlice.ts";
+} from "../api/api/apiDoctorSlice.ts";
 
 
 interface PatientRecommendationFormProps {
