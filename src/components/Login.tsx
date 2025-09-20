@@ -1,64 +1,57 @@
-import type {PersonLogin} from "../types/personRegister.ts";
-import React, {useState} from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {useLoginMutation} from "../api/api/apiPersonSlice.ts";
-import {useNavigate} from "react-router-dom";
+
 
 const Login: React.FC = () => {
+    const [login, setLogin] = useState("");
+    const [password, setPassword] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
-    const [formData, setFormData] = useState<PersonLogin>({
-        login: "",
-        password: "",
-    });
-
-    const [isFirstLogin, setIsFirstLogin] = useState<boolean>(false);
-    const [login, {isLoading, error}] = useLoginMutation();
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({...formData, [e.target.name]: e.target.value});
-    };
+    const [loginMutation] = useLoginMutation();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setIsLoading(true);
+        setError(null);
+
         try {
-            const response = await login(formData).unwrap();
-
-            if (response?.firstName) {
-                localStorage.setItem('userFirstName', response.firstName)
-            }
-            if (response?.role) {
-                localStorage.setItem('userRole', response.role)
-            }
-            // Сохраняем логин пользователя для смены креденшиалов
-            localStorage.setItem('userLogin', formData.login);
+            const response = await loginMutation({ login, password }).unwrap();
             
-            if (response?.temporaryCredentials) {
-                setIsFirstLogin(true)
-            } else {
-                switch (response?.role) {
-                    case 'ADMIN':
-                        navigate('/admin');
-                        break;
-                    case 'DOCTOR':
-                        navigate('/doctor');
-                        break;
-                    case 'NURSE':
-                        navigate('/nurse');
-                        break;
-                    case 'ANESTHESIOLOGIST':
-                        navigate('/anesthesiologist');
-                        break;
-                    default:
-                        console.error('Unknown role: ' + response?.role);
-                        navigate('/');
-                }
-            }
-        } catch (error) {
-            console.error('Login failed: ' + error);
-        }
-    };
+            // Save to localStorage
+            localStorage.setItem("authToken", response.token || "");
+            localStorage.setItem("userRole", response.role || "");
+            localStorage.setItem("userFirstName", response.firstName || "");
+            localStorage.setItem("userLastName", response.lastName || "");
+            localStorage.setItem("userLogin", response.login || login);
+            localStorage.setItem("userId", response.id || "");
+            localStorage.setItem("isFirstLogin", response.isFirstLogin?.toString() || "false");
 
-    const handleChangeCredentials = () => {
-        navigate('/change-credentials');
+            // Navigate based on role
+            switch (response.role) {
+                case "ADMIN":
+                    navigate("/admin");
+                    break;
+                case "DOCTOR":
+                    navigate("/doctor");
+                    break;
+                case "ANESTHESIOLOGIST":
+                    navigate("/anesthesiologist");
+                    break;
+                case "NURSE":
+                    navigate("/nurse");
+                    break;
+                default:
+                    console.error('Unknown role: ' + response.role);
+                    navigate('/');
+            }
+        } catch (err: unknown) {
+            const error = err as { data?: { message?: string } };
+            setError(error?.data?.message || "Login failed");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -71,8 +64,8 @@ const Login: React.FC = () => {
                         id="login"
                         placeholder="Enter login"
                         name="login"
-                        value={formData.login}
-                        onChange={handleChange}
+                        value={login}
+                        onChange={(e) => setLogin(e.target.value)}
                         required
                     />
                 </div>
@@ -84,25 +77,25 @@ const Login: React.FC = () => {
                         name="password"
                         placeholder="Enter password"
                         type="password"
-                        value={formData.password}
-                        onChange={handleChange}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         required
                     />
                 </div>
+                {error && <p className="error-message">Error: {error}</p>}
                 <button type="submit" disabled={isLoading} className="login-button">
                     {isLoading ? "Logging in..." : "Login"}
                 </button>
             </form>
 
-            {isFirstLogin && (
+            {localStorage.getItem("isFirstLogin") === "true" && (
                 <div className="first-login-message">
                     <p>You have logged in with temporary credentials. Please change them for security.</p>
-                    <button onClick={handleChangeCredentials}>
+                    <button onClick={() => navigate('/change-credentials')}>
                         Change Credentials
                     </button>
                 </div>
             )}
-            {error && <p className="error-message">Error: {JSON.stringify(error)}</p>}
         </div>
     )
 }
