@@ -2,23 +2,15 @@ import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import type {PersonRegister} from "../../types/personRegister.ts";
 import {base_url} from "../../utils/constants";
 
-interface RootState {
-    auth?: {
-        token?: string;
-    }
-}
 
 export const apiAdminSlice = createApi({
     reducerPath: "apiAdmin",
     tagTypes: ["User"],
     baseQuery: fetchBaseQuery({
         baseUrl: base_url,
-        prepareHeaders: (headers, {getState}) => {
-            const state = getState() as RootState;
-            const token = state.auth?.token;
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`);
-            }
+        prepareHeaders: (headers) => {
+            // Authentication is handled via session/cookies on the backend
+            // No need to add Bearer token headers
             return headers;
         },
     }),

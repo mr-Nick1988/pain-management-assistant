@@ -19,6 +19,13 @@ export interface PersonLogin {
     password: string;
 }
 
+export interface PersonLoginResponse {
+    firstName: string;
+    role: UserRole;
+    temporaryCredentials: boolean;
+
+}
+
 export interface ChangeCredentialsType {
     currentLogin: string;
     oldPassword: string;

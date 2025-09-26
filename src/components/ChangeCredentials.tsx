@@ -71,10 +71,10 @@ const ChangeCredentials: React.FC = () => {
 
     return (
         <div className="change-credentials-container">
-            <h2>Change Credentials</h2>
+            <h2 className="medical-title">Change Credentials</h2>
 
             {success ? (
-                <div className="success-message">
+                <div className="medical-subtitle">
                     <p>Credentials successfully changed! You will be redirected to the login page.</p>
                 </div>
             ) : (

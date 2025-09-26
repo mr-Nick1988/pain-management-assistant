@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {useLoginMutation} from "../api/api/apiPersonSlice.ts";
+import { useLoginMutation } from "../api/api/apiPersonSlice";
+import {UserRole} from "../types/personRegister.ts";
 
+interface LoginResponse {
+    firstName: string;
+    role: UserRole;
+    temporaryCredentials: boolean;
+}
 
 const Login: React.FC = () => {
     const [login, setLogin] = useState("");
@@ -13,42 +19,34 @@ const Login: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!login || !password) {
+            setError("Please enter both username and password");
+            return;
+        }
         setIsLoading(true);
         setError(null);
 
         try {
-            const response = await loginMutation({ login, password }).unwrap();
+            const response = await loginMutation({ login, password }).unwrap() as LoginResponse;
             
-            // Save to localStorage
-            localStorage.setItem("authToken", response.token || "");
-            localStorage.setItem("userRole", response.role || "");
-            localStorage.setItem("userFirstName", response.firstName || "");
-            localStorage.setItem("userLastName", response.lastName || "");
-            localStorage.setItem("userLogin", response.login || login);
-            localStorage.setItem("userId", response.id || "");
-            localStorage.setItem("isFirstLogin", response.isFirstLogin?.toString() || "false");
+            // Save user data
+            localStorage.setItem("userRole", response.role);
+            localStorage.setItem("userFirstName", response.firstName);
+            localStorage.setItem("userLogin", login);
+            localStorage.setItem("isFirstLogin", String(response.temporaryCredentials));
 
-            // Navigate based on role
-            switch (response.role) {
-                case "ADMIN":
-                    navigate("/admin");
-                    break;
-                case "DOCTOR":
-                    navigate("/doctor");
-                    break;
-                case "ANESTHESIOLOGIST":
-                    navigate("/anesthesiologist");
-                    break;
-                case "NURSE":
-                    navigate("/nurse");
-                    break;
-                default:
-                    console.error('Unknown role: ' + response.role);
-                    navigate('/');
-            }
+            // Redirect based on role
+            const redirectPath = {
+                [UserRole.ADMIN]: "/admin",
+                [UserRole.DOCTOR]: "/doctor",
+                [UserRole.ANESTHESIOLOGIST]: "/anesthesiologist",
+                [UserRole.NURSE]: "/nurse"
+            }[response.role] || "/";
+
+            navigate(redirectPath);
         } catch (err: unknown) {
             const error = err as { data?: { message?: string } };
-            setError(error?.data?.message || "Login failed");
+            setError(error?.data?.message || "Login failed. Please check your credentials.");
         } finally {
             setIsLoading(false);
         }
@@ -59,45 +57,36 @@ const Login: React.FC = () => {
             <h2>Login</h2>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label htmlFor="login">User login:</label>
+                    <label htmlFor="login">Login:</label>
                     <input
                         id="login"
-                        placeholder="Enter login"
-                        name="login"
+                        type="text"
+                        placeholder="Enter username"
                         value={login}
                         onChange={(e) => setLogin(e.target.value)}
+                        disabled={isLoading}
                         required
                     />
                 </div>
-
                 <div className="form-group">
                     <label htmlFor="password">Password:</label>
                     <input
                         id="password"
-                        name="password"
-                        placeholder="Enter password"
                         type="password"
+                        placeholder="Enter password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
+                        disabled={isLoading}
                         required
                     />
                 </div>
-                {error && <p className="error-message">Error: {error}</p>}
+                {error && <div className="error-message">{error}</div>}
                 <button type="submit" disabled={isLoading} className="login-button">
-                    {isLoading ? "Logging in..." : "Login"}
+                    {isLoading ? 'Logging in...' : 'Login'}
                 </button>
             </form>
-
-            {localStorage.getItem("isFirstLogin") === "true" && (
-                <div className="first-login-message">
-                    <p>You have logged in with temporary credentials. Please change them for security.</p>
-                    <button onClick={() => navigate('/change-credentials')}>
-                        Change Credentials
-                    </button>
-                </div>
-            )}
         </div>
-    )
-}
+    );
+};
 
 export default Login;

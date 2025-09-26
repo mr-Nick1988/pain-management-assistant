@@ -3,23 +3,14 @@ import {base_url} from "../../utils/constants.ts";
 import type {Patient, PatientCreation, Recommendation, RecommendationApproval} from "../../types/recommendation.ts";
 
 
-interface RootState {
-    auth?: {
-        token?: string;
-    }
-}
-
 export const apiDoctorSlice = createApi({
     reducerPath: "apiDoctor",
-    tagTypes: ["Recommendations","Patients"],
+    tagTypes: ["Recommendations", "Patients"],
     baseQuery: fetchBaseQuery({
         baseUrl: base_url,
-        prepareHeaders: (headers, {getState}) => {
-            const state = getState() as RootState;
-            const token = state.auth?.token;
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`);
-            }
+        prepareHeaders: (headers) => {
+            // Authentication is handled via session/cookies on the backend
+            // No need to add Bearer token headers
             return headers;
         },
     }),
@@ -65,12 +56,26 @@ export const apiDoctorSlice = createApi({
             providesTags: (_result, _error, id) => [{type: "Patients", id}],
         }),
         createPatient: builder.mutation<Patient, PatientCreation>({
-            query: (patientData) => ({
-                url: "/doctor/patients",
+            query: ({createdBy, ...patientData}) => ({
+                url: `/doctor/patients?createdBy=${createdBy}`,
                 method: "POST",
                 body: patientData,
             }),
             invalidatesTags: ["Patients"],
+        }),
+        searchPatients: builder.query<Patient[], {
+            firstName?: string;
+            lastName?: string;
+            dateOfBirth?: string;
+            insurance?: string;
+            mrn?: string;
+        }>({
+            query: (params) => ({
+                url: "/doctor/patients/search",
+                method: "GET",
+                params,
+            }),
+            providesTags: ["Patients"],
         }),
     }),
 });
@@ -83,4 +88,5 @@ export const {
     useGetPatientsQuery,
     useGetPatientQuery,
     useCreatePatientMutation,
+    useSearchPatientsQuery,
 } = apiDoctorSlice;

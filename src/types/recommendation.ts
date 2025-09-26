@@ -5,10 +5,22 @@ export enum RecommendationStatus {
 }
 
 export interface Patient {
-    id: string;
+    id: string; // Technical database ID (not shown to users)
+    mrn: string; // Medical Record Number - business identifier
     firstName: string;
     lastName: string;
-    emrNumber: string;
+    dateOfBirth: string;
+    gender: string;
+    insurancePolicyNumber?: string;
+    phoneNumber?: string;
+    email?: string;
+    address?: string;
+    additionalInfo?: string;
+    createdBy: number;
+    updatedBy?: number;
+    active: boolean;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface Recommendation {
@@ -36,7 +48,12 @@ export interface RecommendationApproval {
 export interface PatientCreation {
     firstName: string;
     lastName: string;
-    emrNumber: string;
+    dateOfBirth: string; // ISO date string
+    gender: string;
+    insurancePolicyNumber?: string;
+    phoneNumber?: string;
+    email?: string;
+    address?: string;
     additionalInfo?: string;
+    createdBy: string;
 }
-

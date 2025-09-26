@@ -59,7 +59,14 @@ const AdminPanel: React.FC = () => {
     };
 
     const handleEdit = (person: PersonRegister) => {
-        setFormData(person);
+        setFormData({
+            firstName: person.firstName || "",
+            lastName: person.lastName || "",
+            login: person.login || "",
+            password: "", // Clear password for security - user must re-enter
+            role: person.role || UserRole.NURSE,
+            personId: person.personId || ""
+        });
         setIsEditMode(true);
         setIsModalOpen(true);
     };
@@ -89,7 +96,7 @@ const AdminPanel: React.FC = () => {
             lastName: "",
             login: "",
             password: "",
-            role: UserRole.DOCTOR,
+            role: UserRole.NURSE,
             personId: ""
         });
         setIsEditMode(false);
@@ -116,9 +123,9 @@ const AdminPanel: React.FC = () => {
                 <h2>Admin Panel</h2>
                 <button
                     onClick={openAddUserModal}
-                    className="btn btn-primary"
+                    className="approve-button"
                 >
-                    Add New User
+                    Add New Person
                 </button>
             </div>
 
@@ -130,9 +137,10 @@ const AdminPanel: React.FC = () => {
                 </div>
             )}
             {successMessage && (
-                <div className="success-message">
+                <div className="medical-subtitle">
                     {successMessage}
-                    <button onClick={clearMessages}>×</button>
+                    <button className="delete-button"
+                        onClick={clearMessages}>×</button>
                 </div>
             )}
 
@@ -160,16 +168,16 @@ const AdminPanel: React.FC = () => {
             {isModalOpen && (
                 <div className="modal-overlay">
                     <div className="modal">
-                        <div className="modal-header">
-                            <h3>{isEditMode ? "Edit User" : "Create New User"}</h3>
+                        <div className="medical-title">
+                            <h3>{isEditMode ? "Edit Person" : "Create New Person"}</h3>
                             <button
                                 onClick={closeModal}
-                                className="modal-close"
+                                className="delete-button"
                             >
                                 ×
                             </button>
                         </div>
-                        
+
                         <form onSubmit={handleSubmit} className="modal-form">
                             <div className="form-group">
                                 <label htmlFor="personId">Document ID</label>
@@ -220,9 +228,9 @@ const AdminPanel: React.FC = () => {
                                     required
                                 />
                             </div>
-
                             <div className="form-group">
-                                <label htmlFor="password">Password</label>
+                                <label
+                                    htmlFor="password">Password {isEditMode ? "(leave empty to keep current)" : ""}</label>
                                 <input
                                     id="password"
                                     name="password"
@@ -230,10 +238,9 @@ const AdminPanel: React.FC = () => {
                                     placeholder="Password"
                                     value={formData.password}
                                     onChange={handleChange}
-                                    required
+                                    required={!isEditMode}
                                 />
                             </div>
-
                             <div className="form-group">
                                 <label htmlFor="role">Role</label>
                                 <select
@@ -243,6 +250,7 @@ const AdminPanel: React.FC = () => {
                                     onChange={handleChange}
                                     required
                                 >
+                                    <option value={UserRole.NURSE}>Nurse</option>
                                     <option value={UserRole.DOCTOR}>Doctor</option>
                                     <option value={UserRole.ANESTHESIOLOGIST}>Anesthesiologist</option>
                                     <option value={UserRole.ADMIN}>Administrator</option>
@@ -253,16 +261,16 @@ const AdminPanel: React.FC = () => {
                                 <button
                                     type="button"
                                     onClick={closeModal}
-                                    className="btn btn-secondary"
+                                    className="cancel-button"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={isLoading}
-                                    className="btn btn-primary"
+                                    className="submit-button"
                                 >
-                                    {isLoading ? "Processing..." : isEditMode ? "Update User" : "Create User"}
+                                    {isLoading ? "Processing..." : isEditMode ? "Update User" : "Create Person"}
                                 </button>
                             </div>
                         </form>
@@ -274,23 +282,23 @@ const AdminPanel: React.FC = () => {
             {isDeleteConfirmOpen && (
                 <div className="modal-overlay">
                     <div className="modal modal-small">
-                        <div className="modal-header">
+                        <div className="medical-title">
                             <h3>Confirm Delete</h3>
                         </div>
-                        <div className="modal-body">
+                        <div className="error-message">
                             <p>Are you sure you want to delete this user? This action cannot be undone.</p>
                         </div>
                         <div className="modal-actions">
-                            <button
+                        <button
                                 onClick={() => setIsDeleteConfirmOpen(false)}
-                                className="btn btn-secondary"
+                                className="cancel-button"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={confirmDelete}
                                 disabled={isLoading}
-                                className="btn btn-danger"
+                                className="delete-button"
                             >
                                 {isLoading ? "Deleting..." : "Delete"}
                             </button>
