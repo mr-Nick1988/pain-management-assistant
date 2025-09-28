@@ -7,6 +7,7 @@ import {
 } from "../../api/api/apiDoctorSlice.ts";
 import {type Recommendation, RecommendationStatus} from "../../types/recommendation.ts";
 import {PatientRecommendationForm} from "../../exports/exports.ts";
+import { Button, Card, CardHeader, CardTitle } from "../ui";
 
 
 const DoctorDashboard: React.FC = () => {
@@ -72,30 +73,37 @@ const DoctorDashboard: React.FC = () => {
 
     // LOADING & ERROR HANDLING
     if (isLoading) {
-        return <div className="loading">Loading doctor dashboard...</div>;
+        return <div className="flex justify-center items-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-2">Loading doctor dashboard...</span>
+        </div>;
     }
 
     if (error) {
-        return <div className="error">
+        return <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
             Error loading data: {JSON.stringify(error)}
         </div>;
     }
 
     return (
-        <div className="doctor-dashboard">
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
             {/* HEADER С КНОПКАМИ НАВИГАЦИИ */}
-            <div className="admin-header">
-                <h2>Doctor Dashboard</h2>
-                <button onClick={() => navigate("/doctor/patients-list")} className="medical-btn">
-                    My Patients
-                </button>
-                <button onClick={() => navigate("/doctor/search-patients")} className="update-button">
-                    Search Patients
-                </button>
-                <button onClick={() => navigate("/doctor/recommendations")} className="submit-button">
-                    Manage Recommendations
-                </button>
-            </div>
+            <Card className="mb-6">
+                <CardHeader>
+                    <CardTitle>Doctor Dashboard</CardTitle>
+                    <div className="flex gap-2">
+                        <Button onClick={() => navigate("/doctor/patients-list")} variant="default">
+                            My Patients
+                        </Button>
+                        <Button onClick={() => navigate("/doctor/search-patients")} variant="update">
+                            Search Patients
+                        </Button>
+                        <Button onClick={() => navigate("/doctor/recommendations")} variant="submit">
+                            Manage Recommendations
+                        </Button>
+                    </div>
+                </CardHeader>
+            </Card>
 
             {/* ОСНОВНОЙ КОНТЕНТ */}
             {selectedRecommendation ? (
@@ -105,48 +113,48 @@ const DoctorDashboard: React.FC = () => {
                     onClose={handleRecommendationClose}
                 />
             ) : (
-                <div className="dashboard-content">
+                <div className="space-y-6">
                     {/* СЕКЦИЯ РЕКОМЕНДАЦИЙ */}
-                    <div className="recommendations-lists">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* PENDING RECOMMENDATIONS С КНОПКАМИ */}
-                        <div className="recommendations-section">
-                            <h3>Pending Recommendations ({pendingRecommendations.length})</h3>
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-semibold">Pending Recommendations ({pendingRecommendations.length})</h3>
                             {pendingRecommendations.length > 0 ? (
-                                <ul className="recommendations-list">
+                                <ul className="space-y-2">
                                     {pendingRecommendations.map((rec) => (
                                         <li
                                             key={rec.id}
-                                            className="recommendation-item pending"
+                                            className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
                                         >
-                                            <div className="recommendation-header">
-                                                <div className="patient-info">
-                                                    <h3>{rec.patient?.firstName} {rec.patient?.lastName}</h3>
-                                                    <p>MRN: {rec.patient?.mrn}</p>
-                                                    <p>DOB: {rec.patient?.dateOfBirth ? new Date(rec.patient.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
-                                                    <p>Gender: {rec.patient?.gender}</p>
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div className="space-y-1">
+                                                    <h3 className="font-medium">{rec.patient?.firstName} {rec.patient?.lastName}</h3>
+                                                    <p className="text-sm text-gray-600">MRN: {rec.patient?.mrn}</p>
+                                                    <p className="text-sm text-gray-600">DOB: {rec.patient?.dateOfBirth ? new Date(rec.patient.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
+                                                    <p className="text-sm text-gray-600">Gender: {rec.patient?.gender}</p>
                                                 </div>
-                                                <div className="recommendation-actions">
-                                                    <button
-                                                        className="approve-button"
+                                                <div className="flex gap-2">
+                                                    <Button
+                                                        variant="approve"
                                                         onClick={() => handleApprove(rec.id)}
                                                         disabled={isApproving}
                                                     >
                                                         {isApproving ? "Approving..." : "Approve"}
-                                                    </button>
-                                                    <button
-                                                        className="reject-button"
+                                                    </Button>
+                                                    <Button
+                                                        variant="reject"
                                                         onClick={() => handleReject(rec.id)}
                                                         disabled={isRejecting}
                                                     >
                                                         {isRejecting ? "Rejecting..." : "Reject"}
-                                                    </button>
+                                                    </Button>
                                                 </div>
                                             </div>
-                                            <div className="recommendation-preview">
+                                            <div className="text-gray-600 text-sm mb-2">
                                                 {rec.description.substring(0, 100)}
                                                 {rec.description.length > 100 ? "..." : ""}
                                             </div>
-                                            <div className="recommendation-date">
+                                            <div className="text-gray-500 text-xs">
                                                 {new Date(rec.createdAt).toLocaleDateString()}
                                             </div>
                                         </li>
@@ -158,29 +166,29 @@ const DoctorDashboard: React.FC = () => {
                         </div>
 
                         {/* APPROVED RECOMMENDATIONS */}
-                        <div className="recommendations-section">
-                            <h3>Approved ({approvedRecommendations.length})</h3>
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-semibold">Approved ({approvedRecommendations.length})</h3>
                             {approvedRecommendations.length > 0 ? (
-                                <ul className="recommendations-list">
+                                <ul className="space-y-2">
                                     {approvedRecommendations.map((rec) => (
                                         <li
                                             key={rec.id}
-                                            className="recommendation-item approved"
+                                            className="bg-green-50 border border-green-200 rounded-lg p-4 shadow-sm cursor-pointer hover:shadow-md"
                                             onClick={() => handleRecommendationSelect(rec)}
                                         >
-                                            <div className="recommendation-header">
-                                                <div className="patient-info">
-                                                    <h3>{rec.patient?.firstName} {rec.patient?.lastName}</h3>
-                                                    <p>MRN: {rec.patient?.mrn}</p>
-                                                    <p>DOB: {rec.patient?.dateOfBirth ? new Date(rec.patient.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
-                                                    <p>Gender: {rec.patient?.gender}</p>
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div className="space-y-1">
+                                                    <h3 className="font-medium">{rec.patient?.firstName} {rec.patient?.lastName}</h3>
+                                                    <p className="text-sm text-gray-600">MRN: {rec.patient?.mrn}</p>
+                                                    <p className="text-sm text-gray-600">DOB: {rec.patient?.dateOfBirth ? new Date(rec.patient.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
+                                                    <p className="text-sm text-gray-600">Gender: {rec.patient?.gender}</p>
                                                 </div>
                                             </div>
-                                            <div className="recommendation-preview">
+                                            <div className="text-gray-600 text-sm mb-2">
                                                 {rec.description.substring(0, 100)}
                                                 {rec.description.length > 100 ? "..." : ""}
                                             </div>
-                                            <div className="recommendation-date">
+                                            <div className="text-gray-500 text-xs">
                                                 {new Date(rec.updatedAt).toLocaleDateString()}
                                             </div>
                                         </li>
@@ -192,29 +200,29 @@ const DoctorDashboard: React.FC = () => {
                         </div>
 
                         {/* REJECTED RECOMMENDATIONS */}
-                        <div className="recommendations-section">
-                            <h3>Rejected ({rejectedRecommendations.length})</h3>
+                        <div className="space-y-4">
+                            <h3 className="text-lg font-semibold">Rejected ({rejectedRecommendations.length})</h3>
                             {rejectedRecommendations.length > 0 ? (
-                                <ul className="recommendations-list">
+                                <ul className="space-y-2">
                                     {rejectedRecommendations.map((rec) => (
                                         <li
                                             key={rec.id}
-                                            className="recommendation-item rejected"
+                                            className="bg-red-50 border border-red-200 rounded-lg p-4 shadow-sm cursor-pointer hover:shadow-md"
                                             onClick={() => handleRecommendationSelect(rec)}
                                         >
-                                            <div className="recommendation-header">
-                                                <div className="patient-info">
-                                                    <h3>{rec.patient?.firstName} {rec.patient?.lastName}</h3>
-                                                    <p>MRN: {rec.patient?.mrn}</p>
-                                                    <p>DOB: {rec.patient?.dateOfBirth ? new Date(rec.patient.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
-                                                    <p>Gender: {rec.patient?.gender}</p>
+                                            <div className="flex justify-between items-start mb-4">
+                                                <div className="space-y-1">
+                                                    <h3 className="font-medium">{rec.patient?.firstName} {rec.patient?.lastName}</h3>
+                                                    <p className="text-sm text-gray-600">MRN: {rec.patient?.mrn}</p>
+                                                    <p className="text-sm text-gray-600">DOB: {rec.patient?.dateOfBirth ? new Date(rec.patient.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
+                                                    <p className="text-sm text-gray-600">Gender: {rec.patient?.gender}</p>
                                                 </div>
                                             </div>
-                                            <div className="recommendation-preview">
+                                            <div className="text-gray-600 text-sm mb-2">
                                                 {rec.description.substring(0, 100)}
                                                 {rec.description.length > 100 ? "..." : ""}
                                             </div>
-                                            <div className="recommendation-date">
+                                            <div className="text-gray-500 text-xs">
                                                 {new Date(rec.updatedAt).toLocaleDateString()}
                                             </div>
                                         </li>

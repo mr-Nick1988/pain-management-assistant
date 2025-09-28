@@ -5,6 +5,8 @@ import {
     useRejectRecommendationMutation
 } from "../../api/api/apiDoctorSlice.ts";
 import {type Recommendation, RecommendationStatus} from "../../types/recommendation.ts";
+import {Button, Card, CardHeader, CardTitle, Textarea} from "../ui";
+
 
 /**
  * COMPONENT FOR DISPLAYING AND MANAGING RECOMMENDATIONS
@@ -97,76 +99,76 @@ const RecommendationsList: React.FC = () => {
 
 
     return (
-        <div className="recommendations-list-page">
-            {/* PAGE HEADER */}
-            <div className="medical-title">
-                <h2>Recommendations Management</h2>
-            </div>
-            {/* LOADING STATE */}
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
+            <Card className="mb-6">
+                <CardHeader>
+                    <CardTitle>Recommendations Management</CardTitle>
+                </CardHeader>
+            </Card>
+
             {isLoading && (
-                <div className="medical-loading">
-                    <div className="loading-spinner"></div>
-                    <p>Loading recommendations...</p>
+                <div className="flex justify-center items-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <span className="ml-2">Loading recommendations...</span>
                 </div>
             )}
-            {/* ERROR STATE */}
+
             {error && (
-                <div className="medical-error">
-                    <h3>Error loading recommendations</h3>
+                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+                    <h3 className="font-semibold">Error loading recommendations</h3>
                     <p>{JSON.stringify(error)}</p>
                 </div>
             )}
-            {/* RECOMMENDATIONS LIST */}
+
             {recommendations && recommendations.length > 0 && (
-                <div className="recommendations-grid">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {recommendations.map((recommendation: Recommendation) => (
-                        <div key={recommendation.id} className="medical-card recommendation-card">
-                            {/* CARD HEADER */}
-                            <div className="recommendation-header">
-                                <div className="patient-info">
-                                    <h4>{recommendation.patient?.firstName} {recommendation.patient?.lastName}</h4>
-                                    <p className="patient-mrn">MRN: {recommendation.patient?.mrn}</p>
+                        <div key={recommendation.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                            <div className="flex justify-between items-start mb-4">
+                                <div className="space-y-1">
+                                    <h4 className="font-semibold">{recommendation.patient?.firstName} {recommendation.patient?.lastName}</h4>
+                                    <p className="text-sm text-gray-600">MRN: {recommendation.patient?.mrn}</p>
                                 </div>
-                                <div className={`medical-badge ${getStatusBadge(recommendation.status)}`}>
+                                <div className={`px-2 py-1 rounded text-sm font-medium ${recommendation.status === RecommendationStatus.APPROVED ? 'bg-green-100 text-green-800' : recommendation.status === RecommendationStatus.REJECTED ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
                                     {recommendation.status}
                                 </div>
                             </div>
-                            {/* CARD CONTENT */}
-                            <div className="recommendation-content">
-                                <p className="description">
+
+                            <div className="space-y-2">
+                                <p className="text-sm">
                                     <strong>Description:</strong> {recommendation.description}
                                 </p>
-                                <p className="justification">
+                                <p className="text-sm">
                                     <strong>Justification:</strong> {recommendation.justification}
                                 </p>
-                                <div className="recommendation-meta">
+                                <div className="text-sm text-gray-600">
                                     <span>Created: {formatDate(recommendation.createdAt)}</span>
-                                    <span>By: {recommendation.createdBy}</span>
+                                    <span className="ml-4">By: {recommendation.createdBy}</span>
                                 </div>
                             </div>
-                            {/* CARD ACTIONS */}
-                            <div className="recommendation-actions">
-                                <button
+
+                            <div className="flex gap-2 mt-4">
+                                <Button
+                                    variant="secondary"
                                     onClick={() => handleViewDetails(recommendation)}
-                                    className="medical-btn medical-btn-secondary"
                                 >
                                     View Details
-                                </button>
+                                </Button>
 
                                 {recommendation.status === RecommendationStatus.PENDING && (
                                     <>
-                                        <button
+                                        <Button
+                                            variant="approve"
                                             onClick={() => handleApproveClick(recommendation)}
-                                            className="medical-btn medical-btn-success"
                                         >
                                             Approve
-                                        </button>
-                                        <button
+                                        </Button>
+                                        <Button
+                                            variant="reject"
                                             onClick={() => handleRejectClick(recommendation)}
-                                            className="medical-btn medical-btn-danger"
                                         >
                                             Reject
-                                        </button>
+                                        </Button>
                                     </>
                                 )}
                             </div>
@@ -174,32 +176,26 @@ const RecommendationsList: React.FC = () => {
                     ))}
                 </div>
             )}
-            {/* EMPTY STATE */}
+
             {recommendations && recommendations.length === 0 && (
-                <div className="no-recommendations">
-                    <h3>No recommendations found</h3>
+                <div className="text-center py-8 text-gray-500">
+                    <h3 className="text-lg font-semibold">No recommendations found</h3>
                     <p>There are no recommendations to review at this time.</p>
                 </div>
             )}
 
-            {/* DETAILS MODAL */}
             {isDetailsModalOpen && selectedRecommendation && (
-                <div className="medical-modal-overlay" onClick={() => setIsDetailsModalOpen(false)}>
-                    <div className="medical-modal" onClick={(e) => e.stopPropagation()}>
-                        <div className="medical-modal-header">
-                            <h3>Recommendation Details</h3>
-                            <button
-                                className="modal-close"
-                                onClick={() => setIsDetailsModalOpen(false)}
-                            >
-                                ×
-                            </button>
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setIsDetailsModalOpen(false)}>
+                    <div className="bg-white rounded-lg shadow-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex justify-between items-center p-4 border-b">
+                            <h3 className="text-lg font-semibold">Recommendation Details</h3>
+                            <Button variant="ghost" size="sm" onClick={() => setIsDetailsModalOpen(false)}>×</Button>
                         </div>
 
-                        <div className="medical-modal-body">
-                            <div className="recommendation-details">
-                                <div className="detail-section">
-                                    <h4>Patient Information</h4>
+                        <div className="p-4 space-y-4">
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <h4 className="text-lg font-semibold">Patient Information</h4>
                                     <p>
                                         <strong>Name:</strong> {selectedRecommendation.patient?.firstName} {selectedRecommendation.patient?.lastName}
                                     </p>
@@ -210,13 +206,12 @@ const RecommendationsList: React.FC = () => {
                                     </p>
                                 </div>
 
-                                <div className="detail-section">
-                                    <h4>Recommendation Details</h4>
+                                <div className="space-y-2">
+                                    <h4 className="text-lg font-semibold">Recommendation Details</h4>
                                     <p><strong>Description:</strong> {selectedRecommendation.description}</p>
                                     <p><strong>Justification:</strong> {selectedRecommendation.justification}</p>
                                     <p><strong>Status:</strong>
-                                        <span
-                                            className={`medical-badge ${getStatusBadge(selectedRecommendation.status)}`}>
+                                        <span className={`px-2 py-1 rounded text-sm font-medium ml-2 ${selectedRecommendation.status === RecommendationStatus.APPROVED ? 'bg-green-100 text-green-800' : selectedRecommendation.status === RecommendationStatus.REJECTED ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}`}>
                                             {selectedRecommendation.status}
                                         </span>
                                     </p>
@@ -226,8 +221,7 @@ const RecommendationsList: React.FC = () => {
                                         <p><strong>Updated by:</strong> {selectedRecommendation.updatedBy}</p>
                                     )}
                                     {selectedRecommendation.rejectionReason && (
-                                        <p><strong>Rejection Reason:</strong> {selectedRecommendation.rejectionReason}
-                                        </p>
+                                        <p><strong>Rejection Reason:</strong> {selectedRecommendation.rejectionReason}</p>
                                     )}
                                     {selectedRecommendation.doctorComment && (
                                         <p><strong>Doctor Comment:</strong> {selectedRecommendation.doctorComment}</p>
@@ -235,51 +229,48 @@ const RecommendationsList: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="medical-modal-footer">
+
+                        <div className="flex justify-end gap-2 p-4 border-t">
                             {selectedRecommendation.status === RecommendationStatus.PENDING && (
-                                <div className="modal-actions">
-                                    <button
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="approve"
                                         onClick={() => handleApproveClick(selectedRecommendation)}
-                                        className="medical-btn medical-btn-success"
                                     >
                                         Approve
-                                    </button>
-                                    <button
+                                    </Button>
+                                    <Button
+                                        variant="reject"
                                         onClick={() => handleRejectClick(selectedRecommendation)}
-                                        className="medical-btn medical-btn-danger"
                                     >
                                         Reject
-                                    </button>
+                                    </Button>
                                 </div>
                             )}
-                            <button
+                            <Button
+                                variant="secondary"
                                 onClick={() => setIsDetailsModalOpen(false)}
-                                className="medical-btn medical-btn-secondary"
                             >
                                 Close
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>
             )}
-            {/* APPROVAL MODAL */}
+
             {isApprovalModalOpen && selectedRecommendation && (
-                <div className="medical-modal-overlay" onClick={() => setIsApprovalModalOpen(false)}>
-                    <div className="medical-modal" onClick={(e) => e.stopPropagation()}>
-                        <div className="medical-modal-header">
-                            <h3>Approve Recommendation</h3>
-                            <button
-                                className="modal-close"
-                                onClick={() => setIsApprovalModalOpen(false)}
-                            >
-                                ×
-                            </button>
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setIsApprovalModalOpen(false)}>
+                    <div className="bg-white rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex justify-between items-center p-4 border-b">
+                            <h3 className="text-lg font-semibold">Approve Recommendation</h3>
+                            <Button variant="ghost" size="sm" onClick={() => setIsApprovalModalOpen(false)}>×</Button>
                         </div>
-                        <div className="medical-modal-body">
+
+                        <div className="p-4 space-y-4">
                             <p>Are you sure you want to approve this recommendation?</p>
-                            <div className="form-group">
-                                <label htmlFor="approvalComment">Comment (optional):</label>
-                                <textarea
+                            <div className="space-y-2">
+                                <label htmlFor="approvalComment" className="block text-sm font-medium">Comment (optional):</label>
+                                <Textarea
                                     id="approvalComment"
                                     value={approvalComment}
                                     onChange={(e) => setApprovalComment(e.target.value)}
@@ -288,43 +279,38 @@ const RecommendationsList: React.FC = () => {
                                 />
                             </div>
                         </div>
-                        <div className="medical-modal-footer">
-                            <button
+
+                        <div className="flex justify-end gap-2 p-4 border-t">
+                            <Button
+                                variant="approve"
                                 onClick={handleApprove}
-                                className="medical-btn medical-btn-success"
                             >
                                 Confirm Approval
-                            </button>
-                            <button
+                            </Button>
+                            <Button
+                                variant="cancel"
                                 onClick={() => setIsApprovalModalOpen(false)}
-                                className="medical-btn medical-btn-secondary"
                             >
                                 Cancel
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* REJECT MODAL */}
             {isRejectModalOpen && selectedRecommendation && (
-                <div className="medical-modal-overlay" onClick={() => setIsRejectModalOpen(false)}>
-                    <div className="medical-modal" onClick={(e) => e.stopPropagation()}>
-                        <div className="medical-modal-header">
-                            <h3>Reject Recommendation</h3>
-                            <button
-                                className="modal-close"
-                                onClick={() => setIsRejectModalOpen(false)}
-                            >
-                                ×
-                            </button>
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setIsRejectModalOpen(false)}>
+                    <div className="bg-white rounded-lg shadow-lg max-w-md w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex justify-between items-center p-4 border-b">
+                            <h3 className="text-lg font-semibold">Reject Recommendation</h3>
+                            <Button variant="ghost" size="sm" onClick={() => setIsRejectModalOpen(false)}>×</Button>
                         </div>
 
-                        <div className="medical-modal-body">
+                        <div className="p-4 space-y-4">
                             <p>Are you sure you want to reject this recommendation?</p>
-                            <div className="form-group">
-                                <label htmlFor="rejectReason">Reason for rejection (required):</label>
-                                <textarea
+                            <div className="space-y-2">
+                                <label htmlFor="rejectReason" className="block text-sm font-medium">Reason for rejection (required):</label>
+                                <Textarea
                                     id="rejectReason"
                                     value={rejectReason}
                                     onChange={(e) => setRejectReason(e.target.value)}
@@ -335,20 +321,20 @@ const RecommendationsList: React.FC = () => {
                             </div>
                         </div>
 
-                        <div className="medical-modal-footer">
-                            <button
+                        <div className="flex justify-end gap-2 p-4 border-t">
+                            <Button
+                                variant="reject"
                                 onClick={handleReject}
-                                className="medical-btn medical-btn-danger"
                                 disabled={!rejectReason.trim()}
                             >
                                 Confirm Rejection
-                            </button>
-                            <button
+                            </Button>
+                            <Button
+                                variant="cancel"
                                 onClick={() => setIsRejectModalOpen(false)}
-                                className="medical-btn medical-btn-secondary"
                             >
                                 Cancel
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>

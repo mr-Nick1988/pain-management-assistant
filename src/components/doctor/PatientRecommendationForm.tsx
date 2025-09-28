@@ -6,7 +6,7 @@ import {
     useUpdateRecommendationMutation
 } from "../../api/api/apiDoctorSlice.ts";
 import {type Recommendation, RecommendationStatus} from "../../types/recommendation.ts";
-
+import { Button, Textarea } from "../ui";
 
 interface PatientRecommendationFormProps {
     recommendation: Recommendation;
@@ -70,130 +70,127 @@ const PatientRecommendationForm: React.FC<PatientRecommendationFormProps> = ({
     const isPending = recommendation.status === RecommendationStatus.PENDING;
 
     return (
-        <div className="patient-recommendation">
-            <div className="recommendation-header">
-                <h3>Recommendation for patient</h3>
-                <button className="close-button" onClick={onClose}>×</button>
+        <div className="space-y-4 p-4 bg-white rounded-lg shadow-lg max-w-4xl mx-auto">
+            <div className="flex justify-between items-center border-b pb-2 mb-4">
+                <h3 className="text-lg font-semibold">Recommendation for patient</h3>
+                <Button variant="ghost" size="sm" onClick={onClose}>×</Button>
             </div>
 
-            <div className="patient-info">
-                <h4>Patient info</h4>
-                <div className="info-row">
-                    <span className="label">Name:</span>
-                    <span
-                        className="value">{recommendation.patient?.firstName} {recommendation.patient?.lastName}</span>
+            <div className="space-y-2">
+                <h4 className="text-lg font-semibold">Patient info</h4>
+                <div className="flex justify-between">
+                    <span className="font-medium">Name:</span>
+                    <span>{recommendation.patient?.firstName} {recommendation.patient?.lastName}</span>
                 </div>
-                <div className="info-row">
-                    <span className="label">EMR:</span>
-                    <span className="value">{recommendation.patient?.mrn}</span>
+                <div className="flex justify-between">
+                    <span className="font-medium">EMR:</span>
+                    <span>{recommendation.patient?.mrn}</span>
                 </div>
             </div>
 
-            <div className="recommendation-details">
-                <h4>Recommendation details</h4>
-                <div className="info-row">
-                    <span className="label">Status:</span>
-                    <span className={`status ${recommendation.status.toLowerCase()}`}>
+            <div className="space-y-2">
+                <h4 className="text-lg font-semibold">Recommendation details</h4>
+                <div className="flex justify-between">
+                    <span className="font-medium">Status:</span>
+                    <span className={`px-2 py-1 rounded text-sm font-medium ${recommendation.status === RecommendationStatus.PENDING ? 'bg-yellow-100 text-yellow-800' : recommendation.status === RecommendationStatus.APPROVED ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                         {recommendation.status === RecommendationStatus.PENDING && "Pending"}
                         {recommendation.status === RecommendationStatus.APPROVED && "Approved"}
                         {recommendation.status === RecommendationStatus.REJECTED && "Rejected"}
                     </span>
                 </div>
-                <div className="info-row">
-                    <span className="label">Created:</span>
-                    <span className="value">{new Date(recommendation.createdAt).toLocaleString()}</span>
+                <div className="flex justify-between">
+                    <span className="font-medium">Created:</span>
+                    <span>{new Date(recommendation.createdAt).toLocaleString()}</span>
                 </div>
-                <div className="info-row">
-                    <span className="label">Updated:</span>
-                    <span className="value">{new Date(recommendation.updatedAt).toLocaleString()}</span>
+                <div className="flex justify-between">
+                    <span className="font-medium">Updated:</span>
+                    <span>{new Date(recommendation.updatedAt).toLocaleString()}</span>
                 </div>
-                <div className="info-row">
-                    <span className="label">Created by person:</span>
-                    <span className="value">{recommendation.createdBy}</span>
+                <div className="flex justify-between">
+                    <span className="font-medium">Created by person:</span>
+                    <span>{recommendation.createdBy}</span>
                 </div>
             </div>
 
-            <div className="recommendation-content">
-                <h4>Description</h4>
-                <div className="content-box">{recommendation.description}</div>
+            <div className="space-y-4">
+                <h4 className="text-lg font-semibold">Description</h4>
+                <div className="p-3 bg-gray-50 rounded border">{recommendation.description}</div>
 
-                <h4>Justification</h4>
-                <div className="content-box">{recommendation.justification}</div>
+                <h4 className="text-lg font-semibold">Justification</h4>
+                <div className="p-3 bg-gray-50 rounded border">{recommendation.justification}</div>
 
                 {recommendation.rejectionReason && (
                     <>
-                        <h4>Rejection reason</h4>
-                        <div className="content-box rejection-reason">{recommendation.rejectionReason}</div>
+                        <h4 className="text-lg font-semibold">Rejection reason</h4>
+                        <div className="p-3 bg-gray-50 rounded border">{recommendation.rejectionReason}</div>
                     </>
                 )}
             </div>
 
-            <div className="doctor-actions">
-                <h4>Doctor comment</h4>
-                <textarea
+            <div className="space-y-4">
+                <h4 className="text-lg font-semibold">Doctor comment</h4>
+                <Textarea
                     value={comment}
                     onChange={(e) => setComment(e.target.value)}
                     placeholder="Enter comment..."
-                    className="comment-textarea"
                 />
 
-                <div className="action-buttons">
+                <div className="flex gap-2">
                     {isPending ? (
                         <>
-                            <button
-                                className="approve-button"
+                            <Button
+                                variant="approve"
                                 onClick={handleApproveRecommendation}
                                 disabled={isLoading}
                             >
                                 {isApproving ? "Approving..." : "Approve"}
-                            </button>
+                            </Button>
 
-                            <button
-                                className="reject-button"
+                            <Button
+                                variant="reject"
                                 onClick={() => setShowRejectionForm(true)}
                                 disabled={isLoading || showRejectionForm}
                             >
                                 Reject
-                            </button>
+                            </Button>
                         </>
                     ) : (
-                        <button
-                            className="update-button"
+                        <Button
+                            variant="update"
                             onClick={handleUpdateComment}
                             disabled={isLoading}
                         >
                             {isUpdating ? "Updating..." : "Update"}
-                        </button>
+                        </Button>
                     )}
                 </div>
 
                 {showRejectionForm && (
-                    <div className="rejection-form">
-                        <h4>Rejected reason</h4>
-                        <textarea
+                    <div className="space-y-2 mt-4 p-4 bg-red-50 rounded border">
+                        <h4 className="text-lg font-semibold">Rejected reason</h4>
+                        <Textarea
                             value={rejectionReason}
                             onChange={(e) => setRejectionReason(e.target.value)}
                             placeholder="Reason of rejection(required)"
-                            className="rejection-textarea"
                             required
                         />
 
-                        <div className="rejection-actions">
-                            <button
-                                className="confirm-reject-button"
+                        <div className="flex gap-2">
+                            <Button
+                                variant="reject"
                                 onClick={handleRejectRecommendation}
                                 disabled={isLoading || !rejectionReason.trim()}
                             >
                                 {isRejecting ? "Rejecting..." : "Reject"}
-                            </button>
+                            </Button>
 
-                            <button
-                                className="cancel-button"
+                            <Button
+                                variant="cancel"
                                 onClick={() => setShowRejectionForm(false)}
                                 disabled={isLoading}
                             >
                                 Cancel
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 )}

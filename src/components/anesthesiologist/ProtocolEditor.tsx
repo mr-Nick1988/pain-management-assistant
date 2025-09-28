@@ -8,6 +8,7 @@ import {
     useGetProtocolCommentsQuery,
     useGetProtocolsByEscalationQuery, useRejectProtocolMutation, useResolveEscalationMutation, useUpdateProtocolMutation
 } from "../../api/api/apiAnesthesiologistSlice.ts";
+import {Button, Card, CardContent, CardHeader, CardTitle} from "../ui";
 
 
 interface ProtocolEditorProps {
@@ -150,197 +151,245 @@ const ProtocolEditor: React.FC<ProtocolEditorProps> = ({selectedEscalationId}) =
 
     if (!selectedEscalationId) {
         return (
-            <div className="protocol-editor-container empty-view">
-                <div className="empty-state">
-                    <h3 className="section-title">No Escalation Selected</h3>
-                    <p>Please select an escalation from the list to view or manage its protocols.</p>
-                </div>
+            <div className="container mx-auto px-4 py-8 max-w-7xl">
+                <Card>
+                    <CardContent className="p-8 text-center">
+                        <p className="text-gray-500">Please select an escalation from the list to view or manage its protocols.</p>
+                    </CardContent>
+                </Card>
             </div>
         );
     }
 
     if (protocolsLoading) {
-        return <div className="loading">Loading protocols...</div>
-    }
-    return (
-        <div className="protocol-editor-container">
-            <div className="protocol-editor-header">
-                {escalation && (
-                    <div className="escalation-details-header">
-                        <h2 className="section-title">Protocols for: {escalation.patientName}</h2>
-                        <p className="medical-subtitle">Managing escalation from Dr. {escalation.doctorName}</p>
-                    </div>
-                )}
-                <div className="form-actions">
-                    <button
-                        onClick={startNewProtocol}
-                        className="submit-button"
-                        disabled={isEditing}
-                    >
-                        Create New Protocol
-                    </button>
-                    {activeProtocol && activeProtocol.status === ProtocolStatus.APPROVED && (
-                        <button
-                            onClick={() => setShowResolutionModal(true)}
-                            className="approve-button"
-                        >
-                            Complete Escalation
-                        </button>
-                    )}
+        return (
+            <div className="container mx-auto px-4 py-8 max-w-7xl">
+                <div className="flex justify-center items-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <span className="ml-2">Loading protocols...</span>
                 </div>
             </div>
+        );
+    }
 
-            <div className="protocol-editor-layout">
-                <aside className="protocol-sidebar">
-                    <h3 className="sidebar-title">Existing Protocols</h3>
-                    <div className="protocol-list">
-                        {protocols && protocols.length > 0 ? (
-                            protocols.map((protocol) => (
-                                <div
-                                    key={protocol.id}
-                                    className={`protocol-item ${protocol.id === activeProtocol?.id ? "active" : ""}`}
-                                    onClick={() => setActiveProtocol(protocol)}
-                                >
-                                    <div className="item-header">
-                                        <h4>{protocol.title}</h4>
-                                        <span className={`status-badge status-${protocol.status.toLowerCase()}`}>
-                                            {protocol.status}
-                                        </span>
-                                    </div>
-                                    <p className="item-details">Version {protocol.version}</p>
-                                </div>
-                            ))
-                        ) : (
-                            <p className="empty-sidebar-text">No protocols yet.</p>
-                        )}
-                    </div>
-                </aside>
-
-                <main className="protocol-main-content">
-                    {isEditing ? (
-                        <div className="protocol-form">
-                            <h3 className="section-title">{activeProtocol ? "Edit Protocol" : "Create New Protocol"}</h3>
-                            <div className="form-group">
-                                <label htmlFor="protocol-title">Title</label>
-                                <input
-                                    id="protocol-title"
-                                    type="text"
-                                    value={protocolTitle}
-                                    onChange={(e) => setProtocolTitle(e.target.value)}
-                                    placeholder="Enter protocol title"
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="protocol-content">Content</label>
-                                <textarea
-                                    id="protocol-content"
-                                    value={protocolContent}
-                                    onChange={(e) => setProtocolContent(e.target.value)}
-                                    placeholder="Enter protocol content in markdown..."
-                                    rows={15}
-                                    className="protocol-textarea"
-                                />
-                            </div>
-                            <div className="form-actions">
-                                <button onClick={cancelEditing} className="cancel-button">
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={activeProtocol ? handleUpdateProtocol : handleCreateProtocol}
-                                    disabled={!protocolTitle.trim() || !protocolContent.trim() || isCreating || isUpdating}
-                                    className="submit-button"
-                                >
-                                    {isCreating || isUpdating ? "Saving..." : "Save Protocol"}
-                                </button>
-                            </div>
-                        </div>
-                    ) : activeProtocol ? (
-                        <div className="protocol-view">
-                            <div className="protocol-view-header">
-                                <h3>{activeProtocol.title}</h3>
-                                <div className="protocol-meta">
-                                    <span className="meta-item">Version {activeProtocol.version}</span>
-                                    <span className={`status-badge status-${activeProtocol.status.toLowerCase()}`}>
-                                        {activeProtocol.status}
-                                    </span>
-                                    <span className="meta-item">{new Date(activeProtocol.createdAt).toLocaleString()}</span>
-                                </div>
-                            </div>
-
-                            <div className="protocol-content-display">
-                                <pre>{activeProtocol.content}</pre>
-                            </div>
-
-                            {activeProtocol.status === ProtocolStatus.DRAFT && (
-                                <div className="form-actions protocol-view-actions">
-                                    <button
-                                        onClick={() => {
-                                            const reason = prompt("Enter reason for rejecting protocol:");
-                                            if (reason) handleRejectProtocol(reason);
-                                        }}
-                                        disabled={isRejecting}
-                                        className="reject-button"
-                                    >
-                                        {isRejecting ? "Rejecting..." : "Reject"}
-                                    </button>
-                                    <button onClick={() => setIsEditing(true)} className="update-button">
-                                        Edit
-                                    </button>
-                                    <button onClick={handleApproveProtocol} disabled={isApproving} className="approve-button">
-                                        {isApproving ? "Approving..." : "Approve"}
-                                    </button>
+    return (
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
+            <Card className="mb-6">
+                <CardHeader>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                        <div className="mb-4 sm:mb-0">
+                            {escalation && (
+                                <div>
+                                    <CardTitle className="text-xl">Protocols for: {escalation.patientName}</CardTitle>
+                                    <p className="text-gray-600 mt-1">Managing escalation from Dr. {escalation.doctorName}</p>
                                 </div>
                             )}
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <Button
+                                onClick={startNewProtocol}
+                                variant="submit"
+                                disabled={isEditing}
+                            >
+                                Create New Protocol
+                            </Button>
+                            {activeProtocol && activeProtocol.status === ProtocolStatus.APPROVED && (
+                                <Button
+                                    onClick={() => setShowResolutionModal(true)}
+                                    variant="approve"
+                                >
+                                    Complete Escalation
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                        {/* Sidebar with Protocols List */}
+                        <div className="lg:col-span-1">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className="text-lg">Existing Protocols</CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-4">
+                                    <div className="space-y-3">
+                                        {protocols && protocols.length > 0 ? (
+                                            protocols.map((protocol) => (
+                                                <div
+                                                    key={protocol.id}
+                                                    className={`p-3 rounded-lg cursor-pointer transition-colors border ${
+                                                        activeProtocol?.id === protocol.id
+                                                            ? 'bg-blue-50 border-blue-300'
+                                                            : 'bg-white border-gray-200 hover:bg-gray-50'
+                                                    }`}
+                                                    onClick={() => setActiveProtocol(protocol)}
+                                                >
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex-1 min-w-0">
+                                                            <h4 className="font-medium text-gray-900 truncate">{protocol.title}</h4>
+                                                            <p className={`text-xs mt-1 ${
+                                                                protocol.status === 'DRAFT' ? 'text-gray-500' :
+                                                                protocol.status === 'APPROVED' ? 'text-green-600' :
+                                                                protocol.status === 'REJECTED' ? 'text-red-600' :
+                                                                'text-blue-600'
+                                                            }`}>
+                                                                {protocol.status}
+                                                            </p>
+                                                        </div>
+                                                        {activeProtocol?.id === protocol.id && (
+                                                            <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 ml-2"></div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="text-center py-8">
+                                                <p className="text-gray-500 text-sm">No protocols yet</p>
+                                                <Button
+                                                    onClick={startNewProtocol}
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="mt-3"
+                                                    disabled={isEditing}
+                                                >
+                                                    Create First Protocol
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
 
-                            <div className="protocol-comments">
-                                <h4 className="section-title">Comments</h4>
-                                <div className="add-comment-form">
+                        {/* Main Content */}
+                        <div className="lg:col-span-3">
+                            {isEditing ? (
+                                <div className="protocol-form">
+                                    <h3 className="section-title">{activeProtocol ? "Edit Protocol" : "Create New Protocol"}</h3>
                                     <div className="form-group">
-                                        <textarea
-                                            value={commentText}
-                                            onChange={(e) => setCommentText(e.target.value)}
-                                            placeholder="Add a comment or ask a question..."
-                                            rows={3}
+                                        <label htmlFor="protocol-title">Title</label>
+                                        <input
+                                            id="protocol-title"
+                                            type="text"
+                                            value={protocolTitle}
+                                            onChange={(e) => setProtocolTitle(e.target.value)}
+                                            placeholder="Enter protocol title"
                                         />
                                     </div>
-                                    <button
-                                        onClick={handleAddComment}
-                                        disabled={!commentText.trim() || isAddingComment}
-                                        className="submit-button"
-                                    >
-                                        {isAddingComment ? "Adding..." : "Add Comment"}
-                                    </button>
+                                    <div className="form-group">
+                                        <label htmlFor="protocol-content">Content</label>
+                                        <textarea
+                                            id="protocol-content"
+                                            value={protocolContent}
+                                            onChange={(e) => setProtocolContent(e.target.value)}
+                                            placeholder="Enter protocol content in markdown..."
+                                            rows={15}
+                                            className="protocol-textarea"
+                                        />
+                                    </div>
+                                    <div className="form-actions">
+                                        <Button onClick={cancelEditing} variant="cancel">
+                                            Cancel
+                                        </Button>
+                                        <Button
+                                            onClick={activeProtocol ? handleUpdateProtocol : handleCreateProtocol}
+                                            disabled={!protocolTitle.trim() || !protocolContent.trim() || isCreating || isUpdating}
+                                            variant="submit"
+                                        >
+                                            {isCreating || isUpdating ? "Saving..." : "Save Protocol"}
+                                        </Button>
+                                    </div>
                                 </div>
-                                <div className="comments-list">
-                                    {comments?.map((comment) => (
-                                        <div key={comment.id} className="comment-item">
-                                            <div className="comment-header">
-                                                <strong>{comment.authorName}</strong>
-                                                <span>{new Date(comment.createdAt).toLocaleString()}</span>
-                                            </div>
-                                            <p>{comment.content}</p>
+                            ) : activeProtocol ? (
+                                <div className="protocol-view">
+                                    <div className="protocol-view-header">
+                                        <h3>{activeProtocol.title}</h3>
+                                        <div className="protocol-meta">
+                                            <span className="meta-item">Version {activeProtocol.version}</span>
+                                            <span className={`status-badge status-${activeProtocol.status.toLowerCase()}`}>
+                                                {activeProtocol.status}
+                                            </span>
+                                            <span className="meta-item">{new Date(activeProtocol.createdAt).toLocaleString()}</span>
                                         </div>
-                                    ))}
+                                    </div>
+
+                                    <div className="protocol-content-display">
+                                        <pre>{activeProtocol.content}</pre>
+                                    </div>
+
+                                    {activeProtocol.status === ProtocolStatus.DRAFT && (
+                                        <div className="form-actions protocol-view-actions">
+                                            <Button
+                                                onClick={() => {
+                                                    const reason = prompt("Enter reason for rejecting protocol:");
+                                                    if (reason) handleRejectProtocol(reason);
+                                                }}
+                                                disabled={isRejecting}
+                                                variant="reject"
+                                            >
+                                                {isRejecting ? "Rejecting..." : "Reject"}
+                                            </Button>
+                                            <Button onClick={() => setIsEditing(true)} variant="update">
+                                                Edit
+                                            </Button>
+                                            <Button onClick={handleApproveProtocol} disabled={isApproving} variant="approve">
+                                                {isApproving ? "Approving..." : "Approve"}
+                                            </Button>
+                                        </div>
+                                    )}
+
+                                    <div className="protocol-comments">
+                                        <h4 className="section-title">Comments</h4>
+                                        <div className="add-comment-form">
+                                            <div className="form-group">
+                                                <textarea
+                                                    value={commentText}
+                                                    onChange={(e) => setCommentText(e.target.value)}
+                                                    placeholder="Add a comment or ask a question..."
+                                                    rows={3}
+                                                />
+                                            </div>
+                                            <Button
+                                                onClick={handleAddComment}
+                                                disabled={!commentText.trim() || isAddingComment}
+                                                variant="submit"
+                                            >
+                                                {isAddingComment ? "Adding..." : "Add Comment"}
+                                            </Button>
+                                        </div>
+                                        <div className="comments-list">
+                                            {comments?.map((comment) => (
+                                                <div key={comment.id} className="comment-item">
+                                                    <div className="comment-header">
+                                                        <strong>{comment.authorName}</strong>
+                                                        <span>{new Date(comment.createdAt).toLocaleString()}</span>
+                                                    </div>
+                                                    <p>{comment.content}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <div className="empty-state">
+                                    <h3 className="section-title">No Protocol Selected</h3>
+                                    <p>Please select a protocol from the list on the left, or create a new one.</p>
+                                </div>
+                            )}
                         </div>
-                    ) : (
-                        <div className="empty-state">
-                            <h3 className="section-title">No Protocol Selected</h3>
-                            <p>Please select a protocol from the list on the left, or create a new one.</p>
-                        </div>
-                    )}
-                </main>
-            </div>
+                    </div>
+                </CardContent>
+            </Card>
 
             {showResolutionModal && (
                 <div className="anesthesiologist-modal-overlay">
                     <div className="resolution-modal">
                         <div className="add-patient-modal-header">
                             <h3>Complete Escalation</h3>
-                            <button onClick={() => setShowResolutionModal(false)} className="close-button">
+                            <Button onClick={() => setShowResolutionModal(false)} variant="ghost">
                                 &times;
-                            </button>
+                            </Button>
                         </div>
                         <div className="modal-body">
                             <div className="form-group">
@@ -355,16 +404,16 @@ const ProtocolEditor: React.FC<ProtocolEditorProps> = ({selectedEscalationId}) =
                             </div>
                         </div>
                         <div className="form-actions">
-                            <button onClick={() => setShowResolutionModal(false)} className="cancel-button">
+                            <Button onClick={() => setShowResolutionModal(false)} variant="cancel">
                                 Cancel
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 onClick={handleResolveEscalation}
                                 disabled={!resolutionText.trim() || isResolving}
-                                className="approve-button"
+                                variant="approve"
                             >
                                 {isResolving ? "Resolving..." : "Resolve Escalation"}
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 </div>

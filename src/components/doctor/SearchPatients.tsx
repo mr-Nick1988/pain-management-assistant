@@ -2,6 +2,7 @@ import {useNavigate} from "react-router-dom";
 import React, {useState} from "react";
 import {useLazySearchPatientsQuery} from "../../api/api/apiDoctorSlice.ts";
 import type {Patient} from "../../types/doctor.ts";
+import {Button, Card, CardHeader, CardTitle, Input} from "../ui";
 
 const SearchPatients: React.FC = () => {
     const navigate = useNavigate();
@@ -12,9 +13,9 @@ const SearchPatients: React.FC = () => {
         insurance: "",
         mrn: "",
     });
-    
+
     //API hook for search patients - NOW USING LAZY QUERY FOR PROPER REQUEST EXECUTION
-    const [triggerSearch, { data: patients, isLoading, error }] = useLazySearchPatientsQuery();
+    const [triggerSearch, {data: patients, isLoading, error}] = useLazySearchPatientsQuery();
 
     //Handler for input change //Renew state of searchParams when input value changes
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,33 +31,33 @@ const SearchPatients: React.FC = () => {
     };
     //Handler for view patient button click //Navigate to doctor page with selected patient id
     const handleViewPatient = (pid: string) => {
-        navigate("/doctor",{state:{selectedPatient:pid}});
+        navigate("/doctor", {state: {selectedPatient: pid}});
     }
     //Handler for create recommendation button click //Navigate to doctor page with selected patient id
     const handleCreateRecommendation = (pid: string) => {
-        navigate("/doctor",{state:{createRecommendationFor:pid}})
+        navigate("/doctor", {state: {createRecommendationFor: pid}})
     }
 
     return (
-        // Search by firstName only if provided
-        <div className="search-patients-page">
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
             {/* Заголовок страницы с кнопкой возврата */}
-            <div className="medical-title">
-                <h2>Search Patients</h2>
-                <button onClick={() => navigate("/doctor")} className="submit-button">
-                    Back to Dashboard
-                </button>
-            </div>
+            <Card className="mb-6">
+                <CardHeader>
+                    <div className="flex justify-between items-center">
+                        <CardTitle>Search Patients</CardTitle>
+                        <Button variant="submit" onClick={() => navigate("/doctor")}>Back to Dashboard</Button>
+                    </div>
+                </CardHeader>
+            </Card>
 
             {/* Форма поиска пациентов */}
-            <div className="search-form-container">
-                <form onSubmit={handleSearch} className="search-form">
+            <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm mb-8">
+                <form onSubmit={handleSearch} className="space-y-6">
                     {/* Первая строка полей: имя и фамилия */}
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label htmlFor="firstName">First Name</label>
-                            <input
-                                type="text"
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label htmlFor="firstName" className="block text-sm font-medium">First Name</label>
+                            <Input
                                 id="firstName"
                                 name="firstName"
                                 value={searchParams.firstName}
@@ -64,10 +65,9 @@ const SearchPatients: React.FC = () => {
                                 placeholder="Enter first name"
                             />
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="lastName">Last Name</label>
-                            <input
-                                type="text"
+                        <div className="space-y-2">
+                            <label htmlFor="lastName" className="block text-sm font-medium">Last Name</label>
+                            <Input
                                 id="lastName"
                                 name="lastName"
                                 value={searchParams.lastName}
@@ -78,10 +78,10 @@ const SearchPatients: React.FC = () => {
                     </div>
 
                     {/* Вторая строка полей: дата рождения, страховка, MRN */}
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label htmlFor="dateOfBirth">Date of Birth</label>
-                            <input
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label htmlFor="dateOfBirth" className="block text-sm font-medium">Date of Birth</label>
+                            <Input
                                 type="date"
                                 id="dateOfBirth"
                                 name="dateOfBirth"
@@ -89,10 +89,9 @@ const SearchPatients: React.FC = () => {
                                 onChange={handleInputChange}
                             />
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="insurance">Insurance Policy</label>
-                            <input
-                                type="text"
+                        <div className="space-y-2">
+                            <label htmlFor="insurance" className="block text-sm font-medium">Insurance Policy</label>
+                            <Input
                                 id="insurance"
                                 name="insurance"
                                 value={searchParams.insurance}
@@ -100,10 +99,9 @@ const SearchPatients: React.FC = () => {
                                 placeholder="Insurance policy number"
                             />
                         </div>
-                        <div className="form-group">
-                            <label htmlFor="mrn">MRN</label>
-                            <input
-                                type="text"
+                        <div className="space-y-2">
+                            <label htmlFor="mrn" className="block text-sm font-medium">MRN</label>
+                            <Input
                                 id="mrn"
                                 name="mrn"
                                 value={searchParams.mrn}
@@ -114,12 +112,13 @@ const SearchPatients: React.FC = () => {
                     </div>
 
                     {/* Кнопки действий формы */}
-                    <div className="form-actions">
-                        <button type="submit" className="approve-button" disabled={isLoading}>
+                    <div className="flex gap-2 justify-end">
+                        <Button type="submit" variant="approve" disabled={isLoading}>
                             {isLoading ? "Searching..." : "Search"}
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="button"
+                            variant="submit"
                             onClick={() => setSearchParams({
                                 firstName: "",
                                 lastName: "",
@@ -127,43 +126,42 @@ const SearchPatients: React.FC = () => {
                                 insurance: "",
                                 mrn: ""
                             })}
-                            className="submit-button"
                         >
                             Clear
-                        </button>
+                        </Button>
                     </div>
                 </form>
             </div>
 
             {/* Секция результатов поиска */}
-            <div className="search-results">
+            <div className="space-y-6">
                 {/* Отображение ошибок при поиске */}
                 {error && (
-                    <div className="error-message">
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
                         Error searching patients: {JSON.stringify(error)}
                     </div>
                 )}
 
                 {/* Заголовок с количеством найденных пациентов */}
                 {patients && patients.length > 0 && (
-                    <div className="results-header">
-                        <h3>Found {patients.length} patient(s)</h3>
+                    <div className="text-center mb-4">
+                        <h3 className="text-lg font-semibold">Found {patients.length} patient(s)</h3>
                     </div>
                 )}
 
                 {/* Сообщение если ничего не найдено и был выполнен поиск */}
                 {patients && patients.length === 0 && Object.values(searchParams).some(value => value.trim() !== "") && (
-                    <div className="no-results">
+                    <div className="text-center py-8 text-gray-500">
                         No patients found matching the search criteria.
                     </div>
                 )}
 
                 {/* Список найденных пациентов */}
                 {patients && patients.map((patient: Patient) => (
-                    <div key={patient.id} className="patient-card">
+                    <div key={patient.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
                         {/* Информация о пациенте */}
-                        <div className="patient-info">
-                            <h4>{patient.firstName} {patient.lastName}</h4>
+                        <div className="space-y-2">
+                            <h4 className="font-semibold">{patient.firstName} {patient.lastName}</h4>
                             <p><strong>DOB:</strong> {patient.dateOfBirth}</p>
                             <p><strong>Insurance:</strong> {patient.insurancePolicyNumber}</p>
                             {patient.mrn && <p><strong>MRN:</strong> {patient.mrn}</p>}
@@ -172,19 +170,18 @@ const SearchPatients: React.FC = () => {
                         </div>
 
                         {/* Кнопки действий с пациентом */}
-                        <div className="patient-actions">
-                            <button
+                        <div className="flex gap-2 mt-4">
+                            <Button
                                 onClick={() => handleViewPatient(patient.id)}
-                                className="view-button"
                             >
                                 View Details
-                            </button>
-                            <button
+                            </Button>
+                            <Button
+                                variant="update"
                                 onClick={() => handleCreateRecommendation(patient.id)}
-                                className="recommendation-button"
                             >
                                 Create Recommendation
-                            </button>
+                            </Button>
                         </div>
                     </div>
                 ))}

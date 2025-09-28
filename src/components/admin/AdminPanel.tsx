@@ -2,7 +2,7 @@ import {useNavigate} from "react-router-dom";
 import React, {useState} from "react";
 import {useDeletePersonMutation, useGetPersonsQuery} from "../../api/api/apiAdminSlice.tsx";
 import {PersonsList} from "../../exports/exports.ts";
-
+import { Button, Card, CardContent, CardHeader, CardTitle } from "../ui";
 
 const AdminPanel: React.FC = () => {
     const navigate = useNavigate();
@@ -37,70 +37,87 @@ const AdminPanel: React.FC = () => {
     };
 
     return (
-        <div className="admin-panel">
-            <div className="admin-header">
-                <h2>Admin Panel</h2>
-                <button
-                    onClick={() => navigate('/admin/create-person')}
-                    className="approve-button"
-                >
-                    Add New Person
-                </button>
-            </div>
+        <div className="container mx-auto px-4 py-8 max-w-7xl">
+            <Card className="mb-6">
+                <CardHeader>
+                    <CardTitle>Admin Panel</CardTitle>
+                    <Button
+                        onClick={() => navigate('/admin/create-person')}
+                        variant="approve"
+                        className="w-full sm:w-auto"
+                    >
+                        Add New Person
+                    </Button>
+                </CardHeader>
 
-            {/* Messages */}
-            {error && (
-                <div className="error-message">
-                    {error}
-                    <button onClick={() => setError(null)}>×</button>
-                </div>
-            )}
-
-            {/* Users List */}
-            <div className="users-list-section">
-                {isLoadingPersons ? (
-                    <div className="loading-spinner">Loading users...</div>
-                ) : fetchError ? (
-                    <div className="error-message">Error loading users</div>
-                ) : persons && persons.length > 0 ? (
-                    <PersonsList
-                        persons={persons}
-                        onDelete={handleDelete}
-                        isLoading={isLoading}
-                    />
-                ) : (
-                    <div className="empty-state">
-                        <p>No users found.</p>
-                    </div>
+                {/* Messages */}
+                {error && (
+                    <CardContent>
+                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
+                            {error}
+                            <button
+                                onClick={() => setError(null)}
+                                className="float-right ml-4 font-bold"
+                            >
+                                ×
+                            </button>
+                        </div>
+                    </CardContent>
                 )}
-            </div>
+
+                {/* Users List */}
+                <CardContent>
+                    {isLoadingPersons ? (
+                        <div className="flex justify-center items-center py-8">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                            <span className="ml-2">Loading users...</span>
+                        </div>
+                    ) : fetchError ? (
+                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
+                            Error loading users
+                        </div>
+                    ) : persons && persons.length > 0 ? (
+                        <PersonsList
+                            persons={persons}
+                            onDelete={handleDelete}
+                            isLoading={isLoading}
+                        />
+                    ) : (
+                        <div className="text-center py-8 text-gray-500">
+                            <p>No users found.</p>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
 
             {/* Delete Confirmation Modal */}
             {isDeleteConfirmOpen && (
-                <div className="modal-overlay">
-                    <div className="modal modal-small">
-                        <div className="medical-title">
-                            <h3>Confirm Delete</h3>
-                        </div>
-                        <div className="error-message">
-                            <p>Are you sure you want to delete this user? This action cannot be undone.</p>
-                        </div>
-                        <div className="modal-actions">
-                            <button
-                                onClick={() => setIsDeleteConfirmOpen(false)}
-                                className="cancel-button"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={confirmDelete}
-                                disabled={isLoading}
-                                className="delete-button"
-                            >
-                                {isDeleting ? "Deleting..." : "Delete"}
-                            </button>
-                        </div>
-                    </div>
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <Card className="w-full max-w-md">
+                        <CardHeader>
+                            <CardTitle className="text-red-600">Confirm Delete</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-gray-700 mb-6">
+                                Are you sure you want to delete this user? This action cannot be undone.
+                            </p>
+                            <div className="flex space-x-3 justify-end">
+                                <Button
+                                    onClick={() => setIsDeleteConfirmOpen(false)}
+                                    variant="cancel"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={confirmDelete}
+                                    disabled={isLoading}
+                                    variant="delete"
+                                >
+                                    {isDeleting ? "Deleting..." : "Delete"}
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
             )}
         </div>

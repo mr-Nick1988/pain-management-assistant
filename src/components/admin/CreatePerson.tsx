@@ -2,6 +2,7 @@ import {useNavigate, useSearchParams} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import {type PersonRegister, UserRole} from "../../types/personRegister.ts";
 import {useCreatePersonMutation, useGetPersonsQuery, useUpdatePersonMutation} from "../../api/api/apiAdminSlice.tsx";
+import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label } from "../ui";
 
 const CreatePerson: React.FC = () => {
     const navigate = useNavigate();
@@ -74,7 +75,7 @@ const CreatePerson: React.FC = () => {
                 });
             }
         } catch (error: unknown) {
-            const err = error as { data?: { message?: string }};
+            const err = error as { data?: { message?: string } };
             setError(err?.data?.message || 'An error occurred');
         }
     };
@@ -85,138 +86,163 @@ const CreatePerson: React.FC = () => {
     };
 
     if (isEditMode && isLoadingPersons) {
-        return <div className="loading">Loading person data...</div>;
+        return (
+            <div className="container mx-auto px-4 py-8 max-w-2xl">
+                <div className="flex justify-center items-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <span className="ml-2">Loading person data...</span>
+                </div>
+            </div>
+        );
     }
 
     return (
-        <div className="create-person-page">
-            <div className="admin-header">
-                <h2>{isEditMode ? "Edit Person" : "Create New Person"}</h2>
-                <button
-                    onClick={() => navigate('/admin')}
-                    className="cancel-button"
-                >
-                    Back to Admin Panel
-                </button>
-            </div>
+        <div className="container mx-auto px-4 py-8 max-w-2xl">
+            <Card>
+                <CardHeader>
+                    <CardTitle>{isEditMode ? "Edit Person" : "Create New Person"}</CardTitle>
+                    <Button
+                        onClick={() => navigate('/admin')}
+                        variant="cancel"
+                        className="w-full sm:w-auto"
+                    >
+                        Back to Admin Panel
+                    </Button>
+                </CardHeader>
 
-            {/* Messages */}
-            {error && (
-                <div className="error-message">
-                    {error}
-                    <button onClick={clearMessages}>×</button>
-                </div>
-            )}
-            {successMessage && (
-                <div className="medical-subtitle">
-                    {successMessage}
-                    <button className="delete-button" onClick={clearMessages}>×</button>
-                </div>
-            )}
+                <CardContent>
+                    {/* Messages */}
+                    {error && (
+                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-6">
+                            {error}
+                            <button
+                                onClick={clearMessages}
+                                className="float-right ml-4 font-bold"
+                            >
+                                ×
+                            </button>
+                        </div>
+                    )}
+                    {successMessage && (
+                        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md mb-6">
+                            {successMessage}
+                            <button
+                                onClick={clearMessages}
+                                className="float-right ml-4 font-bold"
+                            >
+                                ×
+                            </button>
+                        </div>
+                    )}
 
-            {/* Form */}
-            <div className="create-person-form">
-                <form onSubmit={handleSubmit} className="modal-form">
-                    <div className="form-group">
-                        <label htmlFor="personId">Document ID</label>
-                        <input
-                            id="personId"
-                            name="personId"
-                            placeholder="Document ID"
-                            value={formData.personId}
-                            onChange={handleChange}
-                            required
-                            disabled={isEditMode} // Don't allow editing personId in edit mode
-                        />
-                    </div>
+                    {/* Form */}
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="grid grid-cols-1 gap-6">
+                            <div className="space-y-2">
+                                <Label htmlFor="personId">Document ID</Label>
+                                <Input
+                                    id="personId"
+                                    name="personId"
+                                    placeholder="Document ID"
+                                    value={formData.personId}
+                                    onChange={handleChange}
+                                    required
+                                    disabled={isEditMode} // Don't allow editing personId in edit mode
+                                />
+                            </div>
 
-                    <div className="form-row">
-                        <div className="form-group">
-                            <label htmlFor="firstName">First Name</label>
-                            <input
-                                id="firstName"
-                                name="firstName"
-                                placeholder="First Name"
-                                value={formData.firstName}
-                                onChange={handleChange}
-                                required
-                            />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="firstName">First Name</Label>
+                                    <Input
+                                        id="firstName"
+                                        name="firstName"
+                                        placeholder="First Name"
+                                        value={formData.firstName}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="lastName">Last Name</Label>
+                                    <Input
+                                        id="lastName"
+                                        name="lastName"
+                                        placeholder="Last Name"
+                                        value={formData.lastName}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="login">Login</Label>
+                                <Input
+                                    id="login"
+                                    name="login"
+                                    placeholder="Login"
+                                    value={formData.login}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="password">
+                                    Password {isEditMode ? "(leave empty to keep current)" : ""}
+                                </Label>
+                                <Input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    placeholder="Password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required={!isEditMode}
+                                />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="role">Role</Label>
+                                <select
+                                    id="role"
+                                    name="role"
+                                    value={formData.role}
+                                    onChange={handleChange}
+                                    required
+                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    <option value={UserRole.NURSE}>Nurse</option>
+                                    <option value={UserRole.DOCTOR}>Doctor</option>
+                                    <option value={UserRole.ANESTHESIOLOGIST}>Anesthesiologist</option>
+                                    <option value={UserRole.ADMIN}>Administrator</option>
+                                </select>
+                            </div>
                         </div>
 
-                        <div className="form-group">
-                            <label htmlFor="lastName">Last Name</label>
-                            <input
-                                id="lastName"
-                                name="lastName"
-                                placeholder="Last Name"
-                                value={formData.lastName}
-                                onChange={handleChange}
-                                required
-                            />
+                        <div className="flex flex-col sm:flex-row gap-3 pt-6">
+                            <Button
+                                type="button"
+                                onClick={() => navigate('/admin')}
+                                variant="cancel"
+                                className="flex-1"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                disabled={isLoading}
+                                variant="submit"
+                                className="flex-1"
+                            >
+                                {isLoading ? "Processing..." : isEditMode ? "Update User" : "Create Person"}
+                            </Button>
                         </div>
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="login">Login</label>
-                        <input
-                            id="login"
-                            name="login"
-                            placeholder="Login"
-                            value={formData.login}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="password">
-                            Password {isEditMode ? "(leave empty to keep current)" : ""}
-                        </label>
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            placeholder="Password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required={!isEditMode}
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="role">Role</label>
-                        <select
-                            id="role"
-                            name="role"
-                            value={formData.role}
-                            onChange={handleChange}
-                            required
-                        >
-                            <option value={UserRole.NURSE}>Nurse</option>
-                            <option value={UserRole.DOCTOR}>Doctor</option>
-                            <option value={UserRole.ANESTHESIOLOGIST}>Anesthesiologist</option>
-                            <option value={UserRole.ADMIN}>Administrator</option>
-                        </select>
-                    </div>
-
-                    <div className="modal-actions">
-                        <button
-                            type="button"
-                            onClick={() => navigate('/admin')}
-                            className="cancel-button"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="submit-button"
-                        >
-                            {isLoading ? "Processing..." : isEditMode ? "Update User" : "Create Person"}
-                        </button>
-                    </div>
-                </form>
-            </div>
+                    </form>
+                </CardContent>
+            </Card>
         </div>
     );
 };

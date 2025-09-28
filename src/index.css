@@ -14,38 +14,52 @@
     --medical-gray: #6b7280;
     --medical-light-gray: #f9fafb;
     --medical-border: #e5e7eb;
+
+    /* Tailwind v4 theme colors */
+    --color-card: #ffffff;
+    /*--color-card-foreground: #000000;*/
+    --color-popover: #ffffff;
+    /*--color-popover-foreground: #000000;*/
+    --color-primary: #3b82f6;
+    --color-primary-foreground: #ffffff;
+    --color-secondary: #f1f5f9;
+    /*--color-secondary-foreground: #000000;*/
+    --color-muted: #f1f5f9;
+    --color-muted-foreground: #64748b;
+    --color-accent: #e0f2fe;
+    /*--color-accent-foreground: #000000;*/
+    --color-destructive: #ef4444;
+    --color-destructive-foreground: #ffffff;
+    --color-border: #e2e8f0;
+    --color-input: #e2e8f0;
+    --color-ring: #3b82f6;
 }
 
-/* Базовые стили приложения */
+/* Прямые стили для Card компонентов */
+.bg-card {
+    background-color: #ffffff !important;
+}
+
+.text-card-foreground {
+    color: #000000 !important;
+}
+
+.card {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 0.5rem !important;
+}
+
+/* Фон всего приложения - нежно-голубой */
+html, body {
+    background-color: hsl(210 40% 96%);
+    min-height: 100vh;
+}
+
 .app {
-    @apply min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 font-sans;
-}
-
-.content {
-    @apply flex-1 p-8 max-w-7xl mx-auto;
-}
-
-/* =================================
-   НАВИГАЦИЯ
-   ================================= */
-.navigation {
-    @apply bg-white/90 backdrop-blur-md shadow-lg border-b border-gray-200 px-6 py-4;
-}
-
-.navigation ul {
-    @apply flex items-center space-x-6 list-none m-0 p-0;
-}
-
-.navigation li {
-    @apply flex items-center;
-}
-
-.navigation a {
-    @apply text-gray-700 hover:text-blue-600 font-medium transition-all duration-200 no-underline px-3 py-2 rounded-lg hover:bg-blue-50 hover:-translate-y-0.5;
-}
-
-.navigation button {
-    @apply bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 border-none cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5;
+    min-height: 100vh;
+    background-color: hsl(210 40% 96%);
 }
 
 /* =================================
@@ -78,26 +92,9 @@
 /* =================================
    КНОПКИ
    ================================= */
-.submit-button,
 .login-button,
-.approve-button,
-.update-button {
+.submit-button {
     @apply bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 border-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl hover:-translate-y-1;
-}
-
-.cancel-button,
-.close-button {
-    @apply bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 border-none cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-1;
-}
-
-.reject-button,
-.delete-button,
-.confirm-reject-button {
-    @apply bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200 border-none cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-1;
-}
-
-.edit-button {
-    @apply bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 border-none cursor-pointer mr-2 shadow-md hover:shadow-lg hover:-translate-y-0.5;
 }
 
 .first-login-notice-submit-button {
@@ -119,49 +116,6 @@
     @apply text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent text-center mb-8;
 }
 
-.first-login-message {
-    @apply mt-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl shadow-md;
-}
-
-.first-login-message p {
-    @apply text-yellow-800 mb-3 font-medium;
-}
-
-.first-login-message button {
-    @apply bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 border-none cursor-pointer shadow-md hover:shadow-lg;
-}
-
-/* =================================
-   ПАНЕЛЬ АДМИНИСТРАТОРА
-   ================================= */
-.admin-panel {
-    @apply max-w-6xl mx-auto space-y-8;
-}
-
-.admin-panel h2 {
-    @apply text-4xl font-bold text-white text-center mb-8 drop-shadow-lg;
-}
-
-.create-person-section {
-    @apply bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-white/20;
-}
-
-.create-person-section h3 {
-    @apply text-2xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-6 pb-2 border-b-2 border-blue-200;
-}
-
-.form-actions {
-    @apply flex space-x-4 pt-6 flex-wrap gap-4;
-}
-
-.persons-list-section {
-    @apply bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-white/20;
-}
-
-.persons-list-section h3 {
-    @apply text-2xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-6 pb-2 border-b-2 border-blue-200;
-}
-
 /* =================================
    ТИПОГРАФИЯ
    ================================= */
@@ -174,208 +128,14 @@
 }
 
 /* =================================
-   ТАБЛИЦЫ
-   ================================= */
-.persons-list-section table {
-    @apply w-full border-collapse rounded-xl overflow-hidden shadow-lg;
-}
-
-.persons-list-section th {
-    @apply bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 text-left text-sm font-bold text-gray-900 border-b-2 border-gray-200;
-}
-
-.persons-list-section td {
-    @apply px-6 py-4 text-sm text-gray-700 border-b border-gray-100 bg-white;
-}
-
-.persons-list-section tr:hover td {
-    @apply bg-gradient-to-r from-blue-50 to-purple-50 transform scale-[1.01] transition-all duration-200;
-}
-
-/* =================================
-   ДАШБОРД ДОКТОРА
-   ================================= */
-.doctor-dashboard {
-    @apply max-w-7xl mx-auto space-y-8;
-}
-
-.doctor-dashboard h2 {
-    @apply text-4xl font-bold text-white text-center mb-8 drop-shadow-lg;
-}
-
-.recommendations-lists {
-    @apply grid grid-cols-1 lg:grid-cols-3 gap-8;
-}
-
-.recommendations-section {
-    @apply bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-2xl border border-white/20;
-}
-
-.recommendations-section h3 {
-    @apply text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4 pb-2 border-b-2 border-blue-200;
-}
-
-.recommendations-list {
-    @apply space-y-4 list-none p-0 m-0;
-}
-
-.recommendation-item {
-    @apply p-4 border-2 border-gray-200 rounded-xl cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white;
-}
-
-.recommendation-item.pending {
-    @apply border-l-4 border-l-yellow-500 hover:bg-gradient-to-r hover:from-yellow-50 hover:to-orange-50 hover:border-yellow-400;
-}
-
-.recommendation-item.approved {
-    @apply border-l-4 border-l-green-500 hover:bg-gradient-to-r hover:from-green-50 hover:to-emerald-50 hover:border-green-400;
-}
-
-.recommendation-item.rejected {
-    @apply border-l-4 border-l-red-500 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50 hover:border-red-400;
-}
-
-.recommendation-header {
-    @apply flex justify-between items-start mb-3;
-}
-
-.patient-name {
-    @apply font-bold text-gray-900 text-lg;
-}
-
-.emr-number {
-    @apply text-sm text-gray-600 font-medium bg-gray-100 px-2 py-1 rounded-full;
-}
-
-.recommendation-preview {
-    @apply text-sm text-gray-700 mb-3 leading-relaxed;
-}
-
-.recommendation-date {
-    @apply text-xs text-gray-500 font-medium;
-}
-
-/* =================================
-   ФОРМА РЕКОМЕНДАЦИИ ПАЦИЕНТА
-   ================================= */
-.patient-recommendation {
-    @apply max-w-5xl mx-auto bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-white/20;
-}
-
-.recommendation-header {
-    @apply flex justify-between items-center mb-8 pb-4 border-b-2 border-gray-200;
-}
-
-.recommendation-header h3 {
-    @apply text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent;
-}
-
-.patient-info,
-.recommendation-details,
-.recommendation-content,
-.doctor-actions {
-    @apply mb-8;
-}
-
-.patient-info h4,
-.recommendation-details h4,
-.recommendation-content h4,
-.doctor-actions h4 {
-    @apply text-xl font-bold text-gray-900 mb-4 pb-2 border-b border-gray-200;
-}
-
-.info-row {
-    @apply flex items-center mb-4 p-2 rounded-lg hover:bg-gray-50 transition-colors duration-200;
-}
-
-.info-row .label {
-    @apply font-semibold text-gray-700 w-36 flex-shrink-0;
-}
-
-.info-row .value {
-    @apply text-gray-900 font-medium;
-}
-
-.status {
-    @apply px-4 py-2 rounded-full text-sm font-bold shadow-md;
-}
-
-.status.pending {
-    @apply bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 border border-yellow-300;
-}
-
-.status.approved {
-    @apply bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 border border-green-300;
-}
-
-.status.rejected {
-    @apply bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-300;
-}
-
-.content-box {
-    @apply p-4 bg-gradient-to-r from-gray-50 to-gray-100 border-2 border-gray-200 rounded-xl text-gray-700 mb-4 shadow-inner;
-}
-
-.content-box.rejection-reason {
-    @apply bg-gradient-to-r from-red-50 to-pink-50 border-red-200 text-red-800;
-}
-
-.comment-textarea,
-.rejection-textarea {
-    @apply w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-gray-900 bg-white resize-y min-h-[120px] shadow-sm hover:shadow-md focus:shadow-lg;
-}
-
-.action-buttons {
-    @apply flex space-x-4 mt-6 flex-wrap gap-4;
-}
-
-.rejection-form {
-    @apply mt-6 p-6 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 rounded-xl shadow-lg;
-}
-
-.rejection-actions {
-    @apply flex space-x-4 mt-4 flex-wrap gap-4;
-}
-
-/* =================================
-   МОДАЛЬНОЕ ОКНО ДОБАВЛЕНИЯ ПАЦИЕНТА
-   ================================= */
-.add-patient-modal {
-    @apply max-w-3xl mx-auto bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-white/20;
-}
-
-.add-patient-modal-header {
-    @apply flex justify-between items-center mb-8 pb-4 border-b-2 border-gray-200;
-}
-
-.add-patient-modal-header h3 {
-    @apply text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent;
-}
-
-.question-modal, .resolution-modal {
-    @apply max-w-3xl mx-auto bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-white/20;
-}
-
-/* =================================
-   СООБЩЕНИЯ ОБ ОШИБКАХ И ЗАГРУЗКЕ
-   ================================= */
-.error-message {
-    @apply mt-4 p-4 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-200 rounded-xl text-red-800 shadow-lg font-medium;
-}
-
-.loading {
-    @apply text-center py-8 text-white text-xl font-semibold drop-shadow-lg;
-}
-
-.error {
-    @apply text-center py-8 text-red-600 text-xl font-semibold;
-}
-
-/* =================================
    FIRST LOGIN NOTICE
    ================================= */
+.medical-page {
+    @apply min-h-screen bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center p-8;
+}
+
 .first-login-notice-container {
-    @apply max-w-4xl mx-auto;
+    @apply max-w-4xl mx-auto bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl border border-white/20 p-8;
 }
 
 .first-login-notice-header {
@@ -383,552 +143,64 @@
 }
 
 .first-login-notice-box {
-    @apply max-w-4xl mx-auto bg-white/90 backdrop-blur-md p-8 md:p-12 rounded-2xl shadow-2xl border border-white/20 text-center;
+    @apply bg-gradient-to-br from-blue-50 to-purple-50 p-8 rounded-2xl shadow-lg border border-blue-100;
 }
 
 .first-login-notice-title {
-    @apply text-3xl font-bold bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent mb-4;
+    @apply text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-6 text-center;
 }
 
 .first-login-notice-text {
-    @apply text-gray-700 mb-6;
+    @apply text-gray-700 text-lg leading-relaxed mb-6;
 }
 
 .first-login-notice-details {
-    @apply p-6 bg-gray-50 rounded-xl border border-gray-200 text-left mb-8 shadow-inner;
+    @apply bg-white/70 p-6 rounded-xl shadow-sm border border-blue-200 mb-6;
 }
 
 .first-login-notice-details-title {
-    @apply font-bold text-gray-800 mb-3;
+    @apply text-lg font-semibold text-blue-800 mb-3;
 }
 
 .first-login-notice-details-list {
-    @apply list-disc list-inside space-y-2 text-sm text-gray-600;
+    @apply space-y-2 text-gray-700;
+}
+
+.first-login-notice-details-list li {
+    @apply flex items-start;
+}
+
+.first-login-notice-details-list li:before {
+    content: "•";
+    @apply text-blue-500 font-bold mr-2 mt-1;
 }
 
 .first-login-notice-actions {
-    @apply flex flex-col md:flex-row gap-4 justify-center;
+    @apply flex gap-4 justify-center mb-6;
 }
 
 .first-login-notice-footer {
-    @apply mt-6 text-center;
+    @apply text-center border-t border-blue-200 pt-6;
 }
 
 .first-login-notice-footer-text {
-    @apply text-xs text-gray-500;
+    @apply text-gray-600 text-sm;
 }
 
 /* =================================
-   АДАПТИВНОСТЬ
+   ERROR MESSAGES
    ================================= */
-@media (max-width: 768px) {
-    .content {
-        @apply p-4;
-    }
+.error-message {
+    @apply bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4;
+}
 
-    .navigation {
-        @apply px-4 py-3;
-    }
-
-    .navigation ul {
-        @apply flex-col space-x-0 space-y-2;
-    }
-
-    .recommendations-lists {
-        @apply grid-cols-1;
-    }
-
-    .form-actions {
-        @apply flex-col space-x-0 space-y-3;
-    }
-
-    .action-buttons {
-        @apply flex-col space-x-0 space-y-3;
-    }
-
-    .recommendation-header {
-        @apply flex-col space-y-2;
-    }
-
-    .info-row {
-        @apply flex-col items-start;
-    }
-
-    .info-row .label {
-        @apply w-full mb-1;
-    }
+.error-text {
+    @apply text-red-600 text-sm mb-4;
 }
 
 /* =================================
-   ANESTHESIOLOGIST DASHBOARD (SAFE STYLES)
+   CHANGE CREDENTIALS CONTAINER
    ================================= */
-.an-dashboard {
-    @apply max-w-7xl mx-auto space-y-8;
-}
-
-.an-dashboard-header {
-    @apply text-center mb-8;
-}
-
-.an-tabs {
-    @apply flex justify-center items-center bg-white/10 backdrop-blur-sm p-2 rounded-xl space-x-2 shadow-lg mb-8;
-}
-
-.an-tabs button {
-    @apply px-6 py-3 text-white/80 font-semibold rounded-lg transition-all duration-300 border-none bg-transparent;
-}
-
-.an-tabs button.active {
-    @apply bg-white/20 text-white shadow-inner;
-}
-
-.an-tabs button:not(.active):hover {
-    @apply bg-white/10 text-white;
-}
-
-.an-content {
-    @apply space-y-12;
-}
-
-.an-overview-section {
-    @apply space-y-12;
-}
-
-.an-stats-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6;
-}
-
-.an-stat-card {
-    @apply p-6 rounded-2xl shadow-lg text-white transition-all duration-300 transform hover:-translate-y-1 hover:shadow-2xl border border-white/20;
-}
-
-.an-stat-card h3 {
-    @apply text-lg font-bold mb-2 text-white/90;
-}
-
-.an-stat-card .stat-number {
-    @apply text-5xl font-extrabold mb-2;
-}
-
-.an-stat-card p {
-    @apply text-sm text-white/70;
-}
-
-.an-stat-card.priority-critical {
-    @apply bg-gradient-to-br from-red-500 to-red-700;
-}
-
-.an-stat-card.priority-high {
-    @apply bg-gradient-to-br from-orange-500 to-orange-700;
-}
-
-.an-stat-card.priority-pending {
-    @apply bg-gradient-to-br from-yellow-500 to-yellow-700;
-}
-
-.an-stat-card.priority-in-review {
-    @apply bg-gradient-to-br from-blue-500 to-blue-700;
-}
-
-.an-quick-actions-container,
-.an-recent-escalations-container {
-    @apply bg-white/10 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-white/20;
-}
-
-.an-section-title {
-    @apply text-2xl font-bold text-white mb-6 pb-3 border-b border-white/20;
-}
-
-.an-recent-escalations-list {
-    @apply space-y-4;
-}
-
-.an-recent-escalation-item {
-    @apply bg-white/20 p-4 rounded-xl cursor-pointer transition-all duration-300 hover:bg-white/30 hover:shadow-xl;
-}
-
-.an-recent-escalation-item .item-header {
-    @apply flex justify-between items-center mb-2;
-}
-
-.an-recent-escalation-item .item-header h4 {
-    @apply text-lg font-bold text-white;
-}
-
-.an-recent-escalation-item .item-details {
-    @apply text-sm text-white/80 mb-1;
-}
-
-.an-recent-escalation-item .item-footer {
-    @apply mt-3 flex justify-end;
-}
-
-.an-status-badge, .an-priority-badge {
-    @apply px-3 py-1 text-xs font-bold rounded-full shadow-md text-white;
-}
-
-.an-status-badge.status-pending {
-    @apply bg-yellow-500/80;
-}
-
-.an-status-badge.status-in_review {
-    @apply bg-blue-500/80;
-}
-
-.an-status-badge.status-resolved {
-    @apply bg-green-500/80;
-}
-
-.an-priority-badge.priority-critical {
-    @apply bg-red-600;
-}
-
-.an-priority-badge.priority-high {
-    @apply bg-orange-600;
-}
-
-.an-priority-badge.priority-medium {
-    @apply bg-yellow-600;
-}
-
-.an-priority-badge.priority-low {
-    @apply bg-blue-600;
-}
-
-.an-empty-state {
-    @apply text-center py-12;
-}
-
-.an-empty-state p {
-    @apply text-white/70 text-lg;
-}
-
-/* =================================
-   ESCALATIONS LIST (SAFE STYLES)
-   ================================= */
-.an-escalations-list-container {
-    @apply bg-white/10 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-white/20;
-}
-
-.an-escalation-controls {
-    @apply flex flex-wrap items-center gap-4 mb-8;
-}
-
-.an-escalation-controls .search-box {
-    @apply flex-grow;
-}
-
-.an-escalation-controls .filters {
-    @apply flex flex-wrap gap-4;
-}
-
-.an-escalation-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
-}
-
-.an-escalation-card {
-    @apply bg-white/10 rounded-2xl shadow-lg border border-transparent transition-all duration-300 flex flex-col;
-}
-
-.an-escalation-card:hover {
-    @apply transform -translate-y-1 shadow-2xl;
-}
-
-.an-escalation-card-header {
-    @apply flex justify-between items-center p-4 border-b border-white/20;
-}
-
-.an-escalation-card-header h3 {
-    @apply text-lg font-bold text-white;
-}
-
-.an-escalation-card-body {
-    @apply p-4 space-y-2 flex-grow;
-}
-
-.an-escalation-card-body p {
-    @apply text-sm text-white/80;
-}
-
-.an-escalation-card-body p strong {
-    @apply font-semibold text-white/90;
-}
-
-.an-escalation-card-footer {
-    @apply flex justify-between items-center p-4 border-t border-white/20 mt-auto;
-}
-
-.an-escalation-card-footer .action-buttons {
-    @apply flex gap-2;
-}
-
-.an-small-button {
-    @apply px-3 py-1 text-sm;
-}
-
-.an-escalation-card.priority-critical {
-    @apply border-red-500/50 bg-red-500/10;
-}
-
-.an-escalation-card.priority-high {
-    @apply border-orange-500/50 bg-orange-500/10;
-}
-
-.an-escalation-card.priority-medium {
-    @apply border-yellow-500/50 bg-yellow-500/10;
-}
-
-.an-escalation-card.priority-low {
-    @apply border-blue-500/50 bg-blue-500/10;
-}
-
-.an-modal-overlay {
-    @apply fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50;
-}
-
-/* =================================
-   PROTOCOL EDITOR (SAFE STYLES)
-   ================================= */
-.an-protocol-editor-container {
-    @apply bg-white/10 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-white/20;
-}
-
-.an-protocol-editor-container.empty-view {
-    @apply flex items-center justify-center min-h-[400px];
-}
-
-.an-protocol-editor-header {
-    @apply flex flex-wrap justify-between items-start gap-4 mb-8 pb-6 border-b border-white/20;
-}
-
-.an-escalation-details-header .an-section-title {
-    @apply border-none pb-0 mb-1;
-}
-
-.an-protocol-editor-layout {
-    @apply grid grid-cols-1 lg:grid-cols-3 gap-8;
-}
-
-.an-protocol-sidebar {
-    @apply lg:col-span-1 bg-white/10 p-6 rounded-2xl border border-white/20;
-}
-
-.an-sidebar-title {
-    @apply text-xl font-bold text-white mb-4 pb-2 border-b border-white/20;
-}
-
-.an-protocol-list {
-    @apply space-y-3 max-h-[600px] overflow-y-auto;
-}
-
-.an-protocol-item {
-    @apply p-4 rounded-xl cursor-pointer transition-all duration-200 border-2 border-transparent bg-white/5;
-}
-
-.an-protocol-item:hover {
-    @apply bg-white/20;
-}
-
-.an-protocol-item.active {
-    @apply bg-blue-500/20 border-blue-400 shadow-lg;
-}
-
-.an-protocol-item .item-header {
-    @apply flex justify-between items-center;
-}
-
-.an-protocol-item .item-header h4 {
-    @apply font-bold text-white;
-}
-
-.an-protocol-item .item-details {
-    @apply text-sm text-white/70 mt-1;
-}
-
-.an-empty-sidebar-text {
-    @apply text-center text-white/60 py-8;
-}
-
-.an-protocol-main-content {
-    @apply lg:col-span-2;
-}
-
-.an-protocol-form {
-    @apply bg-white/10 p-6 rounded-2xl border border-white/20;
-}
-
-.an-protocol-textarea {
-    @apply font-mono text-sm bg-gray-900/50 text-white/90 border-gray-700;
-}
-
-.an-protocol-view {
-    @apply space-y-6;
-}
-
-.an-protocol-view-header {
-    @apply bg-white/10 p-6 rounded-2xl border border-white/20;
-}
-
-.an-protocol-view-header h3 {
-    @apply text-2xl font-bold text-white mb-2;
-}
-
-.an-protocol-meta {
-    @apply flex items-center gap-4 text-sm text-white/70;
-}
-
-.an-protocol-content-display {
-    @apply bg-gray-900/50 p-6 rounded-2xl border border-gray-700 text-white/90;
-}
-
-.an-protocol-content-display pre {
-    @apply whitespace-pre-wrap font-mono text-sm;
-}
-
-.an-protocol-view-actions {
-    @apply justify-end;
-}
-
-.an-protocol-comments {
-    @apply bg-white/10 p-6 rounded-2xl border border-white/20;
-}
-
-.an-add-comment-form {
-    @apply flex flex-col gap-4;
-}
-
-.an-add-comment-form button {
-    @apply self-end;
-}
-
-.an-comments-list {
-    @apply mt-6 space-y-4 max-h-[300px] overflow-y-auto;
-}
-
-.an-comment-item {
-    @apply bg-white/5 p-4 rounded-lg;
-}
-
-.an-comment-header {
-    @apply flex justify-between items-center text-sm text-white/70 mb-2;
-}
-
-.an-comment-header strong {
-    @apply font-semibold text-white;
-}
-
-.an-comment-item p {
-    @apply text-white/90;
-}
-
-.an-status-badge.status-draft {
-    @apply bg-gray-500/80;
-}
-
-.an-status-badge.status-approved {
-    @apply bg-green-500/80;
-}
-
-.an-status-badge.status-rejected {
-    @apply bg-red-500/80;
-}
-
-.an-question-modal, .an-resolution-modal {
-    @apply max-w-3xl mx-auto bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-white/20;
-}
-
-/* ========================================
-   RECOMMENDATIONS LIST STYLES
-   ======================================== */
-
-.recommendations-list-page {
-    @apply min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4 md:p-6 lg:p-8;
-}
-
-.recommendations-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8;
-}
-
-.recommendation-card {
-    @apply bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 hover:scale-105 hover:shadow-2xl;
-}
-
-.recommendation-header {
-    @apply flex justify-between items-start mb-4;
-}
-
-.patient-info h4 {
-    @apply text-xl font-bold text-white mb-1;
-}
-
-.patient-mrn {
-    @apply text-sm text-white/70;
-}
-
-.recommendation-content {
-    @apply space-y-3 mb-6;
-}
-
-.recommendation-content p {
-    @apply text-white/90 leading-relaxed;
-}
-
-.recommendation-content strong {
-    @apply text-white font-semibold;
-}
-
-.recommendation-meta {
-    @apply flex justify-between items-center text-xs text-white/60 mt-4 pt-4 border-t border-white/10;
-}
-
-.recommendation-meta span {
-    @apply font-medium;
-}
-
-.recommendation-actions {
-    @apply flex flex-wrap gap-3 justify-end;
-}
-
-.recommendation-actions button {
-    @apply flex-1 min-w-[120px];
-}
-
-.no-recommendations {
-    @apply text-center py-16;
-}
-
-.no-recommendations h3 {
-    @apply text-2xl font-bold text-white mb-4;
-}
-
-.no-recommendations p {
-    @apply text-white/70 text-lg;
-}
-
-.recommendation-details {
-    @apply space-y-6;
-}
-
-.detail-section {
-    @apply bg-white/5 p-6 rounded-xl border border-white/10;
-}
-
-.detail-section h4 {
-    @apply text-xl font-bold text-white mb-4;
-}
-
-.detail-section p {
-    @apply text-white/90 mb-3 leading-relaxed;
-}
-
-.detail-section strong {
-    @apply text-white font-semibold;
-}
-
-.modal-actions {
-    @apply flex gap-4 justify-end;
-}
-
-.modal-actions button {
-    @apply flex-1;
+.change-credentials-container {
+    @apply max-w-md mx-auto mt-16 bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-white/20;
 }
