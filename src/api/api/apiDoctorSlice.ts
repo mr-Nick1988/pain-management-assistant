@@ -1,6 +1,6 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import {base_url} from "../../utils/constants.ts";
-import type {Patient, PatientCreation, Doctor, RecommendationApproval} from "../../types/./doctor.ts";
+import type {Patient, PatientCreation, Recommendation, RecommendationApproval} from "../../types/./doctor.ts";
 
 
 export const apiDoctorSlice = createApi({
@@ -15,15 +15,15 @@ export const apiDoctorSlice = createApi({
         },
     }),
     endpoints: (builder) => ({
-        getRecommendations: builder.query<Doctor[], void>({
+        getRecommendations: builder.query<Recommendation[], void>({
             query: () => "/doctor/recommendations",
             providesTags: ["Recommendations"],
         }),
-        getRecommendation: builder.query<Doctor, string>({
+        getRecommendation: builder.query<Recommendation, string>({
             query: (id) => `/doctor/recommendations/${id}`,
             providesTags: (_result, _error, id) => [{type: "Recommendations", id}],
         }),
-        approveRecommendation: builder.mutation<Doctor, RecommendationApproval>({
+        approveRecommendation: builder.mutation<Recommendation, RecommendationApproval>({
             query: ({recommendationId, ...data}) => ({
                 url: `/doctor/recommendations/${recommendationId}/approve`,
                 method: "POST",
@@ -31,7 +31,7 @@ export const apiDoctorSlice = createApi({
             }),
             invalidatesTags: ["Recommendations"],
         }),
-        rejectRecommendation: builder.mutation<Doctor, RecommendationApproval>({
+        rejectRecommendation: builder.mutation<Recommendation, RecommendationApproval>({
             query: ({recommendationId, ...data}) => ({
                 url: `/doctor/recommendations/${recommendationId}/reject`,
                 method: "POST",
@@ -39,7 +39,7 @@ export const apiDoctorSlice = createApi({
             }),
             invalidatesTags: ["Recommendations"],
         }),
-        updateRecommendation: builder.mutation <Doctor, Partial<Doctor> & { id: string }>({
+        updateRecommendation: builder.mutation <Recommendation, Partial<Recommendation> & { id: string }>({
             query: ({id, ...data}) => ({
                 url: `/doctor/recommendations/${id}`,
                 method: "PATCH",

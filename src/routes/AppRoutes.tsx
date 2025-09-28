@@ -1,6 +1,6 @@
 import React from "react";
 import {Navigate, Route, Routes} from "react-router-dom";
-import {AdminPanel, ChangeCredentials, Login, DoctorDashboard, AnesthesiologistDashboard, SearchPatients} from "../exports/exports.ts";
+import {AdminPanel, ChangeCredentials, Login, DoctorDashboard, AnesthesiologistDashboard, SearchPatients, RecommendationsList} from "../exports/exports.ts";
 import ProtectedRoute from "./ProtectedRoute.tsx";
 
 const AppRoutes: React.FC = () => {
@@ -21,6 +21,11 @@ const AppRoutes: React.FC = () => {
             <Route path="/doctor/search-patients" element={
                 <ProtectedRoute>
                     <SearchPatients/>
+                </ProtectedRoute>
+            }/>
+            <Route path="/doctor/recommendations" element={
+                <ProtectedRoute>
+                    <RecommendationsList/>
                 </ProtectedRoute>
             }/>
             <Route path="/anesthesiologist" element={

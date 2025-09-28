@@ -5,16 +5,17 @@ import {
     useGetPatientsQuery,
     useGetRecommendationsQuery, useRejectRecommendationMutation
 } from "../../api/api/apiDoctorSlice.ts";
-import {type Doctor, RecommendationStatus} from "../../types/./doctor.ts";
+
 import {AddPatient, PatientRecommendationForm} from "../../exports/exports.ts";
 import {useLocation, useNavigate} from "react-router-dom";
+import {type Recommendation, RecommendationStatus} from "../../types/recommendation.ts";
 
 const DoctorDashboard: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
     // Состояние для модалов и селектов
-    const [selectedRecommendation, setSelectedRecommendation] = useState<Doctor | null>(null);
+    const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null);
     const [isAddPatientModalOpen, setIsAddPatientModalOpen] = useState(false);
     const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
 
@@ -50,7 +51,7 @@ const DoctorDashboard: React.FC = () => {
     const rejectedRecommendations = recommendations?.filter((recommendation) => recommendation.status === "REJECTED") || [];
 
     // HANDLERS ДЛЯ РЕКОМЕНДАЦИЙ
-    const handleRecommendationSelect = (recommendation: Doctor) => {
+    const handleRecommendationSelect = (recommendation: Recommendation) => {
         setSelectedRecommendation(recommendation);
     };
 
@@ -120,6 +121,9 @@ const DoctorDashboard: React.FC = () => {
                 </button>
                 <button onClick={() => navigate("/doctor/search-patients")} className="update-button">
                     Search Patients
+                </button>
+                <button onClick={() => navigate("/doctor/recommendations")} className="submit-button">
+                    Manage Recommendations
                 </button>
             </div>
 
@@ -375,7 +379,8 @@ const DoctorDashboard: React.FC = () => {
                                 ))}
                             </div>
                         ) : (
-                            <p className="medical-subtitle">No patients yet. Click "Add New Patient" to create your first patient.</p>
+                            <p className="medical-subtitle">No patients yet. Click "Add New Patient" to create your
+                                first patient.</p>
                         )}
                     </div>
                 </div>

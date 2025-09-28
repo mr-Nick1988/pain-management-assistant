@@ -836,3 +836,99 @@
 .an-question-modal, .an-resolution-modal {
     @apply max-w-3xl mx-auto bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-white/20;
 }
+
+/* ========================================
+   RECOMMENDATIONS LIST STYLES
+   ======================================== */
+
+.recommendations-list-page {
+    @apply min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 p-4 md:p-6 lg:p-8;
+}
+
+.recommendations-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8;
+}
+
+.recommendation-card {
+    @apply bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-6 hover:bg-white/15 transition-all duration-300 hover:scale-105 hover:shadow-2xl;
+}
+
+.recommendation-header {
+    @apply flex justify-between items-start mb-4;
+}
+
+.patient-info h4 {
+    @apply text-xl font-bold text-white mb-1;
+}
+
+.patient-mrn {
+    @apply text-sm text-white/70;
+}
+
+.recommendation-content {
+    @apply space-y-3 mb-6;
+}
+
+.recommendation-content p {
+    @apply text-white/90 leading-relaxed;
+}
+
+.recommendation-content strong {
+    @apply text-white font-semibold;
+}
+
+.recommendation-meta {
+    @apply flex justify-between items-center text-xs text-white/60 mt-4 pt-4 border-t border-white/10;
+}
+
+.recommendation-meta span {
+    @apply font-medium;
+}
+
+.recommendation-actions {
+    @apply flex flex-wrap gap-3 justify-end;
+}
+
+.recommendation-actions button {
+    @apply flex-1 min-w-[120px];
+}
+
+.no-recommendations {
+    @apply text-center py-16;
+}
+
+.no-recommendations h3 {
+    @apply text-2xl font-bold text-white mb-4;
+}
+
+.no-recommendations p {
+    @apply text-white/70 text-lg;
+}
+
+.recommendation-details {
+    @apply space-y-6;
+}
+
+.detail-section {
+    @apply bg-white/5 p-6 rounded-xl border border-white/10;
+}
+
+.detail-section h4 {
+    @apply text-xl font-bold text-white mb-4;
+}
+
+.detail-section p {
+    @apply text-white/90 mb-3 leading-relaxed;
+}
+
+.detail-section strong {
+    @apply text-white font-semibold;
+}
+
+.modal-actions {
+    @apply flex gap-4 justify-end;
+}
+
+.modal-actions button {
+    @apply flex-1;
+}

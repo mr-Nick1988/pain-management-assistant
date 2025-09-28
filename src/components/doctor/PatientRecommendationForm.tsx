@@ -1,14 +1,15 @@
 import React, {useState} from "react";
-import {type Doctor, RecommendationStatus} from "../../types/./doctor.ts";
+
 import {
     useApproveRecommendationMutation,
     useRejectRecommendationMutation,
     useUpdateRecommendationMutation
 } from "../../api/api/apiDoctorSlice.ts";
+import {type Recommendation, RecommendationStatus} from "../../types/recommendation.ts";
 
 
 interface PatientRecommendationFormProps {
-    recommendation: Doctor;
+    recommendation: Recommendation;
     onClose: () => void;
 }
 

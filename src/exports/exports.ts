@@ -12,3 +12,4 @@ export {default as EscalationsList} from "../components/anesthesiologist/Escalat
 export {default as ProtocolEditor} from "../components/anesthesiologist/ProtocolEditor.tsx"
 export {default as FirstLoginNotice} from "../components/person_login/FirstLoginNotice.tsx"
 export {default as SearchPatients} from "../components/doctor/SearchPatients.tsx"
+export {default as RecommendationsList} from "../components/doctor/RecommendationsList.tsx"
