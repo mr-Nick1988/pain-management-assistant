@@ -42,7 +42,7 @@ const DoctorDashboard: React.FC = () => {
             }
             navigate(location.pathname, {replace: true, state: {}});
         }
-    }, [location.state, navigate]);
+    }, [location.state, location.pathname, navigate]);
 
 
     // Фильтрация рекомендаций по статусу
