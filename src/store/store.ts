@@ -1,8 +1,9 @@
 import {configureStore} from "@reduxjs/toolkit";
-import {apiAdminSlice} from "../api/api/apiAdminSlice.ts";
+
 import {apiPersonSlice} from "../api/api/apiPersonSlice.ts";
 import {apiDoctorSlice} from "../api/api/apiDoctorSlice.ts";
 import {apiAnesthesiologistSlice} from "../api/api/apiAnesthesiologistSlice.ts";
+import {apiAdminSlice} from "../api/api/apiAdminSlice.tsx";
 
 
 

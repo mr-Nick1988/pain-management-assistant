@@ -1,75 +1,22 @@
-import React, { useState } from "react";
-import { type PersonRegister, UserRole } from "../../types/personRegister.ts";
-import {
-    useCreatePersonMutation,
-    useGetPersonsQuery,
-    useDeletePersonMutation,
-    useUpdatePersonMutation
-} from "../../api/api/apiAdminSlice.ts";
-import { PersonsList } from "../../exports/exports.ts";
+import {useNavigate} from "react-router-dom";
+import React, {useState} from "react";
+import {useDeletePersonMutation, useGetPersonsQuery} from "../../api/api/apiAdminSlice.tsx";
+import {PersonsList} from "../../exports/exports.ts";
+
 
 const AdminPanel: React.FC = () => {
-    const [formData, setFormData] = useState<PersonRegister>({
-        firstName: "",
-        lastName: "",
-        login: "",
-        password: "",
-        role: UserRole.DOCTOR,
-        personId: ""
-    });
+    const navigate = useNavigate();
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isEditMode, setIsEditMode] = useState(false);
+    // State for delete confirmation
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     // API hooks
-    const [createPerson, { isLoading: isCreating }] = useCreatePersonMutation();
-    const [updatePerson, { isLoading: isUpdating }] = useUpdatePersonMutation();
     const [deletePerson, { isLoading: isDeleting }] = useDeletePersonMutation();
-    const { data: persons, isLoading: isLoadingPersons, error: fetchError } = useGetPersonsQuery(undefined);
+    const { data: persons, isLoading: isLoadingPersons, error: fetchError} = useGetPersonsQuery(undefined);
 
-    const isLoading = isCreating || isUpdating || isDeleting || isLoadingPersons;
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError(null);
-        setSuccessMessage(null);
-
-        try {
-            if (isEditMode) {
-                await updatePerson(formData).unwrap();
-                setSuccessMessage('User updated successfully');
-            } else {
-                await createPerson(formData).unwrap();
-                setSuccessMessage('User created successfully');
-            }
-            setIsModalOpen(false);
-            resetForm();
-        } catch (error: unknown) {
-            const err = error as { data?: { message?: string } };
-            setError(err?.data?.message || 'Operation failed');
-        }
-    };
-
-    const handleEdit = (person: PersonRegister) => {
-        setFormData({
-            firstName: person.firstName || "",
-            lastName: person.lastName || "",
-            login: person.login || "",
-            password: "", // Clear password for security - user must re-enter
-            role: person.role || UserRole.NURSE,
-            personId: person.personId || ""
-        });
-        setIsEditMode(true);
-        setIsModalOpen(true);
-    };
+    const isLoading = isDeleting || isLoadingPersons;
 
     const handleDelete = async (personId: string) => {
         setUserToDelete(personId);
@@ -80,41 +27,13 @@ const AdminPanel: React.FC = () => {
         if (userToDelete) {
             try {
                 await deletePerson(userToDelete).unwrap();
-                setSuccessMessage('User deleted successfully');
                 setIsDeleteConfirmOpen(false);
                 setUserToDelete(null);
             } catch (error: unknown) {
                 const err = error as { data?: { message?: string } };
-                setError(err?.data?.message || 'Delete failed');
+                setError(err?.data?.message || 'Delete operation failed');
             }
         }
-    };
-
-    const resetForm = () => {
-        setFormData({
-            firstName: "",
-            lastName: "",
-            login: "",
-            password: "",
-            role: UserRole.NURSE,
-            personId: ""
-        });
-        setIsEditMode(false);
-    };
-
-    const openAddUserModal = () => {
-        resetForm();
-        setIsModalOpen(true);
-    };
-
-    const closeModal = () => {
-        setIsModalOpen(false);
-        resetForm();
-    };
-
-    const clearMessages = () => {
-        setError(null);
-        setSuccessMessage(null);
     };
 
     return (
@@ -122,7 +41,7 @@ const AdminPanel: React.FC = () => {
             <div className="admin-header">
                 <h2>Admin Panel</h2>
                 <button
-                    onClick={openAddUserModal}
+                    onClick={() => navigate('/admin/create-person')}
                     className="approve-button"
                 >
                     Add New Person
@@ -133,14 +52,7 @@ const AdminPanel: React.FC = () => {
             {error && (
                 <div className="error-message">
                     {error}
-                    <button onClick={clearMessages}>×</button>
-                </div>
-            )}
-            {successMessage && (
-                <div className="medical-subtitle">
-                    {successMessage}
-                    <button className="delete-button"
-                        onClick={clearMessages}>×</button>
+                    <button onClick={() => setError(null)}>×</button>
                 </div>
             )}
 
@@ -153,7 +65,6 @@ const AdminPanel: React.FC = () => {
                 ) : persons && persons.length > 0 ? (
                     <PersonsList
                         persons={persons}
-                        onEdit={handleEdit}
                         onDelete={handleDelete}
                         isLoading={isLoading}
                     />
@@ -163,120 +74,6 @@ const AdminPanel: React.FC = () => {
                     </div>
                 )}
             </div>
-
-            {/* Add/Edit User Modal */}
-            {isModalOpen && (
-                <div className="modal-overlay">
-                    <div className="modal">
-                        <div className="medical-title">
-                            <h3>{isEditMode ? "Edit Person" : "Create New Person"}</h3>
-                            <button
-                                onClick={closeModal}
-                                className="delete-button"
-                            >
-                                ×
-                            </button>
-                        </div>
-
-                        <form onSubmit={handleSubmit} className="modal-form">
-                            <div className="form-group">
-                                <label htmlFor="personId">Document ID</label>
-                                <input
-                                    id="personId"
-                                    name="personId"
-                                    placeholder="Document ID"
-                                    value={formData.personId}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-
-                            <div className="form-row">
-                                <div className="form-group">
-                                    <label htmlFor="firstName">First Name</label>
-                                    <input
-                                        id="firstName"
-                                        name="firstName"
-                                        placeholder="First Name"
-                                        value={formData.firstName}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                </div>
-
-                                <div className="form-group">
-                                    <label htmlFor="lastName">Last Name</label>
-                                    <input
-                                        id="lastName"
-                                        name="lastName"
-                                        placeholder="Last Name"
-                                        value={formData.lastName}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label htmlFor="login">Login</label>
-                                <input
-                                    id="login"
-                                    name="login"
-                                    placeholder="Login"
-                                    value={formData.login}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label
-                                    htmlFor="password">Password {isEditMode ? "(leave empty to keep current)" : ""}</label>
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    placeholder="Password"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    required={!isEditMode}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label htmlFor="role">Role</label>
-                                <select
-                                    id="role"
-                                    name="role"
-                                    value={formData.role}
-                                    onChange={handleChange}
-                                    required
-                                >
-                                    <option value={UserRole.NURSE}>Nurse</option>
-                                    <option value={UserRole.DOCTOR}>Doctor</option>
-                                    <option value={UserRole.ANESTHESIOLOGIST}>Anesthesiologist</option>
-                                    <option value={UserRole.ADMIN}>Administrator</option>
-                                </select>
-                            </div>
-
-                            <div className="modal-actions">
-                                <button
-                                    type="button"
-                                    onClick={closeModal}
-                                    className="cancel-button"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={isLoading}
-                                    className="submit-button"
-                                >
-                                    {isLoading ? "Processing..." : isEditMode ? "Update User" : "Create Person"}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
 
             {/* Delete Confirmation Modal */}
             {isDeleteConfirmOpen && (
@@ -289,7 +86,7 @@ const AdminPanel: React.FC = () => {
                             <p>Are you sure you want to delete this user? This action cannot be undone.</p>
                         </div>
                         <div className="modal-actions">
-                        <button
+                            <button
                                 onClick={() => setIsDeleteConfirmOpen(false)}
                                 className="cancel-button"
                             >
@@ -300,7 +97,7 @@ const AdminPanel: React.FC = () => {
                                 disabled={isLoading}
                                 className="delete-button"
                             >
-                                {isLoading ? "Deleting..." : "Delete"}
+                                {isDeleting ? "Deleting..." : "Delete"}
                             </button>
                         </div>
                     </div>

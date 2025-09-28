@@ -1,14 +1,13 @@
+import {useLocation, useNavigate} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import {
     useApproveRecommendationMutation,
-    useGetPatientQuery,
-    useGetPatientsQuery,
-    useGetRecommendationsQuery, useRejectRecommendationMutation
+    useGetRecommendationsQuery,
+    useRejectRecommendationMutation
 } from "../../api/api/apiDoctorSlice.ts";
-
-import {AddPatient, PatientRecommendationForm} from "../../exports/exports.ts";
-import {useLocation, useNavigate} from "react-router-dom";
 import {type Recommendation, RecommendationStatus} from "../../types/recommendation.ts";
+import {PatientRecommendationForm} from "../../exports/exports.ts";
+
 
 const DoctorDashboard: React.FC = () => {
     const navigate = useNavigate();
@@ -16,16 +15,9 @@ const DoctorDashboard: React.FC = () => {
 
     // Состояние для модалов и селектов
     const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null);
-    const [isAddPatientModalOpen, setIsAddPatientModalOpen] = useState(false);
-    const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
 
     // API хуки для рекомендаций
     const {data: recommendations, isLoading, error, refetch} = useGetRecommendationsQuery();
-
-    // API хуки для пациентов
-    const {data: patients, isLoading: patientsLoading, error: patientsError} = useGetPatientsQuery();
-    const {data: selectedPatient, isLoading: patientLoading, error: patientError} =
-        useGetPatientQuery(selectedPatientId || '', {skip: !selectedPatientId});
 
     // Мутации для рекомендаций
     const [approveRecommendation, {isLoading: isApproving}] = useApproveRecommendationMutation();
@@ -34,16 +26,9 @@ const DoctorDashboard: React.FC = () => {
     //Обработчики навигации из SearchPatients
     useEffect(() => {
         if (location.state) {
-            if (location.state.selectedPatient) {
-                setSelectedPatientId(location.state.selectedPatient);
-            }
-            if (location.state.createRecommendationFor) {
-                setSelectedPatientId(location.state.createRecommendationFor);
-            }
             navigate(location.pathname, {replace: true, state: {}});
         }
     }, [location.state, location.pathname, navigate]);
-
 
     // Фильтрация рекомендаций по статусу
     const pendingRecommendations = recommendations?.filter((recommendation) => recommendation.status === "PENDING") || [];
@@ -59,65 +44,50 @@ const DoctorDashboard: React.FC = () => {
         setSelectedRecommendation(null);
     };
 
-    const handleApproveRecommendation = async (recommendationId: string) => {
+    const handleApprove = async (recommendationId: string) => {
         try {
             await approveRecommendation({
                 recommendationId,
                 status: RecommendationStatus.APPROVED,
                 comment: "Approved by doctor"
             }).unwrap();
-            refetch(); // Обновляем список после изменения
+            refetch();
         } catch (error) {
             console.error('Failed to approve recommendation:', error);
         }
     };
 
-    const handleRejectRecommendation = async (recommendationId: string) => {
-        const reason = prompt('Enter rejection reason:');
-        if (reason) {
-            try {
-                await rejectRecommendation({
-                    recommendationId,
-                    status: RecommendationStatus.REJECTED,
-                    comment: reason
-                }).unwrap();
-                refetch(); // Обновляем список после изменения
-            } catch (error) {
-                console.error('Failed to reject recommendation:', error);
-            }
+    const handleReject = async (recommendationId: string) => {
+        try {
+            await rejectRecommendation({
+                recommendationId,
+                status: RecommendationStatus.REJECTED,
+                comment: "Rejected by doctor"
+            }).unwrap();
+            refetch();
+        } catch (error) {
+            console.error('Failed to reject recommendation:', error);
         }
     };
 
-    // HANDLERS ДЛЯ ПАЦИЕНТОВ
-    const handleViewPatientDetails = (patientId: string) => {
-        setSelectedPatientId(patientId);
-    };
-
-    const handleClosePatientDetails = () => {
-        setSelectedPatientId(null);
-    };
-
     // LOADING & ERROR HANDLING
-    if (isLoading || patientsLoading) {
+    if (isLoading) {
         return <div className="loading">Loading doctor dashboard...</div>;
     }
 
-    if (error || patientsError) {
+    if (error) {
         return <div className="error">
-            Error loading data: {JSON.stringify(error || patientsError)}
+            Error loading data: {JSON.stringify(error)}
         </div>;
     }
 
     return (
         <div className="doctor-dashboard">
-            {/* HEADER С КНОПКОЙ ДОБАВЛЕНИЯ ПАЦИЕНТА */}
+            {/* HEADER С КНОПКАМИ НАВИГАЦИИ */}
             <div className="admin-header">
                 <h2>Doctor Dashboard</h2>
-                <button
-                    onClick={() => setIsAddPatientModalOpen(true)}
-                    className="approve-button"
-                >
-                    Add New Patient
+                <button onClick={() => navigate("/doctor/patients-list")} className="medical-btn">
+                    My Patients
                 </button>
                 <button onClick={() => navigate("/doctor/search-patients")} className="update-button">
                     Search Patients
@@ -127,19 +97,6 @@ const DoctorDashboard: React.FC = () => {
                 </button>
             </div>
 
-            {/* МОДАЛ ДОБАВЛЕНИЯ ПАЦИЕНТА */}
-            {isAddPatientModalOpen && (
-                <div className="modal-overlay">
-                    <AddPatient
-                        onClose={() => setIsAddPatientModalOpen(false)}
-                        onSuccess={() => {
-                            setIsAddPatientModalOpen(false);
-                            refetch(); // Обновляем данные после создания пациента
-                        }}
-                    />
-                </div>
-            )}
-
             {/* ОСНОВНОЙ КОНТЕНТ */}
             {selectedRecommendation ? (
                 /* МОДАЛ ДЕТАЛЕЙ РЕКОМЕНДАЦИИ */
@@ -147,79 +104,6 @@ const DoctorDashboard: React.FC = () => {
                     recommendation={selectedRecommendation}
                     onClose={handleRecommendationClose}
                 />
-            ) : selectedPatientId ? (
-                /* МОДАЛ ДЕТАЛЕЙ ПАЦИЕНТА */
-                <div className="modal-overlay">
-                    <div className="modal-content patient-details-modal">
-                        <div className="modal-header">
-                            <h3>Patient Details</h3>
-                            <button
-                                className="close-button"
-                                onClick={handleClosePatientDetails}
-                            >
-                                ×
-                            </button>
-                        </div>
-                        <div className="modal-body">
-                            {patientLoading ? (
-                                <div>Loading patient details...</div>
-                            ) : patientError ? (
-                                <div className="error">Error loading patient: {JSON.stringify(patientError)}</div>
-                            ) : selectedPatient ? (
-                                <div className="patient-details">
-                                    <div className="detail-row">
-                                        <label>Name:</label>
-                                        <span>{selectedPatient.firstName} {selectedPatient.lastName}</span>
-                                    </div>
-                                    <div className="detail-row">
-                                        <label>MRN:</label>
-                                        <span>{selectedPatient.mrn}</span>
-                                    </div>
-                                    <div className="detail-row">
-                                        <label>Date of Birth:</label>
-                                        <span>{selectedPatient.dateOfBirth ? new Date(selectedPatient.dateOfBirth).toLocaleDateString() : 'N/A'}</span>
-                                    </div>
-                                    <div className="detail-row">
-                                        <label>Gender:</label>
-                                        <span>{selectedPatient.gender}</span>
-                                    </div>
-                                    {selectedPatient.insurancePolicyNumber && (
-                                        <div className="detail-row">
-                                            <label>Insurance:</label>
-                                            <span>{selectedPatient.insurancePolicyNumber}</span>
-                                        </div>
-                                    )}
-                                    {selectedPatient.phoneNumber && (
-                                        <div className="detail-row">
-                                            <label>Phone:</label>
-                                            <span>{selectedPatient.phoneNumber}</span>
-                                        </div>
-                                    )}
-                                    {selectedPatient.email && (
-                                        <div className="detail-row">
-                                            <label>Email:</label>
-                                            <span>{selectedPatient.email}</span>
-                                        </div>
-                                    )}
-                                    {selectedPatient.address && (
-                                        <div className="detail-row">
-                                            <label>Address:</label>
-                                            <span>{selectedPatient.address}</span>
-                                        </div>
-                                    )}
-                                    {selectedPatient.additionalInfo && (
-                                        <div className="detail-row">
-                                            <label>Additional Info:</label>
-                                            <span>{selectedPatient.additionalInfo}</span>
-                                        </div>
-                                    )}
-                                </div>
-                            ) : (
-                                <div>Patient not found</div>
-                            )}
-                        </div>
-                    </div>
-                </div>
             ) : (
                 <div className="dashboard-content">
                     {/* СЕКЦИЯ РЕКОМЕНДАЦИЙ */}
@@ -241,6 +125,22 @@ const DoctorDashboard: React.FC = () => {
                                                     <p>DOB: {rec.patient?.dateOfBirth ? new Date(rec.patient.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
                                                     <p>Gender: {rec.patient?.gender}</p>
                                                 </div>
+                                                <div className="recommendation-actions">
+                                                    <button
+                                                        className="approve-button"
+                                                        onClick={() => handleApprove(rec.id)}
+                                                        disabled={isApproving}
+                                                    >
+                                                        {isApproving ? "Approving..." : "Approve"}
+                                                    </button>
+                                                    <button
+                                                        className="reject-button"
+                                                        onClick={() => handleReject(rec.id)}
+                                                        disabled={isRejecting}
+                                                    >
+                                                        {isRejecting ? "Rejecting..." : "Reject"}
+                                                    </button>
+                                                </div>
                                             </div>
                                             <div className="recommendation-preview">
                                                 {rec.description.substring(0, 100)}
@@ -248,34 +148,6 @@ const DoctorDashboard: React.FC = () => {
                                             </div>
                                             <div className="recommendation-date">
                                                 {new Date(rec.createdAt).toLocaleDateString()}
-                                            </div>
-                                            <div className="recommendation-actions">
-                                                <button
-                                                    className="approve-button"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleApproveRecommendation(rec.id);
-                                                    }}
-                                                    disabled={isApproving}
-                                                >
-                                                    {isApproving ? 'Approving...' : 'Approve'}
-                                                </button>
-                                                <button
-                                                    className="reject-button"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleRejectRecommendation(rec.id);
-                                                    }}
-                                                    disabled={isRejecting}
-                                                >
-                                                    {isRejecting ? 'Rejecting...' : 'Reject'}
-                                                </button>
-                                                <button
-                                                    className="view-button"
-                                                    onClick={() => handleRecommendationSelect(rec)}
-                                                >
-                                                    View Details
-                                                </button>
                                             </div>
                                         </li>
                                     ))}
@@ -353,36 +225,6 @@ const DoctorDashboard: React.FC = () => {
                             )}
                         </div>
                     </div>
-
-                    {/* СЕКЦИЯ ПАЦИЕНТОВ */}
-                    <div className="patients-section">
-                        <h2>My Patients ({patients?.length || 0})</h2>
-                        {patients && patients.length > 0 ? (
-                            <div className="patients-list">
-                                {patients.map(patient => (
-                                    <div key={patient.id} className="">
-                                        <div className="an-add-comment-form">
-                                            <h3>{patient.firstName} {patient.lastName}</h3>
-                                            <p>MRN: {patient.mrn}</p>
-                                            <p>DOB: {patient.dateOfBirth ? new Date(patient.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
-                                            <p>Gender: {patient.gender}</p>
-                                        </div>
-                                        <div className="patient-actions">
-                                            <button
-                                                className="update-button"
-                                                onClick={() => handleViewPatientDetails(patient.id)}
-                                            >
-                                                View Details
-                                            </button>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <p className="medical-subtitle">No patients yet. Click "Add New Patient" to create your
-                                first patient.</p>
-                        )}
-                    </div>
                 </div>
             )}
         </div>
@@ -390,3 +232,4 @@ const DoctorDashboard: React.FC = () => {
 };
 
 export default DoctorDashboard;
+

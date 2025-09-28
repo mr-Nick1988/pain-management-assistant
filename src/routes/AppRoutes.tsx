@@ -1,6 +1,16 @@
 import React from "react";
 import {Navigate, Route, Routes} from "react-router-dom";
-import {AdminPanel, ChangeCredentials, Login, DoctorDashboard, AnesthesiologistDashboard, SearchPatients, RecommendationsList} from "../exports/exports.ts";
+import {
+    AdminPanel,
+    ChangeCredentials,
+    Login,
+    DoctorDashboard,
+    AnesthesiologistDashboard,
+    SearchPatients,
+    RecommendationsList,
+    CreatePerson,
+    PatientsList
+} from "../exports/exports.ts";
 import ProtectedRoute from "./ProtectedRoute.tsx";
 
 const AppRoutes: React.FC = () => {
@@ -13,6 +23,11 @@ const AppRoutes: React.FC = () => {
                     <AdminPanel/>
                 </ProtectedRoute>
             }/>
+            <Route path="/admin/create-person" element={
+                <ProtectedRoute>
+                    <CreatePerson/>
+                </ProtectedRoute>
+            }/>
             <Route path="/doctor" element={
                 <ProtectedRoute>
                     <DoctorDashboard/>
@@ -21,6 +36,11 @@ const AppRoutes: React.FC = () => {
             <Route path="/doctor/search-patients" element={
                 <ProtectedRoute>
                     <SearchPatients/>
+                </ProtectedRoute>
+            }/>
+            <Route path="/doctor/patients-list" element={
+                <ProtectedRoute>
+                    <PatientsList/>
                 </ProtectedRoute>
             }/>
             <Route path="/doctor/recommendations" element={

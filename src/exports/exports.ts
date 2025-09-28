@@ -13,3 +13,5 @@ export {default as ProtocolEditor} from "../components/anesthesiologist/Protocol
 export {default as FirstLoginNotice} from "../components/person_login/FirstLoginNotice.tsx"
 export {default as SearchPatients} from "../components/doctor/SearchPatients.tsx"
 export {default as RecommendationsList} from "../components/doctor/RecommendationsList.tsx"
+export {default as CreatePerson} from "../components/admin/CreatePerson.tsx"
+export {default as PatientsList} from "../components/doctor/PatientsList.tsx"

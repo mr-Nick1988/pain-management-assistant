@@ -1,14 +1,20 @@
 import type {PersonRegister} from "../../types/personRegister.ts";
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 interface PersonListProps {
     persons: PersonRegister[] | undefined;
     isLoading: boolean;
-    onEdit?: (person: PersonRegister) => void;
     onDelete?: (personId: string) => void;
 }
 
-const PersonsList: React.FC<PersonListProps> = ({persons, isLoading, onEdit, onDelete}) => {
+const PersonsList: React.FC<PersonListProps> = ({persons, isLoading, onDelete}) => {
+    const navigate = useNavigate();
+
+    const handleEdit = (personId: string) => {
+        navigate(`/admin/create-person?edit=${personId}`);
+    };
+
     return (
         <div className="persons-list-section">
             <h3>Persons List</h3>
@@ -23,7 +29,7 @@ const PersonsList: React.FC<PersonListProps> = ({persons, isLoading, onEdit, onD
                         <th>Last Name</th>
                         <th>Login</th>
                         <th>Role</th>
-                        {(onEdit || onDelete) && <th>Actions</th>}
+                        {(onDelete) && <th>Actions</th>}
                     </tr>
                     </thead>
                     <tbody>
@@ -34,16 +40,14 @@ const PersonsList: React.FC<PersonListProps> = ({persons, isLoading, onEdit, onD
                             <td>{person.lastName}</td>
                             <td>{person.login}</td>
                             <td>{person.role}</td>
-                            {(onEdit || onDelete) && (
+                            {(onDelete) && (
                                 <td>
-                                    {onEdit && (
-                                        <button
-                                            onClick={() => onEdit(person)}
-                                            className="edit-button"
-                                        >
-                                            Edit
-                                        </button>
-                                    )}
+                                    <button
+                                        onClick={() => handleEdit(person.personId)}
+                                        className="edit-button"
+                                    >
+                                        Edit
+                                    </button>
                                     {onDelete && (
                                         <button
                                             onClick={() => onDelete(person.personId)}
