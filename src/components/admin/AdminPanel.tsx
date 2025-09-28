@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { type PersonRegister, UserRole } from "../types/personRegister.ts";
+import { type PersonRegister, UserRole } from "../../types/personRegister.ts";
 import {
     useCreatePersonMutation,
     useGetPersonsQuery,
     useDeletePersonMutation,
     useUpdatePersonMutation
-} from "../api/api/apiAdminSlice.ts";
-import { PersonsList } from "../exports/exports.ts";
+} from "../../api/api/apiAdminSlice.ts";
+import { PersonsList } from "../../exports/exports.ts";
 
 const AdminPanel: React.FC = () => {
     const [formData, setFormData] = useState<PersonRegister>({

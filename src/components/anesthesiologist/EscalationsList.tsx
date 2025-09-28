@@ -1,6 +1,6 @@
 import React, {useMemo, useState} from "react";
-import {type Escalation, EscalationStatus} from "../types/anesthesiologist.ts";
-import {useSendQuestionToDoctorMutation, useTakeEscalationMutation} from "../api/api/apiAnesthesiologistSlice.ts";
+import {type Escalation, EscalationStatus} from "../../types/anesthesiologist.ts";
+import {useSendQuestionToDoctorMutation, useTakeEscalationMutation} from "../../api/api/apiAnesthesiologistSlice.ts";
 
 interface EscalationListProps {
     escalations: Escalation[];

@@ -1,15 +1,14 @@
-export {default as Login} from "../components/Login";
+export {default as Login} from "../components/person_login/Login.tsx";
 //export {default as Register} from "../components/Register"
-export {default as AdminPanel} from "../components/AdminPanel"
-export {default as ChangeCredentials} from "../components/ChangeCredentials"
-export {default as PersonsList} from "../components/PersonsList"
+export {default as AdminPanel} from "../components/admin/AdminPanel.tsx"
+export {default as ChangeCredentials} from "../components/person_login/ChangeCredentials.tsx"
+export {default as PersonsList} from "../components/admin/PersonsList.tsx"
 export {default as Navigation} from "../components/Navigation"
-export {default as DoctorDashboard} from "../components/DoctorDashboard"
-export {default as PatientRecommendationForm} from "../components/PatientRecommendationForm"
-export {default as AddPatient} from "../components/AddPatient"
-export {default as AnesthesiologistDashboard} from "../components/AnesthesiologistDashboard"
-export {default as EscalationsList} from "../components/EscalationsList.tsx"
-export {default as ProtocolEditor} from "../components/ProtocolEditor.tsx"
-export {default as FirstLoginNotice} from"../components/FirstLoginNotice"
-
-
+export {default as DoctorDashboard} from "../components/doctor/DoctorDashboard.tsx"
+export {default as PatientRecommendationForm} from "../components/doctor/PatientRecommendationForm.tsx"
+export {default as AddPatient} from "../components/doctor/AddPatient.tsx"
+export {default as AnesthesiologistDashboard} from "../components/anesthesiologist/AnesthesiologistDashboard.tsx"
+export {default as EscalationsList} from "../components/anesthesiologist/EscalationsList.tsx"
+export {default as ProtocolEditor} from "../components/anesthesiologist/ProtocolEditor.tsx"
+export {default as FirstLoginNotice} from "../components/person_login/FirstLoginNotice.tsx"
+export {default as SearchPatients} from "../components/doctor/SearchPatients.tsx"

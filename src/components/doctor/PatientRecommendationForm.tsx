@@ -1,14 +1,14 @@
 import React, {useState} from "react";
-import {type Recommendation, RecommendationStatus} from "../types/recommendation.ts";
+import {type Doctor, RecommendationStatus} from "../../types/./doctor.ts";
 import {
     useApproveRecommendationMutation,
     useRejectRecommendationMutation,
     useUpdateRecommendationMutation
-} from "../api/api/apiDoctorSlice.ts";
+} from "../../api/api/apiDoctorSlice.ts";
 
 
 interface PatientRecommendationFormProps {
-    recommendation: Recommendation;
+    recommendation: Doctor;
     onClose: () => void;
 }
 
@@ -60,7 +60,7 @@ const PatientRecommendationForm: React.FC<PatientRecommendationFormProps> = ({
                 id: recommendation.id,
                 doctorComment: comment
             });
-            alert("Recommendation updated successfully");
+            alert("Doctor updated successfully");
         } catch (error) {
             console.error("Error updating recommendation:", error);
         }
@@ -84,7 +84,7 @@ const PatientRecommendationForm: React.FC<PatientRecommendationFormProps> = ({
                 </div>
                 <div className="info-row">
                     <span className="label">EMR:</span>
-                    <span className="value">{recommendation.patient?.emrNumber}</span>
+                    <span className="value">{recommendation.patient?.mrn}</span>
                 </div>
             </div>
 

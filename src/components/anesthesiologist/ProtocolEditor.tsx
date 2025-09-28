@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {type Protocol, ProtocolStatus} from "../types/anesthesiologist.ts";
+import {type Protocol, ProtocolStatus} from "../../types/anesthesiologist.ts";
 import {
     useAddProtocolCommentMutation,
     useApproveProtocolMutation,
@@ -7,7 +7,7 @@ import {
     useGetEscalationByIdQuery,
     useGetProtocolCommentsQuery,
     useGetProtocolsByEscalationQuery, useRejectProtocolMutation, useResolveEscalationMutation, useUpdateProtocolMutation
-} from "../api/api/apiAnesthesiologistSlice.ts";
+} from "../../api/api/apiAnesthesiologistSlice.ts";
 
 
 interface ProtocolEditorProps {

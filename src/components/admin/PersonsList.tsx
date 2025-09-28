@@ -1,4 +1,4 @@
-import type {PersonRegister} from "../types/personRegister.ts";
+import type {PersonRegister} from "../../types/personRegister.ts";
 import React from "react";
 
 interface PersonListProps {

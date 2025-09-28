@@ -1,7 +1,7 @@
 import React, {useState} from "react";
-import {useGetEscalationsQuery} from "../api/api/apiAnesthesiologistSlice.ts";
-import {EscalationStatus} from "../types/anesthesiologist.ts";
-import {EscalationsList, ProtocolEditor} from "../exports/exports.ts";
+import {useGetEscalationsQuery} from "../../api/api/apiAnesthesiologistSlice.ts";
+import {EscalationStatus} from "../../types/anesthesiologist.ts";
+import {EscalationsList, ProtocolEditor} from "../../exports/exports.ts";
 
 
 const AnesthesiologistDashboard: React.FC = () => {

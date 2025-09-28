@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLoginMutation } from "../api/api/apiPersonSlice";
-import {UserRole} from "../types/personRegister.ts";
+import { useLoginMutation } from "../../api/api/apiPersonSlice.ts";
+import {UserRole} from "../../types/personRegister.ts";
 
 interface LoginResponse {
     firstName: string;

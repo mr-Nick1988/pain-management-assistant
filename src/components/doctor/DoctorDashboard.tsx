@@ -1,16 +1,20 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
     useApproveRecommendationMutation,
     useGetPatientQuery,
     useGetPatientsQuery,
     useGetRecommendationsQuery, useRejectRecommendationMutation
-} from "../api/api/apiDoctorSlice.ts";
-import {type Recommendation, RecommendationStatus} from "../types/recommendation.ts";
-import {AddPatient, PatientRecommendationForm} from "../exports/exports.ts";
+} from "../../api/api/apiDoctorSlice.ts";
+import {type Doctor, RecommendationStatus} from "../../types/./doctor.ts";
+import {AddPatient, PatientRecommendationForm} from "../../exports/exports.ts";
+import {useLocation, useNavigate} from "react-router-dom";
 
 const DoctorDashboard: React.FC = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
     // Состояние для модалов и селектов
-    const [selectedRecommendation, setSelectedRecommendation] = useState<Recommendation | null>(null);
+    const [selectedRecommendation, setSelectedRecommendation] = useState<Doctor | null>(null);
     const [isAddPatientModalOpen, setIsAddPatientModalOpen] = useState(false);
     const [selectedPatientId, setSelectedPatientId] = useState<string | null>(null);
 
@@ -26,13 +30,27 @@ const DoctorDashboard: React.FC = () => {
     const [approveRecommendation, {isLoading: isApproving}] = useApproveRecommendationMutation();
     const [rejectRecommendation, {isLoading: isRejecting}] = useRejectRecommendationMutation();
 
+    //Обработчики навигации из SearchPatients
+    useEffect(() => {
+        if (location.state) {
+            if (location.state.selectedPatient) {
+                setSelectedPatientId(location.state.selectedPatient);
+            }
+            if (location.state.createRecommendationFor) {
+                setSelectedPatientId(location.state.createRecommendationFor);
+            }
+            navigate(location.pathname, {replace: true, state: {}});
+        }
+    }, [location.state, navigate]);
+
+
     // Фильтрация рекомендаций по статусу
     const pendingRecommendations = recommendations?.filter((recommendation) => recommendation.status === "PENDING") || [];
     const approvedRecommendations = recommendations?.filter((recommendation) => recommendation.status === "APPROVED") || [];
     const rejectedRecommendations = recommendations?.filter((recommendation) => recommendation.status === "REJECTED") || [];
 
     // HANDLERS ДЛЯ РЕКОМЕНДАЦИЙ
-    const handleRecommendationSelect = (recommendation: Recommendation) => {
+    const handleRecommendationSelect = (recommendation: Doctor) => {
         setSelectedRecommendation(recommendation);
     };
 
@@ -99,6 +117,9 @@ const DoctorDashboard: React.FC = () => {
                     className="approve-button"
                 >
                     Add New Patient
+                </button>
+                <button onClick={() => navigate("/doctor/search-patients")} className="update-button">
+                    Search Patients
                 </button>
             </div>
 
@@ -335,8 +356,8 @@ const DoctorDashboard: React.FC = () => {
                         {patients && patients.length > 0 ? (
                             <div className="patients-list">
                                 {patients.map(patient => (
-                                    <div key={patient.id} className="patient-card">
-                                        <div className="patient-info">
+                                    <div key={patient.id} className="">
+                                        <div className="an-add-comment-form">
                                             <h3>{patient.firstName} {patient.lastName}</h3>
                                             <p>MRN: {patient.mrn}</p>
                                             <p>DOB: {patient.dateOfBirth ? new Date(patient.dateOfBirth).toLocaleDateString() : 'N/A'}</p>
@@ -344,7 +365,7 @@ const DoctorDashboard: React.FC = () => {
                                         </div>
                                         <div className="patient-actions">
                                             <button
-                                                className="view-button"
+                                                className="update-button"
                                                 onClick={() => handleViewPatientDetails(patient.id)}
                                             >
                                                 View Details
@@ -354,7 +375,7 @@ const DoctorDashboard: React.FC = () => {
                                 ))}
                             </div>
                         ) : (
-                            <p>No patients yet. Click "Add New Patient" to create your first patient.</p>
+                            <p className="medical-subtitle">No patients yet. Click "Add New Patient" to create your first patient.</p>
                         )}
                     </div>
                 </div>

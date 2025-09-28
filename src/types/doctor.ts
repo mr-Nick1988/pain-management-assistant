@@ -23,7 +23,7 @@ export interface Patient {
     updatedAt: string;
 }
 
-export interface Recommendation {
+export interface Doctor {
     id: string;
     patientId: string;
     patient?: Patient;
