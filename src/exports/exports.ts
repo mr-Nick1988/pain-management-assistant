@@ -15,3 +15,25 @@ export {default as SearchPatients} from "../components/doctor/SearchPatients.tsx
 export {default as RecommendationsList} from "../components/doctor/RecommendationsList.tsx"
 export {default as CreatePerson} from "../components/admin/CreatePerson.tsx"
 export {default as PatientsList} from "../components/doctor/PatientsList.tsx"
+export {default as NurseDashboard} from "../components/nurse/NurseDashboard.tsx"
+export {default as PatientFormRegister} from "../components/nurse/PatientFormRegister.tsx"
+export {default as EMRFormRegister} from "../components/nurse/EMRFormRegister.tsx"
+export {default as EMRUpdateForm} from "../components/nurse/EMRUpdateForm.tsx"
+export {default as PatientList} from "../components/nurse/PatientList.tsx"
+export {default as PatientDetails} from "../components/nurse/PatientDetails.tsx"
+export {default as VASFormRegister} from "../components/nurse/VASFormRegister.tsx";
+export {default as GenerateRecommendationForm} from "../components/nurse/GenerateRecommendationForm.tsx"
+export {default as PatientUpdateForm} from "../components/nurse/PatientUpdateForm.tsx"
+export {default as NurseLayout} from "../components/nurse/NurseLayout.tsx"
+
+
+
+
+
+
+
+
+
+
+
+

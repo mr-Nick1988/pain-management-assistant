@@ -9,9 +9,23 @@ import {
     SearchPatients,
     RecommendationsList,
     CreatePerson,
-    PatientsList
+    PatientsList,
+    NurseDashboard,
+    PatientFormRegister,
+    EMRFormRegister,
+    EMRUpdateForm,
+    PatientList,
+    PatientDetails,
+    VASFormRegister,
+    GenerateRecommendationForm,
+    PatientUpdateForm,
+    NurseLayout,
+
 } from "../exports/exports.ts";
 import ProtectedRoute from "./ProtectedRoute.tsx";
+
+
+
 
 const AppRoutes: React.FC = () => {
 
@@ -23,11 +37,31 @@ const AppRoutes: React.FC = () => {
                     <AdminPanel/>
                 </ProtectedRoute>
             }/>
+
             <Route path="/admin/create-person" element={
                 <ProtectedRoute>
                     <CreatePerson/>
                 </ProtectedRoute>
             }/>
+
+            {/* NURSE ROUTES */}
+            <Route path="/nurse" element={
+                <ProtectedRoute>
+                    <NurseLayout />   {/*Тут присутсвует <Outlet> для подстановки подкомпоненты и отрисовки её*/}
+                </ProtectedRoute>
+            }>
+                <Route index element={<NurseDashboard />} /> {/* стартовая страница */}
+                <Route path="register-patient" element={<PatientFormRegister />} />
+                <Route path="emr-form/:personId" element={<EMRFormRegister />} />
+                <Route path="emr-update/:personId" element={<EMRUpdateForm />} />
+                <Route path="patients" element={<PatientList />} />
+                <Route path="patient/:personId" element={<PatientDetails />} />
+                <Route path="vas-form/:personId" element={<VASFormRegister />} />
+                <Route path="recommendation/:personId" element={<GenerateRecommendationForm />} />
+                <Route path="update-patient/:personId" element={<PatientUpdateForm />} />
+            </Route>
+
+
             <Route path="/doctor" element={
                 <ProtectedRoute>
                     <DoctorDashboard/>
