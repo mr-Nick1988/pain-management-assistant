@@ -64,4 +64,4 @@ const Label = React.forwardRef<
 ));
 Label.displayName = "Label";
 
-export { Input, Textarea, Label, inputVariants };
+export { Input, Textarea, Label };

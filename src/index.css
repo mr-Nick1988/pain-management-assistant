@@ -4,7 +4,7 @@
    МЕДИЦИНСКОЕ ПРИЛОЖЕНИЕ - УТИЛИТАРНЫЕ КЛАССЫ TAILWIND
    ================================= */
 
-/* Основные переменные и базовые стили */
+
 :root {
     --medical-primary: #2563eb;
     --medical-secondary: #059669;
@@ -35,7 +35,7 @@
     --color-ring: #3b82f6;
 }
 
-/* Прямые стили для Card компонентов */
+
 .bg-card {
     background-color: #ffffff !important;
 }
