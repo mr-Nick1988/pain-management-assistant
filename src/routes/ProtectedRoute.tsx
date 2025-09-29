@@ -40,6 +40,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole,
                 return <Navigate to="/doctor" replace />;
             case 'ANESTHESIOLOGIST':
                 return <Navigate to="/anesthesiologist" replace />;
+            case 'NURSE':
+                return <Navigate to="/nurse" replace />;
             default:
                 return <Navigate to="/login" replace />;
         }
