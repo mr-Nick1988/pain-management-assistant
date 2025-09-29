@@ -10,6 +10,7 @@ export {default as AddPatient} from "../components/AddPatient"
 export {default as AnesthesiologistDashboard} from "../components/AnesthesiologistDashboard"
 export {default as EscalationsList} from "../components/EscalationsList.tsx"
 export {default as ProtocolEditor} from "../components/ProtocolEditor.tsx"
+
 export {default as NurseDashboard} from "../components/nurse/NurseDashboard.tsx"
 export {default as PatientFormRegister} from "../components/nurse/PatientFormRegister.tsx"
 export {default as EMRFormRegister} from "../components/nurse/EMRFormRegister.tsx"
@@ -25,6 +26,9 @@ export {default as NurseLayout} from "../components/nurse/NurseLayout.tsx"
 
 
 
+
+
+export {default as FirstLoginNotice} from"../components/FirstLoginNotice"
 
 
 

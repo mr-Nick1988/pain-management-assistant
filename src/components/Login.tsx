@@ -1,64 +1,55 @@
-import type {PersonLogin} from "../types/personRegister.ts";
-import React, {useState} from "react";
-import {useLoginMutation} from "../api/api/apiPersonSlice.ts";
-import {useNavigate} from "react-router-dom";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useLoginMutation } from "../api/api/apiPersonSlice";
+import {UserRole} from "../types/personRegister.ts";
+
+interface LoginResponse {
+    firstName: string;
+    role: UserRole;
+    temporaryCredentials: boolean;
+}
 
 const Login: React.FC = () => {
+    const [login, setLogin] = useState("");
+    const [password, setPassword] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
-    const [formData, setFormData] = useState<PersonLogin>({
-        login: "",
-        password: "",
-    });
-
-    const [isFirstLogin, setIsFirstLogin] = useState<boolean>(false);
-    const [login, {isLoading, error}] = useLoginMutation();
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({...formData, [e.target.name]: e.target.value});
-    };
+    const [loginMutation] = useLoginMutation();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        try {
-            const response = await login(formData).unwrap();
-
-            if (response?.firstName) {
-                localStorage.setItem('userFirstName', response.firstName)
-            }
-            if (response?.role) {
-                localStorage.setItem('userRole', response.role)
-            }
-            // Сохраняем логин пользователя для смены креденшиалов
-            localStorage.setItem('userLogin', formData.login);
-            
-            if (response?.temporaryCredentials) {
-                setIsFirstLogin(true)
-            } else {
-                switch (response?.role) {
-                    case 'ADMIN':
-                        navigate('/admin');
-                        break;
-                    case 'DOCTOR':
-                        navigate('/doctor');
-                        break;
-                    case 'NURSE':
-                        navigate('/nurse');
-                        break;
-                    case 'ANESTHESIOLOGIST':
-                        navigate('/anesthesiologist');
-                        break;
-                    default:
-                        console.error('Unknown role: ' + response?.role);
-                        navigate('/');
-                }
-            }
-        } catch (error) {
-            console.error('Login failed: ' + error);
+        if (!login || !password) {
+            setError("Please enter both username and password");
+            return;
         }
-    };
+        setIsLoading(true);
+        setError(null);
 
-    const handleChangeCredentials = () => {
-        navigate('/change-credentials');
+        try {
+            const response = await loginMutation({ login, password }).unwrap() as LoginResponse;
+            
+            // Save user data
+            localStorage.setItem("userRole", response.role);
+            localStorage.setItem("userFirstName", response.firstName);
+            localStorage.setItem("userLogin", login);
+            localStorage.setItem("isFirstLogin", String(response.temporaryCredentials));
+
+            // Redirect based on role
+            const redirectPath = {
+                [UserRole.ADMIN]: "/admin",
+                [UserRole.DOCTOR]: "/doctor",
+                [UserRole.ANESTHESIOLOGIST]: "/anesthesiologist",
+                [UserRole.NURSE]: "/nurse"
+            }[response.role] || "/";
+
+            navigate(redirectPath);
+        } catch (err: unknown) {
+            const error = err as { data?: { message?: string } };
+            setError(error?.data?.message || "Login failed. Please check your credentials.");
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -66,45 +57,36 @@ const Login: React.FC = () => {
             <h2>Login</h2>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label htmlFor="login">User login:</label>
+                    <label htmlFor="login">Login:</label>
                     <input
                         id="login"
-                        placeholder="Enter login"
-                        name="login"
-                        value={formData.login}
-                        onChange={handleChange}
+                        type="text"
+                        placeholder="Enter username"
+                        value={login}
+                        onChange={(e) => setLogin(e.target.value)}
+                        disabled={isLoading}
                         required
                     />
                 </div>
-
                 <div className="form-group">
                     <label htmlFor="password">Password:</label>
                     <input
                         id="password"
-                        name="password"
-                        placeholder="Enter password"
                         type="password"
-                        value={formData.password}
-                        onChange={handleChange}
+                        placeholder="Enter password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        disabled={isLoading}
                         required
                     />
                 </div>
+                {error && <div className="error-message">{error}</div>}
                 <button type="submit" disabled={isLoading} className="login-button">
-                    {isLoading ? "Logging in..." : "Login"}
+                    {isLoading ? 'Logging in...' : 'Login'}
                 </button>
             </form>
-
-            {isFirstLogin && (
-                <div className="first-login-message">
-                    <p>You have logged in with temporary credentials. Please change them for security.</p>
-                    <button onClick={handleChangeCredentials}>
-                        Change Credentials
-                    </button>
-                </div>
-            )}
-            {error && <p className="error-message">Error: {JSON.stringify(error)}</p>}
         </div>
-    )
-}
+    );
+};
 
 export default Login;

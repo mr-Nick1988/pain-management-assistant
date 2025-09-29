@@ -1,13 +1,12 @@
-import React, {useState} from "react";
-import {type PersonRegister, UserRole} from "../types/personRegister.ts";
+import React, { useState } from "react";
+import { type PersonRegister, UserRole } from "../types/personRegister.ts";
 import {
     useCreatePersonMutation,
     useGetPersonsQuery,
     useDeletePersonMutation,
     useUpdatePersonMutation
 } from "../api/api/apiAdminSlice.ts";
-import {PersonsList} from "../exports/exports.ts";
-
+import { PersonsList } from "../exports/exports.ts";
 
 const AdminPanel: React.FC = () => {
     const [formData, setFormData] = useState<PersonRegister>({
@@ -15,40 +14,79 @@ const AdminPanel: React.FC = () => {
         lastName: "",
         login: "",
         password: "",
-        role: UserRole.NURSE,
-        personId: "" // Изменено с id на personId
+        role: UserRole.DOCTOR,
+        personId: ""
     });
-    const [isEditing, setIsEditing] = useState(false);
 
-    const [createPerson, {isLoading: isCreating, error: createError}] = useCreatePersonMutation();
-    const [updatePerson, {isLoading: isUpdating, error: updateError}] = useUpdatePersonMutation();
-    const [deletePerson, {isLoading: isDeleting, error: deleteError}] = useDeletePersonMutation();
-    const {data: persons, isLoading: isLoadingPersons} = useGetPersonsQuery(undefined);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [userToDelete, setUserToDelete] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+    // API hooks
+    const [createPerson, { isLoading: isCreating }] = useCreatePersonMutation();
+    const [updatePerson, { isLoading: isUpdating }] = useUpdatePersonMutation();
+    const [deletePerson, { isLoading: isDeleting }] = useDeletePersonMutation();
+    const { data: persons, isLoading: isLoadingPersons, error: fetchError } = useGetPersonsQuery(undefined);
+
+    const isLoading = isCreating || isUpdating || isDeleting || isLoadingPersons;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setFormData({...formData, [e.target.name]: e.target.value});
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError(null);
+        setSuccessMessage(null);
 
-        if (isEditing) {
-            await updatePerson(formData);
-            setIsEditing(false);
-        } else {
-            await createPerson(formData);
+        try {
+            if (isEditMode) {
+                await updatePerson(formData).unwrap();
+                setSuccessMessage('User updated successfully');
+            } else {
+                await createPerson(formData).unwrap();
+                setSuccessMessage('User created successfully');
+            }
+            setIsModalOpen(false);
+            resetForm();
+        } catch (error: unknown) {
+            const err = error as { data?: { message?: string } };
+            setError(err?.data?.message || 'Operation failed');
         }
-        resetForm();
     };
 
     const handleEdit = (person: PersonRegister) => {
-        setFormData(person);
-        setIsEditing(true);
+        setFormData({
+            firstName: person.firstName || "",
+            lastName: person.lastName || "",
+            login: person.login || "",
+            password: "", // Clear password for security - user must re-enter
+            role: person.role || UserRole.NURSE,
+            personId: person.personId || ""
+        });
+        setIsEditMode(true);
+        setIsModalOpen(true);
     };
 
     const handleDelete = async (personId: string) => {
-        if (window.confirm("Are you sure you want to delete this person?")) {
-            await deletePerson(personId);
+        setUserToDelete(personId);
+        setIsDeleteConfirmOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (userToDelete) {
+            try {
+                await deletePerson(userToDelete).unwrap();
+                setSuccessMessage('User deleted successfully');
+                setIsDeleteConfirmOpen(false);
+                setUserToDelete(null);
+            } catch (error: unknown) {
+                const err = error as { data?: { message?: string } };
+                setError(err?.data?.message || 'Delete failed');
+            }
         }
     };
 
@@ -59,132 +97,215 @@ const AdminPanel: React.FC = () => {
             login: "",
             password: "",
             role: UserRole.NURSE,
-            personId: "" // Изменено с id на personId
+            personId: ""
         });
+        setIsEditMode(false);
     };
 
-    const cancelEdit = () => {
-        setIsEditing(false);
+    const openAddUserModal = () => {
+        resetForm();
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
         resetForm();
     };
 
-    const isLoading = isCreating || isUpdating || isDeleting;
-    const error = createError || updateError || deleteError;
+    const clearMessages = () => {
+        setError(null);
+        setSuccessMessage(null);
+    };
 
     return (
         <div className="admin-panel">
-            <h2>Admin Panel</h2>
-
-            <div className="create-person-section">
-                <h3>{isEditing ? "Edit Person" : "Create New Person"}</h3>
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="personId">Document ID</label>
-                        <input
-                            id="personId"
-                            name="personId"
-                            placeholder="Document ID"
-                            value={formData.personId}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="firstName">First Name</label>
-                        <input
-                            id="firstName"
-                            name="firstName"
-                            placeholder="First Name"
-                            value={formData.firstName}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="lastName">Last Name</label>
-                        <input
-                            id="lastName"
-                            name="lastName"
-                            placeholder="Last Name"
-                            value={formData.lastName}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="login">Temporary Login</label>
-                        <input
-                            id="login"
-                            name="login"
-                            placeholder="Temporary Login"
-                            value={formData.login}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="password">Temporary Password</label>
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            placeholder="Temporary Password"
-                            value={formData.password}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-
-                    <div className="form-group">
-                        <label htmlFor="role">Role</label>
-                        <select
-                            id="role"
-                            name="role"
-                            value={formData.role}
-                            onChange={handleChange}
-                            required
-                        >
-                            <option value={UserRole.NURSE}>Nurse</option>
-                            <option value={UserRole.DOCTOR}>Doctor</option>
-                            <option value={UserRole.ANESTHESIOLOGIST}>Anesthesiologist</option>
-                            <option value={UserRole.ADMIN}>Administrator</option>
-                        </select>
-                    </div>
-
-                    <div className="form-actions">
-                        <button type="submit" disabled={isLoading}>
-                            {isLoading ? "Processing..." : isEditing ? "Update Person" : "Create Person"}
-                        </button>
-                        {isEditing && (
-                            <button type="button" onClick={cancelEdit}>
-                                Cancel
-                            </button>
-                        )}
-                    </div>
-                </form>
-
-                {error && <p className="error-message">Error: {JSON.stringify(error)}</p>}
+            <div className="admin-header">
+                <h2>Admin Panel</h2>
+                <button
+                    onClick={openAddUserModal}
+                    className="approve-button"
+                >
+                    Add New Person
+                </button>
             </div>
 
-            <div className="persons-list-section">
-                <h3>Persons List</h3>
+            {/* Messages */}
+            {error && (
+                <div className="error-message">
+                    {error}
+                    <button onClick={clearMessages}>×</button>
+                </div>
+            )}
+            {successMessage && (
+                <div className="medical-subtitle">
+                    {successMessage}
+                    <button className="delete-button"
+                        onClick={clearMessages}>×</button>
+                </div>
+            )}
+
+            {/* Users List */}
+            <div className="users-list-section">
                 {isLoadingPersons ? (
-                    <p>Loading persons...</p>
+                    <div className="loading-spinner">Loading users...</div>
+                ) : fetchError ? (
+                    <div className="error-message">Error loading users</div>
                 ) : persons && persons.length > 0 ? (
                     <PersonsList
                         persons={persons}
                         onEdit={handleEdit}
                         onDelete={handleDelete}
-                        isLoading={isLoadingPersons}
+                        isLoading={isLoading}
                     />
                 ) : (
-                    <p>No persons found.</p>
+                    <div className="empty-state">
+                        <p>No users found.</p>
+                    </div>
                 )}
             </div>
+
+            {/* Add/Edit User Modal */}
+            {isModalOpen && (
+                <div className="modal-overlay">
+                    <div className="modal">
+                        <div className="medical-title">
+                            <h3>{isEditMode ? "Edit Person" : "Create New Person"}</h3>
+                            <button
+                                onClick={closeModal}
+                                className="delete-button"
+                            >
+                                ×
+                            </button>
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="modal-form">
+                            <div className="form-group">
+                                <label htmlFor="personId">Document ID</label>
+                                <input
+                                    id="personId"
+                                    name="personId"
+                                    placeholder="Document ID"
+                                    value={formData.personId}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+
+                            <div className="form-row">
+                                <div className="form-group">
+                                    <label htmlFor="firstName">First Name</label>
+                                    <input
+                                        id="firstName"
+                                        name="firstName"
+                                        placeholder="First Name"
+                                        value={formData.firstName}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label htmlFor="lastName">Last Name</label>
+                                    <input
+                                        id="lastName"
+                                        name="lastName"
+                                        placeholder="Last Name"
+                                        value={formData.lastName}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="login">Login</label>
+                                <input
+                                    id="login"
+                                    name="login"
+                                    placeholder="Login"
+                                    value={formData.login}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label
+                                    htmlFor="password">Password {isEditMode ? "(leave empty to keep current)" : ""}</label>
+                                <input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    placeholder="Password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required={!isEditMode}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="role">Role</label>
+                                <select
+                                    id="role"
+                                    name="role"
+                                    value={formData.role}
+                                    onChange={handleChange}
+                                    required
+                                >
+                                    <option value={UserRole.NURSE}>Nurse</option>
+                                    <option value={UserRole.DOCTOR}>Doctor</option>
+                                    <option value={UserRole.ANESTHESIOLOGIST}>Anesthesiologist</option>
+                                    <option value={UserRole.ADMIN}>Administrator</option>
+                                </select>
+                            </div>
+
+                            <div className="modal-actions">
+                                <button
+                                    type="button"
+                                    onClick={closeModal}
+                                    className="cancel-button"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="submit-button"
+                                >
+                                    {isLoading ? "Processing..." : isEditMode ? "Update User" : "Create Person"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {isDeleteConfirmOpen && (
+                <div className="modal-overlay">
+                    <div className="modal modal-small">
+                        <div className="medical-title">
+                            <h3>Confirm Delete</h3>
+                        </div>
+                        <div className="error-message">
+                            <p>Are you sure you want to delete this user? This action cannot be undone.</p>
+                        </div>
+                        <div className="modal-actions">
+                        <button
+                                onClick={() => setIsDeleteConfirmOpen(false)}
+                                className="cancel-button"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={confirmDelete}
+                                disabled={isLoading}
+                                className="delete-button"
+                            >
+                                {isLoading ? "Deleting..." : "Delete"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

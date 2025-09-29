@@ -59,7 +59,7 @@ const AppRoutes: React.FC = () => {
                 </ProtectedRoute>
             }/>
             <Route path="/change-credentials" element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedOnFirstLogin={true}>
                     <ChangeCredentials/>
                 </ProtectedRoute>
             }/>

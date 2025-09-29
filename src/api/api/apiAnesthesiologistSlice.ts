@@ -18,22 +18,22 @@ export const apiAnesthesiologistSlice = createApi({
     tagTypes: ["Escalation", "Protocol", "ProtocolComment"],
     endpoints: (builder) => ({
         getEscalations: builder.query<Escalation[], void>({
-            query: () => "/escalations",
+            query: () => "anesthesiologist/escalations",
             providesTags: ["Escalation"],
         }),
         getEscalationById: builder.query<Escalation, string>({
-            query: (id) => `/escalations/${id}`,
+            query: (id) => `anesthesiologist/escalations/${id}`,
             providesTags: (_result, _error, id) => [{type: "Escalation", id}],
         }),
         takeEscalation: builder.mutation<void, string>({
             query: (escalationId) => ({
-                url: `/escalations/${escalationId}/take`,
+                url: `anesthesiologist/escalations/${escalationId}/take`,
                 method: "POST",
             }),
             invalidatesTags: (_result, _error, escalationId) => [{type: "Escalation", id: escalationId}],
         }),
         getProtocolsByEscalation: builder.query<Protocol[], string>({
-            query: (escalationId) => `/escalations/${escalationId}/protocols`,
+            query: (escalationId) => `anesthesiologist/escalations/${escalationId}/protocols`,
             providesTags: (_result, _error, escalationId) => [{type: "Protocol", id: escalationId}],
         }),
         createProtocol: builder.mutation<Protocol, CreateProtocolRequest>({
@@ -46,7 +46,7 @@ export const apiAnesthesiologistSlice = createApi({
         }),
         updateProtocol: builder.mutation<Protocol, UpdateProtocolRequest>({
             query: ({id, ...patch}) => ({
-                url: `/protocol/${id}`,
+                url: `anesthesiologist/protocol/${id}`,
                 method: "PATCH",
                 body: patch,
             }),
@@ -54,7 +54,7 @@ export const apiAnesthesiologistSlice = createApi({
         }),
         approveProtocol: builder.mutation<void, string>({
             query: (protocolId) => ({
-                url: `/protocol/${protocolId}/approve`,
+                url: `anesthesiologist/protocol/${protocolId}/approve`,
                 method: "POST",
             }),
             invalidatesTags: (_result, _error, protocolId) => [{
@@ -64,7 +64,7 @@ export const apiAnesthesiologistSlice = createApi({
         }),
         rejectProtocol: builder.mutation<void, { protocolId: string; reason: string }>({
             query: ({protocolId, reason}) => ({
-                url: `/protocols/${protocolId}/reject`,
+                url: `anesthesiologist/protocols/${protocolId}/reject`,
                 method: "POST",
                 body: {reason},
             }),
@@ -80,7 +80,7 @@ export const apiAnesthesiologistSlice = createApi({
         }),
         addProtocolComment: builder.mutation<ProtocolComment, CreateProtocolCommentRequest>({
             query: (comment) => ({
-                url: "/protocols/comments",
+                url: "anesthesiologist/protocols/comments",
                 method: "POST",
                 body: comment
             }),
@@ -91,7 +91,7 @@ export const apiAnesthesiologistSlice = createApi({
         }),
         sendQuestionToDoctor: builder.mutation<void, { escalationId: string; question: string }>({
             query: ({escalationId, question}) => ({
-                url: `/escalations/${escalationId}/questions`,
+                url: `anesthesiologist/escalations/${escalationId}/questions`,
                 method: "POST",
                 body: {question}
             }),
@@ -99,7 +99,7 @@ export const apiAnesthesiologistSlice = createApi({
         }),
         resolveEscalation: builder.mutation<void, { escalationId: string, resolution: string }>({
             query: ({escalationId, resolution}) => ({
-                url: `/escalations/${escalationId}/resolve`,
+                url: `anesthesiologist/escalations/${escalationId}/resolve`,
                 method: "POST",
                 body: {resolution}
             }),

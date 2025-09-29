@@ -10,11 +10,16 @@ interface AddPatientProps {
 
 const AddPatient: React.FC<AddPatientProps> = ({onClose, onSuccess}) => {
 
-    const [formData, setFormData] = useState<PatientCreation>({
+    const [formData, setFormData] = useState<Omit<PatientCreation, 'createdBy'>>({
         firstName: "",
         lastName: "",
-        emrNumber: "",
-        additionalInfo: ""
+        dateOfBirth: "",
+        gender: "",
+        insurancePolicyNumber: "",
+        phoneNumber: "",
+        email: "",
+        address: "",
+        additionalInfo: "",
     });
     const [createPatient, {isLoading, error}] = useCreatePatientMutation();
 
@@ -24,8 +29,32 @@ const AddPatient: React.FC<AddPatientProps> = ({onClose, onSuccess}) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        const createdBy = localStorage.getItem("userLogin");
+        if (!createdBy) {
+            console.error("Doctor login not found in localStorage. Cannot create patient.");
+            // Optionally, set an error message to display to the user
+            return;
+        }
+
+        const dataToSend: PatientCreation = {
+            ...formData,
+            createdBy: createdBy,
+        };
+
+        // Convert date from DD.MM.YYYY to YYYY-MM-DD format for Spring LocalDate
+        if (dataToSend.dateOfBirth && dataToSend.dateOfBirth.includes('.')) {
+            const [day, month, year] = dataToSend.dateOfBirth.split('.');
+            if (day && month && year) {
+                dataToSend.dateOfBirth = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+            }
+        }
+
+        if (!dataToSend.additionalInfo?.trim()) {
+            delete dataToSend.additionalInfo;
+        }
+
         try {
-            await createPatient(formData).unwrap();
+            await createPatient(dataToSend).unwrap();
             if (onSuccess) {
                 onSuccess();
             }
@@ -67,13 +96,73 @@ const AddPatient: React.FC<AddPatientProps> = ({onClose, onSuccess}) => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="emrNumber">EMR Number</label>
+                    <label htmlFor="dateOfBirth">Date of Birth</label>
                     <input
-                        id="emrNumber"
-                        name="emrNumber"
-                        value={formData.emrNumber}
+                        id="dateOfBirth"
+                        name="dateOfBirth"
+                        value={formData.dateOfBirth}
                         onChange={handleChange}
-                        placeholder="Add EMR Number"
+                        placeholder="Add Date of Birth"
+                        required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="gender">Gender</label>
+                    <input
+                        id="gender"
+                        name="gender"
+                        value={formData.gender}
+                        onChange={handleChange}
+                        placeholder="Add Gender"
+                        required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="insurancePolicyNumber">Insurance Policy Number</label>
+                    <input
+                        id="insurancePolicyNumber"
+                        name="insurancePolicyNumber"
+                        value={formData.insurancePolicyNumber}
+                        onChange={handleChange}
+                        placeholder="Add Insurance Policy Number"
+                        required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="phoneNumber">Phone Number</label>
+                    <input
+                        id="phoneNumber"
+                        name="phoneNumber"
+                        value={formData.phoneNumber}
+                        onChange={handleChange}
+                        placeholder="Add Phone Number"
+                        required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="email">Email</label>
+                    <input
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="Add Email"
+                        required
+                    />
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="address">Address</label>
+                    <input
+                        id="address"
+                        name="address"
+                        value={formData.address}
+                        onChange={handleChange}
+                        placeholder="Add Address"
                         required
                     />
                 </div>

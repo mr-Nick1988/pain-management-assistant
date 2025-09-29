@@ -2,7 +2,6 @@ import React, {useMemo, useState} from "react";
 import {type Escalation, EscalationStatus} from "../types/anesthesiologist.ts";
 import {useSendQuestionToDoctorMutation, useTakeEscalationMutation} from "../api/api/apiAnesthesiologistSlice.ts";
 
-
 interface EscalationListProps {
     escalations: Escalation[];
     onEscalationSelect: (escalationId: string) => void;
@@ -19,7 +18,6 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
     const [takeEscalation, {isLoading: isTaking}] = useTakeEscalationMutation();
     const [sendQuestionToDoctor, {isLoading: isSendingQuestion}] = useSendQuestionToDoctorMutation();
 
-    //Filtration and sorting escalations
     const filteredAndSortedEscalations = useMemo(() => {
         const filteredEscalations = escalations.filter((escalation) => {
             const matchesStatus = filteredStatus === "ALL" || escalation.status === filteredStatus;
@@ -31,7 +29,6 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
             return matchesStatus && matchesPriority && MatchesSearch;
         });
 
-        //Sorting escalations
         filteredEscalations.sort((a, b) => {
             switch (sortBy) {
                 case "date":
@@ -69,6 +66,7 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
             console.error("Error sending question to doctor:", error);
         }
     };
+
     const getPriorityColor = (priority: string) => {
         switch (priority) {
             case "CRITICAL":
@@ -83,6 +81,7 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
                 return "";
         }
     };
+
     const getStatusColor = (status: EscalationStatus) => {
         switch (status) {
             case EscalationStatus.PENDING:
@@ -99,25 +98,25 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
     };
 
     return (
-        <div className="escalation-list">
-            <div className="escalation-list-header">
-                <h2>Escalations{filteredAndSortedEscalations.length}</h2>
-                {/*filter and search*/}
-                <div className="escalation-controls">
-                    <div className="search-box">
-                        <input
-                            type="text"
-                            placeholder="Search escalations by patient name, doctor name or rejected reason..."
-                            value={searchTherm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="search-input"
-                        />
-                    </div>
-                    <div className="filter">
+        <div className="escalations-list-container">
+            <div className="section-title">
+                All Escalations ({filteredAndSortedEscalations.length})
+            </div>
+
+            <div className="escalation-controls">
+                <div className="form-group search-box">
+                    <input
+                        type="text"
+                        placeholder="Search escalations..."
+                        value={searchTherm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <div className="filters">
+                    <div className="form-group">
                         <select
                             value={filteredStatus}
                             onChange={(e) => setFilteredStatus(e.target.value as EscalationStatus | "ALL")}
-                            className="filter-select"
                         >
                             <option value="ALL">All Statuses</option>
                             <option value={EscalationStatus.PENDING}>Pending</option>
@@ -125,10 +124,11 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
                             <option value={EscalationStatus.REQUIRES_CLARIFICATION}>Requires Clarification</option>
                             <option value={EscalationStatus.RESOLVED}>Resolved</option>
                         </select>
+                    </div>
+                    <div className="form-group">
                         <select
                             value={filterPriority}
                             onChange={(e) => setFilterPriority(e.target.value as "ALL" | "CRITICAL" | "HIGH" | "MEDIUM" | "LOW")}
-                            className="filter-select"
                         >
                             <option value="ALL">All Priorities</option>
                             <option value="CRITICAL">Critical</option>
@@ -136,10 +136,11 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
                             <option value="MEDIUM">Medium</option>
                             <option value="LOW">Low</option>
                         </select>
+                    </div>
+                    <div className="form-group">
                         <select
                             value={sortBy}
                             onChange={(e) => setSortBy(e.target.value as "date" | "priority" | "status")}
-                            className="filter-select"
                         >
                             <option value="date">Sort by Date</option>
                             <option value="priority">Sort by Priority</option>
@@ -148,102 +149,104 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
                     </div>
                 </div>
             </div>
-            {/*List of escalations*/}
+
             <div className="escalation-grid">
                 {filteredAndSortedEscalations.map((escalation) => (
-                    <div key={escalation.id} className="escalation-card">
+                    <div key={escalation.id} className={`escalation-card ${getPriorityColor(escalation.priority)}`}>
                         <div className="escalation-card-header">
                             <h3>{escalation.patientName}</h3>
-                            <div className="escalation-badges">
-                                <span className={`priority-badge ${getPriorityColor(escalation.priority)}`}>
-                                    {escalation.priority}
-                                </span>
-                                <span className={`status-badge ${getStatusColor(escalation.status)}`}>
-                                    {escalation.status}
-                                </span>
-                            </div>
+                            <span className={`status-badge ${getStatusColor(escalation.status)}`}>
+                                {escalation.status}
+                            </span>
                         </div>
                         <div className="escalation-card-body">
-                            <p><strong>Doctor:</strong>{escalation.doctorName}</p>
-                            <p><strong>Escalation
-                                Date:</strong>{new Date(escalation.escalationDate).toLocaleDateString()}</p>
-                            <p><strong>Rejected Reason:</strong>{escalation.rejectedReason}</p>
-                            <p><strong>Description:</strong>{escalation.description}</p>
+                            <p><strong>Doctor:</strong> {escalation.doctorName}</p>
+                            <p><strong>Date:</strong> {new Date(escalation.escalationDate).toLocaleDateString()}</p>
+                            <p><strong>Reason:</strong> {escalation.rejectedReason}</p>
                         </div>
-                        <div className="escalation-card-actions">
-                            {escalation.status === EscalationStatus.PENDING && (
+                        <div className="escalation-card-footer">
+                             <span className={`priority-badge ${getPriorityColor(escalation.priority)}`}>
+                                {escalation.priority}
+                            </span>
+                            <div className="action-buttons">
+                                {escalation.status === EscalationStatus.PENDING && (
+                                    <button
+                                        onClick={() => handleTakeEscalation(escalation.id)}
+                                        disabled={isTaking}
+                                        className="update-button small-button"
+                                    >
+                                        {isTaking ? "Taking..." : "Take"}
+                                    </button>
+                                )}
                                 <button
-                                    onClick={() => handleTakeEscalation(escalation.id)}
-                                    disabled={isTaking}
-                                    className="btn btn-primary"
+                                    onClick={() => onEscalationSelect(escalation.id)}
+                                    className="submit-button small-button"
                                 >
-                                    {isTaking ? "Taking..." : "Take in review"}
+                                    Protocol
                                 </button>
-                            )}
-                            <button
-                                onClick={() => onEscalationSelect(escalation.id)}
-                                className="btn btn-secondary"
-                            >
-                                Create protocol
-                            </button>
-                            <button
-                                onClick={() => setSelectedEscalation(escalation)}
-                                className="btn btn-outline"
-                            >
-                                Ask questions
-                            </button>
+                                <button
+                                    onClick={() => setSelectedEscalation(escalation)}
+                                    className="cancel-button small-button"
+                                >
+                                    Ask
+                                </button>
+                            </div>
                         </div>
                     </div>
                 ))}
             </div>
+
             {filteredAndSortedEscalations.length === 0 && (
-                <div className="no-escalations">
-                    <p>No escalations found</p>
+                <div className="empty-state">
+                    <p>No escalations found for the selected criteria.</p>
                 </div>
             )}
-            {/*Modal window for ask questions*/}
+
             {selectedEscalation && (
-                <div className="modal-overal">
-                    <div className="modal">
-                        <div className="modal-header">
-                            <h3>Ask questions</h3>
+                <div className="anesthesiologist-modal-overlay">
+                    <div className="question-modal">
+                        <div className="add-patient-modal-header">
+                            <h3>Ask a Question</h3>
                             <button
                                 onClick={() => setSelectedEscalation(null)}
-                                className="madal-close"
+                                className="close-button"
                             >
-                                x
+                                &times;
                             </button>
                         </div>
                         <div className="modal-body">
-                            <p><strong>Patient name:</strong>{selectedEscalation.patientName}</p>
-                            <p><strong>Doctor name:</strong>{selectedEscalation.doctorName}</p>
-
+                            <div className="info-row">
+                                <span className="label">Patient:</span>
+                                <span className="value">{selectedEscalation.patientName}</span>
+                            </div>
+                            <div className="info-row">
+                                <span className="label">Doctor:</span>
+                                <span className="value">{selectedEscalation.doctorName}</span>
+                            </div>
                             <div className="form-group">
-                                <label htmlFor="question">Question</label>
+                                <label htmlFor="question">Your Question:</label>
                                 <textarea
                                     id="question"
                                     value={questionText}
                                     onChange={(e) => setQuestionText(e.target.value)}
-                                    placeholder="Enter your question"
-                                    rows={4}
-                                    className="form-textarea"
+                                    placeholder="Enter your question to the doctor..."
+                                    rows={5}
                                 />
                             </div>
                         </div>
-
-                        <div className="modal-footer">
+                        <div className="form-actions">
                             <button
                                 onClick={() => setSelectedEscalation(null)}
-                                className="btn btn-secondary"
+                                className="cancel-button"
                             >
                                 Cancel
                             </button>
                             <button
                                 onClick={handleSendQuestionToDoctor}
                                 disabled={!questionText.trim() || isSendingQuestion}
-                                className="btn btn-primary"
+                                className="submit-button"
                             >
-                                {isSendingQuestion ? "Sending..." : "Send question"}
+                                {isSendingQuestion ? "Sending..." : "Send Question"}
                             </button>
                         </div>
                     </div>
