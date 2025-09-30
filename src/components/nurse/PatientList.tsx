@@ -1,37 +1,20 @@
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useGetPatientsQuery } from "../../api/api/apiNurseSlice.ts";
-import type { Patient } from "../../types/nurse";
+import {useLocation, useNavigate} from "react-router-dom";
+import {useGetPatientsQuery} from "../../api/api/apiNurseSlice.ts";
 
 const PatientList: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { firstName, lastName, email } = location.state || {};
+    const queryParams = location.state || {};
 
-    const { data: patients, isLoading, error } = useGetPatientsQuery();
+    const {
+        data: patients,
+        isLoading,
+    } = useGetPatientsQuery(queryParams);
+
 
     if (isLoading) return <p>Loading patients...</p>;
-    if (error) return <p>Error loading patients</p>;
-
-    let filteredPatients: Patient[] = patients || [];
-
-    // Фильтрация по full name
-    if (firstName || lastName) {
-        filteredPatients = filteredPatients.filter(p =>
-            (!firstName || p.firstName.toLowerCase().includes(firstName.toLowerCase())) &&
-            (!lastName || p.lastName.toLowerCase().includes(lastName.toLowerCase()))
-        );
-    }
-
-    // Фильтрация по email — заглушка
-    if (email) {
-        filteredPatients = filteredPatients.map(p => ({
-            ...p,
-            email: email // просто показываем заглушку
-        }));
-    }
-
-    if (filteredPatients.length === 0) return <p>No patients found</p>;
+    if (!patients || patients.length === 0) return <p>No patients found</p>;
 
     return (
         <div className="p-6">
@@ -46,15 +29,19 @@ const PatientList: React.FC = () => {
             </div>
 
             <ul className="space-y-2">
-                {filteredPatients.map((p) => (
+                {patients.map((p) => (
                     <li
-                        key={p.personId}
+                        key={p.mrn}
                         className="p-3 border rounded hover:bg-gray-100 cursor-pointer"
-                        onClick={() => navigate(`/nurse/patient/${p.personId}`)}
+                        onClick={() => navigate(`/nurse/patient/${p.mrn}`,{state:p})}
                     >
+                        <p className="text-sm text-gray-500">MRN: {p.mrn}</p>
                         <p className="font-semibold">{p.firstName} {p.lastName}</p>
-                        <p className="text-sm text-gray-500">Person ID: {p.personId}</p>
-                        <p className="text-sm text-gray-500">Email: {p.email || "N/A"}</p>
+                        <p className="text-sm text-gray-500">Birth Date: {p.dateOfBirth}</p>
+                        <p className="text-sm text-gray-500">Phone Number: {p.phoneNumber}</p>
+                        <p className="text-sm text-gray-500">
+                            Active: {p.isActive ? "Yes" : "No"}
+                        </p>
                     </li>
                 ))}
             </ul>

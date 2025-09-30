@@ -23,12 +23,28 @@ export const apiNurseSlice = createApi({
     }),
     endpoints: (builder) => ({
         // PATIENT
-        getPatients: builder.query<Patient[], void>({
-            query: () => "/nurse/patients",
+        getPatients: builder.query<Patient[], { firstName?: string; lastName?: string; isActive?: boolean; birthDate?: string } | void>({
+            query: (params) => {
+                if (!params) return "/nurse/patients";
+                const query = new URLSearchParams();
+                if (params.firstName) query.append("firstName", params.firstName);
+                if (params.lastName) query.append("lastName", params.lastName);
+                if (params.isActive !== undefined) query.append("isActive", String(params.isActive));
+                if (params.birthDate) query.append("birthDate", params.birthDate);
+                return `/nurse/patients?${query.toString()}`;
+            },
             providesTags: ["Patient"],
         }),
-        getPatientById: builder.query<Patient, string>({
-            query: (personId) => `/nurse/patients/${personId}`,
+        getPatientByMrn: builder.query<Patient, string>({
+            query: (mrn) => `/nurse/patients/mrn/${mrn}`,
+            providesTags: ["Patient"],
+        }),
+        getPatientByEmail: builder.query<Patient, string>({
+            query: (email) => `/nurse/patients/email/${email}`,
+            providesTags: ["Patient"],
+        }),
+        getPatientByPhoneNumber: builder.query<Patient, string>({
+            query: (phoneNumber) => `/nurse/patients/phoneNumber/${phoneNumber}`,
             providesTags: ["Patient"],
         }),
         createPatient: builder.mutation<Patient, Patient>({
@@ -39,17 +55,17 @@ export const apiNurseSlice = createApi({
             }),
             invalidatesTags: ["Patient"],
         }),
-        updatePatient: builder.mutation<Patient, { personId: string; data: Partial<Patient> }>({
-            query: ({personId, data}) => ({
-                url: `/nurse/patients/${personId}`,
+        updatePatient: builder.mutation<Patient, { mrn: string; data: Partial<Patient> }>({
+            query: ({mrn, data}) => ({
+                url: `/nurse/patients/${mrn}`,
                 method: "PATCH",
                 body: data,
             }),
             invalidatesTags: ["Patient"],
         }),
         deletePatient: builder.mutation<void, string>({
-            query: (personId) => ({
-                url: `/nurse/patients/${personId}`,
+            query: (mrn) => ({
+                url: `/nurse/patients/${mrn}`,
                 method: "DELETE",
             }),
             invalidatesTags: ["Patient"],
@@ -60,17 +76,17 @@ export const apiNurseSlice = createApi({
             query: (personId) => `/nurse/patients/${personId}/emr`,
             providesTags: ["Emr"],
         }),
-        createEmr: builder.mutation<EMR, { personId: string; data: EMR }>({
-            query: ({personId, data}) => ({
-                url: `/nurse/patients/${personId}/emr`,
+        createEmr: builder.mutation<EMR, { mrn: string; data: EMR }>({
+            query: ({ mrn, data}) => ({
+                url: `/nurse/patients/${mrn}/emr`,
                 method: "POST",
                 body: data,
             }),
             invalidatesTags: ["Emr"],
         }),
-        updateEmr: builder.mutation<EMR, { personId: string; data: Partial<EMR> }>({
-            query: ({personId, data}) => ({
-                url: `/nurse/patients/${personId}/emr`,
+        updateEmr: builder.mutation<EMR, { mrn: string; data: Partial<EMR> }>({
+            query: ({ mrn, data}) => ({
+                url: `/nurse/patients/${mrn}/emr`,
                 method: "PATCH",
                 body: data,
             }),
@@ -78,34 +94,34 @@ export const apiNurseSlice = createApi({
         }),
 
         // VAS
-        createVas: builder.mutation<VAS, { personId: string; data: VAS }>({
-            query: ({personId, data}) => ({
-                url: `/nurse/patients/${personId}/vas`,
+        createVas: builder.mutation<VAS, { mrn: string; data: VAS }>({
+            query: ({ mrn, data}) => ({
+                url: `/nurse/patients/${mrn}/vas`,
                 method: "POST",
                 body: data,
             }),
             invalidatesTags: ["Vas"],
         }),
-        updateVas: builder.mutation<VAS, { personId: string; data: Partial<VAS> }>({
-            query: ({personId, data}) => ({
-                url: `/nurse/patients/${personId}/vas`,
+        updateVas: builder.mutation<VAS, { mrn: string; data: Partial<VAS> }>({
+            query: ({ mrn, data}) => ({
+                url: `/nurse/patients/${mrn}/vas`,
                 method: "PATCH",
                 body: data,
             }),
             invalidatesTags: ["Vas"],
         }),
         deleteVas: builder.mutation<void, string>({
-            query: (personId) => ({
-                url: `/nurse/patients/${personId}/vas`,
+            query: (mrn) => ({
+                url: `/nurse/patients/${mrn}/vas`,
                 method: "DELETE",
             }),
             invalidatesTags: ["Vas"],
         }),
 
         // Recommendation
-        createRecommendation: builder.mutation<Recommendation, { personId: string; data: Recommendation }>({
-            query: ({personId, data}) => ({
-                url: `/nurse/patients/${personId}/recommendation`,
+        createRecommendation: builder.mutation<Recommendation, { mrn: string; data: Recommendation }>({
+            query: ({ mrn, data}) => ({
+                url: `/nurse/patients/${mrn}/recommendation`,
                 method: "POST",
                 body: data,
             }),
@@ -115,7 +131,12 @@ export const apiNurseSlice = createApi({
 });
 export const {
     useGetPatientsQuery,
-    useGetPatientByIdQuery,
+    useGetPatientByMrnQuery,
+    useLazyGetPatientByMrnQuery,
+    useLazyGetPatientByEmailQuery,
+    useGetPatientByEmailQuery,
+    useGetPatientByPhoneNumberQuery,
+    useLazyGetPatientByPhoneNumberQuery,
     useCreatePatientMutation,
     useUpdatePatientMutation,
     useDeletePatientMutation,

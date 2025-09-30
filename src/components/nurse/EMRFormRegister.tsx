@@ -5,10 +5,12 @@ import { useCreateEmrMutation } from "../../api/api/apiNurseSlice";
 
 const EMRFormRegister: React.FC = () => {
     const navigate = useNavigate();
-    const { personId } = useParams<{ personId: string }>();
+    const { mrn } = useParams<{ mrn: string }>();
     const [createEmr, { isLoading, error }] = useCreateEmrMutation();
 
     const [form, setForm] = useState<EMR>({
+        height: 0,
+        weight: 0,
         gfr: "",
         childPughScore: "",
         plt: 0,
@@ -17,26 +19,22 @@ const EMRFormRegister: React.FC = () => {
         sodium: 0,
     });
 
-    // обновляем значения формы
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setForm((prev) => ({
+        setForm(prev => ({
             ...prev,
             [name]: e.target.type === "number" ? Number(value) : value,
         }));
     };
 
-    // отправка формы
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!personId) return;
+        if (!mrn) return;
 
         try {
-            await createEmr({ personId, data: form }).unwrap();
-            // успех → редирект на главную nurse
+            await createEmr({ mrn, data: form }).unwrap(); // unwrap для получения реального ответа
             navigate("/nurse");
         } catch (err) {
-            // ошибка будет показана ниже
             console.error("Ошибка при создании EMR:", err);
         }
     };
@@ -45,6 +43,24 @@ const EMRFormRegister: React.FC = () => {
         <div className="p-6 max-w-md mx-auto">
             <h1 className="text-2xl font-bold mb-6">Register EMR</h1>
             <form className="space-y-4" onSubmit={handleSubmit}>
+                <input
+                    type="number"
+                    name="height"
+                    placeholder="Height (cm)"
+                    value={form.height || ""}
+                    onChange={handleChange}
+                    className="w-full border rounded px-3 py-2"
+                    required
+                />
+                <input
+                    type="number"
+                    name="weight"
+                    placeholder="Weight (kg)"
+                    value={form.weight || ""}
+                    onChange={handleChange}
+                    className="w-full border rounded px-3 py-2"
+                    required
+                />
                 <input
                     type="text"
                     name="gfr"
@@ -112,8 +128,7 @@ const EMRFormRegister: React.FC = () => {
 
                 {error && (
                     <p className="text-red-500 text-sm mt-2">
-                        {("data" in error && (error as any).data?.message) ||
-                            "Ошибка при сохранении EMR"}
+                        {("data" in error && (error as any).data?.message) || "Ошибка при сохранении EMR"}
                     </p>
                 )}
             </form>

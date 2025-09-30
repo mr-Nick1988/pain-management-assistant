@@ -6,48 +6,62 @@ import type { Patient, PatientUpdate } from "../../types/nurse";
 const PatientUpdateForm: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const params = useParams<{ personId: string }>();
+    const params = useParams<{ mrn: string }>();
 
-    // Получаем пациента из state, который мы передали из PatientDetails
+    // Получаем пациента из state, переданного из PatientDetails
     const patient = location.state as Patient;
 
-    // Локальный state для редактируемых данных
+    // Защита от прямого захода
+    if (!patient?.mrn) {
+        return (
+            <div className="p-6">
+                <p>No patient data. Please navigate from the dashboard.</p>
+                <button
+                    onClick={() => navigate("/nurse")}
+                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                    Back to Dashboard
+                </button>
+            </div>
+        );
+    }
+
+    // Локальный state для редактирования
     const [formData, setFormData] = useState<PatientUpdate>({
         firstName: patient.firstName,
         lastName: patient.lastName,
         gender: patient.gender,
-        height: patient.height,
-        weight: patient.weight,
+        insurancePolicyNumber: patient.insurancePolicyNumber,
+        phoneNumber: patient.phoneNumber,
+        email: patient.email,
+        address: patient.address,
+        additionalInfo: patient.additionalInfo,
+        isActive: patient.isActive,
     });
 
     const [updatePatient, { isLoading }] = useUpdatePatientMutation();
 
-    // Обработчик изменения полей
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value } = e.target;
+        const { name, value, type } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: name === "height" || name === "weight" ? Number(value) : value,
+            [name]: type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
         }));
     };
 
-    // Сабмит формы
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await updatePatient({ personId: params.personId!, data: formData }).unwrap();
+            await updatePatient({ mrn: params.mrn!, data: formData }).unwrap();
             alert("Patient updated successfully!");
-            navigate(`/nurse/patient/${params.personId}`); // возвращаем на PatientDetails
+            navigate(`/nurse/patient/${params.mrn}`, { state: { ...patient, ...formData } });
         } catch (error) {
             console.error("Failed to update patient:", error);
             alert("Ошибка при обновлении пациента");
         }
     };
 
-    // Отмена редактирования
-    const handleCancel = () => {
-        navigate(-1);
-    };
+    const handleCancel = () => navigate(-1);
 
     return (
         <div className="p-6 max-w-md mx-auto bg-white shadow rounded">
@@ -90,25 +104,68 @@ const PatientUpdateForm: React.FC = () => {
                 </div>
 
                 <div>
-                    <label className="block font-semibold mb-1">Height (cm)</label>
+                    <label className="block font-semibold mb-1">Insurance Policy Number</label>
                     <input
-                        type="number"
-                        name="height"
-                        value={formData.height || ""}
+                        type="text"
+                        name="insurancePolicyNumber"
+                        value={formData.insurancePolicyNumber || ""}
                         onChange={handleChange}
                         className="w-full border p-2 rounded"
                     />
                 </div>
 
                 <div>
-                    <label className="block font-semibold mb-1">Weight (kg)</label>
+                    <label className="block font-semibold mb-1">Phone Number</label>
                     <input
-                        type="number"
-                        name="weight"
-                        value={formData.weight || ""}
+                        type="text"
+                        name="phoneNumber"
+                        value={formData.phoneNumber || ""}
                         onChange={handleChange}
                         className="w-full border p-2 rounded"
                     />
+                </div>
+
+                <div>
+                    <label className="block font-semibold mb-1">Email</label>
+                    <input
+                        type="email"
+                        name="email"
+                        value={formData.email || ""}
+                        onChange={handleChange}
+                        className="w-full border p-2 rounded"
+                    />
+                </div>
+
+                <div>
+                    <label className="block font-semibold mb-1">Address</label>
+                    <input
+                        type="text"
+                        name="address"
+                        value={formData.address || ""}
+                        onChange={handleChange}
+                        className="w-full border p-2 rounded"
+                    />
+                </div>
+
+                <div>
+                    <label className="block font-semibold mb-1">Additional Info</label>
+                    <input
+                        type="text"
+                        name="additionalInfo"
+                        value={formData.additionalInfo || ""}
+                        onChange={handleChange}
+                        className="w-full border p-2 rounded"
+                    />
+                </div>
+
+                <div className="flex items-center space-x-2">
+                    <input
+                        type="checkbox"
+                        name="isActive"
+                        checked={formData.isActive || false}
+                        onChange={handleChange}
+                    />
+                    <label>In treatment</label>
                 </div>
 
                 <div className="flex space-x-2 mt-4">

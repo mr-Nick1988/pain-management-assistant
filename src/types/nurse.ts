@@ -1,15 +1,21 @@
+// Re-export common types for convenience
+
 export interface Patient {
-    email?: string;
+    mrn?: string; // Medical Record Number - business identifier
     firstName: string;
     lastName: string;
-    personId: string;
     dateOfBirth: string;
-    gender: "MALE" | "FEMALE";
-    height: number;
-    weight: number;
-
+    gender: string;
+    insurancePolicyNumber: string;
+    phoneNumber: string;
+    email?: string;
+    address: string;
+    additionalInfo?: string;
+    createdBy?: number;
     createdAt?: string;
-    createdBy?: string;
+    updatedAt?: string;
+    updatedBy?: string;
+    isActive: boolean;
 
     emr?: EMR[];
     vas?: VAS[];
@@ -19,14 +25,20 @@ export interface Patient {
 export interface PatientUpdate {
     firstName?: string;
     lastName?: string;
-    gender?: "MALE" | "FEMALE";
-    height?: number;
-    weight?: number;
+    gender?: string;
+    insurancePolicyNumber?: string;
+    phoneNumber?: string;
+    email?: string;
+    address?: string;
+    additionalInfo?: string;
+    isActive?: boolean;
     updatedAt?: string;
     updatedBy?: string;
 }
 
 export interface EMR {
+    height?: number;
+    weight?: number;
     gfr: string;
     childPughScore: string;
     plt: number;
@@ -38,6 +50,8 @@ export interface EMR {
 }
 
 export interface EMRUpdate {
+    height?: number;
+    weight?: number;
     gfr?: string;
     childPughScore?: string;
     plt?: number;
@@ -58,7 +72,6 @@ export interface VAS {
 }
 
 
-
 export interface Recommendation {
     regimenHierarchy: number;
     drugs?: DrugRecommendation[];
@@ -77,10 +90,10 @@ export interface DrugRecommendation {
     drugName: string;
     firstActiveMoiety: string;
     dosing: string;
-    interval:string;
-    route:string;
-    ageAdjustment:string;
-    weightAdjustment:string;
-    childPugh:string;
+    interval: string;
+    route: string;
+    ageAdjustment: string;
+    weightAdjustment: string;
+    childPugh: string;
 
 }

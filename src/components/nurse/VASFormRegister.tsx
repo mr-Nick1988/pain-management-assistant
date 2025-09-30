@@ -8,6 +8,22 @@ const VASFormRegister: React.FC = () => {
     const location = useLocation();
     const patient = location.state as Patient;
 
+    /*проверка на undefined на случай, если кто-то зайдет напрямую по URL*/
+    if (!patient?.mrn) {
+        return (
+            <div className="p-6">
+                <p>No patient data. Please navigate from the dashboard.</p>
+                <button
+                    onClick={() => navigate("/nurse")}
+                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                    Back to Dashboard
+                </button>
+            </div>
+        );
+    }
+
+
     const [formData, setFormData] = useState<VAS>({
         painPlace: "",
         painLevel: 0,
@@ -30,9 +46,9 @@ const VASFormRegister: React.FC = () => {
         }
 
         try {
-            await createVAS({ personId: patient.personId, data: formData }).unwrap();
+            await createVAS({ mrn: patient.mrn!, data: formData }).unwrap();
             // Переход только после успешного создания VAS
-            navigate(`/nurse/recommendation/${patient.personId}`, { state: { patient, vasData: formData } });
+            navigate(`/nurse/recommendation/${patient.mrn}`, { state: { patient, vasData: formData } });
         } catch (error) {
             console.error("Failed to create VAS:", error);
             alert("Ошибка при создании VAS");

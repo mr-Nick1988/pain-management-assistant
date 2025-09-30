@@ -16,7 +16,7 @@ const CreatePerson: React.FC = () => {
         login: "",
         password: "",
         role: UserRole.DOCTOR,
-        personId: ""
+        mrn: ""
     });
 
     const [error, setError] = useState<string | null>(null);
@@ -41,7 +41,7 @@ const CreatePerson: React.FC = () => {
                 login: personToEdit.login,
                 password: "", // Don't populate password for security
                 role: personToEdit.role,
-                personId: personToEdit.personId
+                mrn: personToEdit.personId
             });
         }
     }, [personToEdit, isEditMode]);
@@ -71,7 +71,7 @@ const CreatePerson: React.FC = () => {
                     login: "",
                     password: "",
                     role: UserRole.DOCTOR,
-                    personId: ""
+                    mrn: ""
                 });
             }
         } catch (error: unknown) {

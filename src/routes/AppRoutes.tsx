@@ -52,13 +52,13 @@ const AppRoutes: React.FC = () => {
             }>
                 <Route index element={<NurseDashboard />} /> {/* стартовая страница */}
                 <Route path="register-patient" element={<PatientFormRegister />} />
-                <Route path="emr-form/:personId" element={<EMRFormRegister />} />
-                <Route path="emr-update/:personId" element={<EMRUpdateForm />} />
+                <Route path="emr-form/:mrn" element={<EMRFormRegister />} />
+                <Route path="emr-update/:mrn" element={<EMRUpdateForm />} />
                 <Route path="patients" element={<PatientList />} />
-                <Route path="patient/:personId" element={<PatientDetails />} />
-                <Route path="vas-form/:personId" element={<VASFormRegister />} />
-                <Route path="recommendation/:personId" element={<GenerateRecommendationForm />} />
-                <Route path="update-patient/:personId" element={<PatientUpdateForm />} />
+                <Route path="patient/:mrn" element={<PatientDetails />} />
+                <Route path="vas-form/:mrn" element={<VASFormRegister />} />
+                <Route path="recommendation/:mrn" element={<GenerateRecommendationForm />} />
+                <Route path="update-patient/:mrn" element={<PatientUpdateForm />} />
             </Route>
 
 
