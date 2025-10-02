@@ -7,7 +7,7 @@ import {
 } from "../../api/api/apiDoctorSlice.ts";
 import {type Recommendation, RecommendationStatus} from "../../types/recommendation.ts";
 import {PatientRecommendationForm} from "../../exports/exports.ts";
-import { Button, Card, CardHeader, CardTitle } from "../ui";
+import {Button, Card, CardHeader, CardTitle} from "../ui";
 
 
 const DoctorDashboard: React.FC = () => {
@@ -118,7 +118,8 @@ const DoctorDashboard: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* PENDING RECOMMENDATIONS С КНОПКАМИ */}
                         <div className="space-y-4">
-                            <h3 className="text-lg font-semibold">Pending Recommendations ({pendingRecommendations.length})</h3>
+                            <h3 className="text-lg font-semibold">Pending Recommendations
+                                ({pendingRecommendations.length})</h3>
                             {pendingRecommendations.length > 0 ? (
                                 <ul className="space-y-2">
                                     {pendingRecommendations.map((rec) => (
