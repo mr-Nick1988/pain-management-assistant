@@ -47,6 +47,7 @@ export interface EMR {
     sodium: number;
     createdAt?: string;
     createdBy?: string;
+    patientMrn?: string;
 }
 
 export interface EMRUpdate {
@@ -69,31 +70,36 @@ export interface VAS {
     createdBy?: string;
     updatedAt?: string;
     updatedBy?: string;
+    patientMrn?: string;
 }
 
 
 export interface Recommendation {
     regimenHierarchy: number;
     drugs?: DrugRecommendation[];
-    alternativeDrugs?: DrugRecommendation[];
     avoidIfSensitivity?: string[];
     contraindications?: string[];
     status: "PENDING" | "APPROVED" | "REJECTED";
-    notes?: string;
+    rejectedReason?: string;
+    comments?: string;
     createdAt?: string;
     createdBy?: string;
     updatedAt?: string;
     updatedBy?: string;
+    patientMrn?: string;
 }
 
 export interface DrugRecommendation {
     drugName: string;
-    firstActiveMoiety: string;
+    activeMoiety: string;
     dosing: string;
     interval: string;
     route: string;
     ageAdjustment: string;
     weightAdjustment: string;
+    drugRole: string;  // основное лекарство или альтернативное
     childPugh: string;
+    patientMrn?: string;
+
 
 }
