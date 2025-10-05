@@ -1,30 +1,33 @@
 import React from "react";
-import {Navigate, Route, Routes} from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
 import {
     AdminPanel,
     ChangeCredentials,
-    Login,
-    DoctorDashboard,
     AnesthesiologistDashboard,
-    SearchPatients,
-    RecommendationsList,
     CreatePerson,
-    PatientsList,
-    NurseDashboard,
-    PatientFormRegister,
+    DoctorDashboard,
+    DoctorEMRFormRegister,
+    DoctorEMRUpdateForm,
+    DoctorPatientDetails,
+    DoctorPatientFormRegister,
+    DoctorPatientList,
+    DoctorPatientUpdateForm,
+    DoctorRecommendationDetails,
+    DoctorRecommendationList,
+    DoctorLayout,
     EMRFormRegister,
     EMRUpdateForm,
-    PatientList,
-    PatientDetails,
-    VASFormRegister,
     GenerateRecommendationForm,
-    PatientUpdateForm,
+    Login,
+    NurseDashboard,
     NurseLayout,
-
+    PatientDetails,
+    PatientFormRegister,
+    PatientList,
+    PatientUpdateForm,
+    VASFormRegister
 } from "../exports/exports.ts";
 import ProtectedRoute from "./ProtectedRoute.tsx";
-
-
 
 
 const AppRoutes: React.FC = () => {
@@ -61,27 +64,23 @@ const AppRoutes: React.FC = () => {
                 <Route path="update-patient/:mrn" element={<PatientUpdateForm />} />
             </Route>
 
-
+            {/* DOCTOR ROUTES */}
             <Route path="/doctor" element={
                 <ProtectedRoute>
-                    <DoctorDashboard/>
+                    <DoctorLayout />
                 </ProtectedRoute>
-            }/>
-            <Route path="/doctor/search-patients" element={
-                <ProtectedRoute>
-                    <SearchPatients/>
-                </ProtectedRoute>
-            }/>
-            <Route path="/doctor/patients-list" element={
-                <ProtectedRoute>
-                    <PatientsList/>
-                </ProtectedRoute>
-            }/>
-            <Route path="/doctor/recommendations" element={
-                <ProtectedRoute>
-                    <RecommendationsList/>
-                </ProtectedRoute>
-            }/>
+            }>
+                <Route index element={<DoctorDashboard />} />
+                <Route path="register-patient" element={<DoctorPatientFormRegister />} />
+                <Route path="emr-form/:mrn" element={<DoctorEMRFormRegister />} />
+                <Route path="emr-update/:mrn" element={<DoctorEMRUpdateForm />} />
+                <Route path="patients-list" element={<DoctorPatientList />} />
+                <Route path="patient/:mrn" element={<DoctorPatientDetails />} />
+                <Route path="update-patient/:mrn" element={<DoctorPatientUpdateForm />} />
+                <Route path="recommendations" element={<DoctorRecommendationList />} />
+                <Route path="recommendation/:mrn" element={<DoctorRecommendationDetails />} />
+            </Route>
+
             <Route path="/anesthesiologist" element={
                 <ProtectedRoute>
                     <AnesthesiologistDashboard/>

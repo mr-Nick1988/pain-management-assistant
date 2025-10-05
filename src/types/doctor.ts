@@ -1,7 +1,57 @@
 // DOCTOR SPECIFIC TYPES
-// Currently no specific doctor types - doctor functionality uses Patient and Recommendation types
-// This file is kept for future doctor-specific interfaces if needed
+// Doctor использует общие типы + свои специфичные интерфейсы
 
-// Re-export common types for convenience
-export type { Patient, PatientCreation } from './patient';
-export type { Recommendation, RecommendationStatus, RecommendationApproval } from './recommendation';
+// Import types for use in this file
+import type {
+    Patient,
+    PatientUpdate,
+    EMR,
+    EMRUpdate,
+    VAS,
+    Recommendation,
+    DrugRecommendation
+} from './common/types';
+
+// Import enums as values
+import {
+    PatientsGenders,
+    RecommendationStatus,
+    DrugRoute,
+    DrugRole
+} from './common/types';
+
+// Re-export everything for convenience
+export type {
+    Patient,
+    PatientUpdate,
+    EMR,
+    EMRUpdate,
+    VAS,
+    Recommendation,
+    DrugRecommendation
+};
+
+export {
+    PatientsGenders,
+    RecommendationStatus,
+    DrugRoute,
+    DrugRole
+};
+
+// ============================================
+// DOCTOR-SPECIFIC INTERFACES
+// ============================================
+
+// Для просмотра рекомендации вместе с VAS (вне контекста Patient)
+export interface RecommendationWithVas {
+    recommendation: Recommendation;
+    vas: VAS;
+    patientMrn?: string;
+}
+
+// Для approve/reject рекомендаций
+export interface RecommendationApprovalRejection {
+    status: RecommendationStatus;
+    comment?: string;
+    rejectedReason?: string; // обязательно при REJECTED
+}
