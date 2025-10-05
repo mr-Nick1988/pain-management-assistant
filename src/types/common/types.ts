@@ -1,0 +1,163 @@
+// COMMON TYPES - используются и Nurse, и Doctor
+// Эти типы соответствуют backend DTO
+
+// ============================================
+// ENUMS
+// ============================================
+
+export enum PatientsGenders {
+    MALE = "MALE",
+    FEMALE = "FEMALE",
+    OTHER = "OTHER"
+}
+
+export enum RecommendationStatus {
+    PENDING = "PENDING",
+    APPROVED = "APPROVED",
+    REJECTED = "REJECTED"
+}
+
+export enum DrugRoute {
+    PO = "PO",      // per oral
+    IV = "IV",      // intravenous
+    IM = "IM",      // intramuscular
+    SC = "SC",      // subcutaneous
+    SL = "SL"       // sublingual
+}
+
+export enum DrugRole {
+    PRIMARY = "PRIMARY",
+    ALTERNATIVE = "ALTERNATIVE"
+}
+
+// ============================================
+// PATIENT
+// ============================================
+
+export interface Patient {
+    mrn?: string; // Medical Record Number - business identifier
+    firstName: string;
+    lastName: string;
+    dateOfBirth: string;
+    gender: PatientsGenders;
+    insurancePolicyNumber: string;
+    phoneNumber: string;
+    email?: string;
+    address: string;
+    additionalInfo?: string;
+    isActive?: boolean;
+    
+    createdAt?: string;
+    createdBy?: string;
+    updatedAt?: string;
+    updatedBy?: string;
+
+    emr?: EMR[];
+    vas?: VAS[];
+    recommendations?: Recommendation[];
+}
+
+export interface PatientUpdate {
+    firstName?: string;
+    lastName?: string;
+    gender?: PatientsGenders;
+    insurancePolicyNumber?: string;
+    phoneNumber?: string;
+    email?: string;
+    address?: string;
+    additionalInfo?: string;
+    isActive?: boolean;
+    updatedAt?: string;
+    updatedBy?: string;
+}
+
+// ============================================
+// EMR (Electronic Medical Record)
+// ============================================
+
+export interface EMR {
+    height: number;
+    weight: number;
+    gfr: string; // функция почек
+    childPughScore: string; // печень
+    plt: number; // тромбоциты
+    wbc: number; // лейкоциты
+    sat: number; // сатурация
+    sodium: number; // натрий
+    
+    createdAt?: string;
+    createdBy?: string;
+    updatedAt?: string;
+    updatedBy?: string;
+    
+    patientMrn?: string; // для запросов вне контекста Patient
+}
+
+export interface EMRUpdate {
+    height?: number;
+    weight?: number;
+    gfr?: string;
+    childPughScore?: string;
+    plt?: number;
+    wbc?: number;
+    sat?: number;
+    sodium?: number;
+    updatedAt?: string;
+    updatedBy?: string;
+}
+
+// ============================================
+// VAS (Visual Analog Scale)
+// ============================================
+
+export interface VAS {
+    painPlace: string;
+    painLevel: number; // 0-10
+    
+    createdAt?: string;
+    createdBy?: string;
+    updatedAt?: string;
+    updatedBy?: string;
+    
+    patientMrn?: string; // для запросов вне контекста Patient
+}
+
+// ============================================
+// DRUG RECOMMENDATION
+// ============================================
+
+export interface DrugRecommendation {
+    drugName: string;
+    activeMoiety: string; // активное вещество
+    dosing: string;
+    interval: string;
+    route: DrugRoute;
+    ageAdjustment: string;
+    weightAdjustment: string;
+    childPugh: string;
+    role: DrugRole; // основное или альтернативное
+    
+    patientMrn?: string; // для запросов вне контекста Patient
+}
+
+// ============================================
+// RECOMMENDATION
+// ============================================
+
+export interface Recommendation {
+    regimenHierarchy: number; // первая линия, вторая и т.д.
+    status: RecommendationStatus;
+    rejectedReason?: string;
+    
+    drugs?: DrugRecommendation[];
+    avoidIfSensitivity?: string[];
+    contraindications?: string[];
+    comments?: string[];
+    
+    createdAt?: string;
+    createdBy?: string;
+    updatedAt?: string;
+    updatedBy?: string;
+    
+    patientMrn?: string; // для запросов вне контекста Patient
+}
