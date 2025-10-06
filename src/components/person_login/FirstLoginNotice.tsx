@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { NoticeContainer, NoticeBox, NoticeTitle, NoticeText, NoticeDetails, NoticeList, NoticeActions, NoticeButton, NoticeFooter } from '../ui';
 
 interface FirstLoginNoticeProps {
     userRole: string;
@@ -24,52 +25,41 @@ const FirstLoginNotice: React.FC<FirstLoginNoticeProps> = ({
     };
 
     return (
-        <div className="medical-page">
-            <div className="first-login-notice-container">
-                <header className="first-login-notice-header">
-                    <h1 className="text-4xl font-bold text-center mb-2 drop-shadow-lg !text-red-500">{dashboardTitle}</h1>
-                    <p className="text-lg text-center !text-red-400">
-                        Welcome, {userName || userRole}
-                    </p>
-                </header>
-                
-                <div className="first-login-notice-box">
-                    <h2 className="first-login-notice-title">🔒 Security Notice</h2>
-                    <p className="first-login-notice-text">
+        <div className="min-h-screen">
+            <header className="mb-8 text-center">
+                <h1 className="text-4xl font-bold mb-2 drop-shadow-lg text-red-500">{dashboardTitle}</h1>
+                <p className="text-lg text-red-400">
+                    Welcome, {userName || userRole}
+                </p>
+            </header>
+            
+            <NoticeContainer>
+                <NoticeBox>
+                    <NoticeTitle icon="🔒">Security Notice</NoticeTitle>
+                    <NoticeText>
                         You have logged in with temporary credentials. For security reasons, 
                         please change your login and password immediately.
-                    </p>
-                    <div className="first-login-notice-details">
-                        <p className="first-login-notice-details-title">
-                            Why is this important?
-                        </p>
-                        <ul className="first-login-notice-details-list">
-                            <li>Temporary passwords are not secure and can be a vulnerability.</li>
-                            <li>Protecting patient data and system integrity is our highest priority.</li>
-                            <li>This is a required step to comply with healthcare security standards (HIPAA).</li>
-                        </ul>
-                    </div>
-                    <div className="first-login-notice-actions">
-                        <button 
-                            onClick={handleChangeCredentials}
-                            className="first-login-notice-submit-button"
-                        >
+                    </NoticeText>
+                    <NoticeDetails title="Why is this important?">
+                        <NoticeList items={[
+                            "Temporary passwords are not secure and can be a vulnerability.",
+                            "Protecting patient data and system integrity is our highest priority.",
+                            "This is a required step to comply with healthcare security standards (HIPAA)."
+                        ]} />
+                    </NoticeDetails>
+                    <NoticeActions>
+                        <NoticeButton onClick={handleChangeCredentials} variant="primary">
                             Change Credentials Now
-                        </button>
-                        <button 
-                            onClick={handleContinue}
-                            className="first-login-notice-cancel-button"
-                        >
+                        </NoticeButton>
+                        <NoticeButton onClick={handleContinue} variant="secondary">
                             Continue Temporarily
-                        </button>
-                    </div>
-                    <div className="first-login-notice-footer">
-                        <small className="first-login-notice-footer-text">
-                            You can change your credentials at any time from the navigation menu.
-                        </small>
-                    </div>
-                </div>
-            </div>
+                        </NoticeButton>
+                    </NoticeActions>
+                    <NoticeFooter>
+                        You can change your credentials at any time from the navigation menu.
+                    </NoticeFooter>
+                </NoticeBox>
+            </NoticeContainer>
         </div>
     );
 };

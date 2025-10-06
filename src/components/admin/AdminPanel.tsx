@@ -40,14 +40,28 @@ const AdminPanel: React.FC = () => {
         <div className="container mx-auto px-4 py-8 max-w-7xl">
             <Card className="mb-6">
                 <CardHeader>
-                    <CardTitle>Admin Panel</CardTitle>
-                    <Button
-                        onClick={() => navigate('/admin/create-person')}
-                        variant="approve"
-                        className="w-full sm:w-auto"
-                    >
-                        Add New Person
-                    </Button>
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <CardTitle>Admin Panel</CardTitle>
+                        <div className="flex flex-col sm:flex-row gap-2">
+                            <Button
+                                onClick={() => {
+                                    localStorage.clear();
+                                    navigate('/login');
+                                }}
+                                variant="cancel"
+                                className="w-full sm:w-auto"
+                            >
+                                ← Back to Login
+                            </Button>
+                            <Button
+                                onClick={() => navigate('/admin/create-person')}
+                                variant="approve"
+                                className="w-full sm:w-auto"
+                            >
+                                Add New Person
+                            </Button>
+                        </div>
+                    </div>
                 </CardHeader>
 
                 {/* Messages */}
