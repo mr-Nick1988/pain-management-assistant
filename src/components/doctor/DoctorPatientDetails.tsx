@@ -117,7 +117,8 @@ const PatientDetails: React.FC = () => {
                         <div className="space-y-2">
                             <p className="text-sm text-gray-500">Treatment Status</p>
                             <p className="font-semibold">
-                                <span className={`px-2 py-1 rounded text-sm ${patient.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
+                                <span
+                                    className={`px-2 py-1 rounded text-sm ${patient.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
                                     {patient.isActive ? "In Treatment" : "Not in Treatment"}
                                 </span>
                             </p>
@@ -134,12 +135,12 @@ const PatientDetails: React.FC = () => {
                         )}
                         <div className="space-y-2">
                             <p className="text-sm text-gray-500">Created At</p>
-                            <p className="font-semibold text-sm">{patient.createdAt ? new Date(patient.createdAt).toLocaleString('en-US', { 
-                                year: 'numeric', 
-                                month: 'short', 
-                                day: 'numeric', 
-                                hour: '2-digit', 
-                                minute: '2-digit' 
+                            <p className="font-semibold text-sm">{patient.createdAt ? new Date(patient.createdAt).toLocaleString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
                             }) : 'N/A'}</p>
                         </div>
                         <div className="space-y-2">
@@ -201,6 +202,21 @@ const PatientDetails: React.FC = () => {
                                         <p className="font-semibold">{emrData.sodium} mmol/L</p>
                                     </div>
                                 </div>
+
+                                {emrData.sensitivities && emrData.sensitivities.length > 0 && (
+                                    <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                                        <p className="text-sm font-semibold text-red-800 mb-2">⚠️ Drug Allergies /
+                                            Sensitivities</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {emrData.sensitivities.map((drug, index) => (
+                                                <span key={index}
+                                                      className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
+                                                    {drug}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
 
                                 <div className="flex space-x-2 mt-4">
                                     <Button
@@ -281,15 +297,28 @@ const PatientDetails: React.FC = () => {
                                         <p className="font-semibold">{emr.sodium} mmol/L</p>
                                     </div>
                                     <div className="col-span-2 md:col-span-4">
-                                        <p className="text-gray-500 text-xs">Created: {emr.createdAt ? new Date(emr.createdAt).toLocaleString('en-US', { 
-                                            year: 'numeric', 
-                                            month: 'short', 
-                                            day: 'numeric', 
-                                            hour: '2-digit', 
-                                            minute: '2-digit' 
+                                        <p className="text-gray-500 text-xs">Created: {emr.createdAt ? new Date(emr.createdAt).toLocaleString('en-US', {
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
                                         }) : 'N/A'}</p>
                                     </div>
                                 </div>
+                                {emr.sensitivities && emr.sensitivities.length > 0 && (
+                                    <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded">
+                                        <p className="text-xs font-semibold text-red-800 mb-2">⚠️ Drug Allergies</p>
+                                        <div className="flex flex-wrap gap-1">
+                                            {emr.sensitivities.map((drug, idx) => (
+                                                <span key={idx}
+                                                      className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs">
+                                                    {drug}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </CardContent>

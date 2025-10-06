@@ -160,18 +160,6 @@ const RecommendationDetails: React.FC = () => {
                                                 <p className="text-gray-500">Role</p>
                                                 <p className="font-semibold">{drug.role}</p>
                                             </div>
-                                            <div>
-                                                <p className="text-gray-500">Age Adjustment</p>
-                                                <p className="font-semibold">{drug.ageAdjustment}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-gray-500">Weight Adjustment</p>
-                                                <p className="font-semibold">{drug.weightAdjustment}</p>
-                                            </div>
-                                            <div>
-                                                <p className="text-gray-500">Child-Pugh</p>
-                                                <p className="font-semibold">{drug.childPugh}</p>
-                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -191,17 +179,6 @@ const RecommendationDetails: React.FC = () => {
                         </div>
                     )}
 
-                    {/* Avoid If Sensitivity */}
-                    {recommendation.avoidIfSensitivity && recommendation.avoidIfSensitivity.length > 0 && (
-                        <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                            <h3 className="font-semibold text-lg mb-2 text-orange-800">⚠️ Avoid If Sensitivity</h3>
-                            <ul className="list-disc list-inside space-y-1">
-                                {recommendation.avoidIfSensitivity.map((item: string, index: number) => (
-                                    <li key={index} className="text-orange-700">{item}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
 
                     {/* Comments */}
                     {recommendation.comments && recommendation.comments.length > 0 && (

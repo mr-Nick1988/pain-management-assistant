@@ -3,6 +3,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import type {EMR} from "../../types/doctor";
 import {useCreateEmrMutation} from "../../api/api/apiDoctorSlice";
 import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label} from "../ui";
+import {validateEmr} from "../../utils/validationEmr";
 
 const EMRFormRegister: React.FC = () => {
     const navigate = useNavigate();
@@ -21,6 +22,8 @@ const EMRFormRegister: React.FC = () => {
         sensitivities: [],
     });
 
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = e.target;
         setForm(prev => ({
@@ -29,9 +32,26 @@ const EMRFormRegister: React.FC = () => {
         }));
     };
 
+    const handleSensitivitiesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const {value} = e.target;
+        const items = value
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean);
+        setForm((prev) => ({
+            ...prev,
+            sensitivities: items,
+        }));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!mrn) return;
+
+        // Валидация формы
+        const validationErrors = validateEmr(form);
+        setErrors(validationErrors);
+        if (Object.keys(validationErrors).length > 0) return;
 
         try {
             await createEmr({mrn, data: form}).unwrap();
@@ -61,6 +81,7 @@ const EMRFormRegister: React.FC = () => {
                                     onChange={handleChange}
                                     required
                                 />
+                                {errors.height && <p className="text-sm text-red-500 mt-1">{errors.height}</p>}
                             </div>
 
                             <div>
@@ -74,6 +95,7 @@ const EMRFormRegister: React.FC = () => {
                                     onChange={handleChange}
                                     required
                                 />
+                                {errors.weight && <p className="text-sm text-red-500 mt-1">{errors.weight}</p>}
                             </div>
 
                             <div>
@@ -87,6 +109,7 @@ const EMRFormRegister: React.FC = () => {
                                     onChange={handleChange}
                                     required
                                 />
+                                {errors.gfr && <p className="text-sm text-red-500 mt-1">{errors.gfr}</p>}
                             </div>
 
                             <div>
@@ -100,6 +123,7 @@ const EMRFormRegister: React.FC = () => {
                                     onChange={handleChange}
                                     required
                                 />
+                                {errors.childPughScore && <p className="text-sm text-red-500 mt-1">{errors.childPughScore}</p>}
                             </div>
 
                             <div>
@@ -113,6 +137,7 @@ const EMRFormRegister: React.FC = () => {
                                     onChange={handleChange}
                                     required
                                 />
+                                {errors.plt && <p className="text-sm text-red-500 mt-1">{errors.plt}</p>}
                             </div>
 
                             <div>
@@ -126,6 +151,7 @@ const EMRFormRegister: React.FC = () => {
                                     onChange={handleChange}
                                     required
                                 />
+                                {errors.wbc && <p className="text-sm text-red-500 mt-1">{errors.wbc}</p>}
                             </div>
 
                             <div>
@@ -139,6 +165,7 @@ const EMRFormRegister: React.FC = () => {
                                     onChange={handleChange}
                                     required
                                 />
+                                {errors.sat && <p className="text-sm text-red-500 mt-1">{errors.sat}</p>}
                             </div>
 
                             <div>
@@ -152,6 +179,20 @@ const EMRFormRegister: React.FC = () => {
                                     onChange={handleChange}
                                     required
                                 />
+                                {errors.sodium && <p className="text-sm text-red-500 mt-1">{errors.sodium}</p>}
+                            </div>
+
+                            <div className="md:col-span-2">
+                                <Label htmlFor="sensitivities">Drug Sensitivities / Allergies</Label>
+                                <Input
+                                    id="sensitivities"
+                                    type="text"
+                                    name="sensitivities"
+                                    placeholder="Enter drug allergies separated by commas (e.g., Paracetamol, Ibuprofen)"
+                                    value={form.sensitivities?.join(", ") || ""}
+                                    onChange={handleSensitivitiesChange}
+                                />
+                                <p className="text-xs text-gray-500 mt-1">Separate multiple allergies with commas</p>
                             </div>
                         </div>
 
