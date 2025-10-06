@@ -119,13 +119,17 @@ export const apiNurseSlice = createApi({
         }),
 
         // Recommendation
-        createRecommendation: builder.mutation<Recommendation, { mrn: string; data: Recommendation }>({
-            query: ({ mrn, data}) => ({
+        createRecommendation: builder.mutation<Recommendation, { mrn: string; }>({
+            query: ({ mrn}) => ({
                 url: `/nurse/patients/${mrn}/recommendation`,
                 method: "POST",
-                body: data,
             }),
             invalidatesTags: ["Recommendation"],
+        }),
+
+        getRecommendationByPatientId: builder.query<Recommendation, string>({
+            query: (mrn) => `/nurse/patients/${mrn}/recommendation`,
+            providesTags: ["Recommendation"],
         }),
     }),
 });
@@ -146,5 +150,6 @@ export const {
     useCreateVasMutation,
     useUpdateVasMutation,
     useDeleteVasMutation,
-    useCreateRecommendationMutation
+    useCreateRecommendationMutation,
+    useGetRecommendationByPatientIdQuery,
 } = apiNurseSlice;

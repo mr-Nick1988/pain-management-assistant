@@ -9,6 +9,10 @@ export type {
     VAS,
     Recommendation,
     DrugRecommendation,
+
+} from './common/types';
+
+export {
     PatientsGenders,
     RecommendationStatus,
     DrugRoute,

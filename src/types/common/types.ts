@@ -84,6 +84,7 @@ export interface EMR {
     wbc: number; // лейкоциты
     sat: number; // сатурация
     sodium: number; // натрий
+    sensitivities?: string[]; // чувствительность
     
     createdAt?: string;
     createdBy?: string;
@@ -101,6 +102,7 @@ export interface EMRUpdate {
     plt?: number;
     wbc?: number;
     sat?: number;
+    sensitivities?: string[];
     sodium?: number;
     updatedAt?: string;
     updatedBy?: string;
@@ -132,9 +134,6 @@ export interface DrugRecommendation {
     dosing: string;
     interval: string;
     route: DrugRoute;
-    ageAdjustment: string;
-    weightAdjustment: string;
-    childPugh: string;
     role: DrugRole; // основное или альтернативное
     
     patientMrn?: string; // для запросов вне контекста Patient
@@ -150,7 +149,6 @@ export interface Recommendation {
     rejectedReason?: string;
     
     drugs?: DrugRecommendation[];
-    avoidIfSensitivity?: string[];
     contraindications?: string[];
     comments?: string[];
     

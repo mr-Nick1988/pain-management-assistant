@@ -25,7 +25,7 @@ import {
     PatientFormRegister,
     PatientList,
     PatientUpdateForm,
-    VASFormRegister
+    VASFormRegister, RecommendationDetails
 } from "../exports/exports.ts";
 import ProtectedRoute from "./ProtectedRoute.tsx";
 
@@ -61,6 +61,7 @@ const AppRoutes: React.FC = () => {
                 <Route path="patient/:mrn" element={<PatientDetails />} />
                 <Route path="vas-form/:mrn" element={<VASFormRegister />} />
                 <Route path="recommendation/:mrn" element={<GenerateRecommendationForm />} />
+                <Route path="recommendation/:mrn" element={<RecommendationDetails />} />
                 <Route path="update-patient/:mrn" element={<PatientUpdateForm />} />
             </Route>
 
