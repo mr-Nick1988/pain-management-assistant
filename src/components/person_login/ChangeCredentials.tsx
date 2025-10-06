@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from "react";
 import type {ChangeCredentialsType} from "../../types/personRegister.ts";
 import {useChangeCredentialsMutation} from "../../api/api/apiPersonSlice.ts";
+import { Container, FormField, GradientButton, GradientTitle, SuccessMessage, ErrorMessage } from "../ui";
 
 
 const ChangeCredentials: React.FC = () => {
@@ -70,82 +71,64 @@ const ChangeCredentials: React.FC = () => {
     };
 
     return (
-        <div className="change-credentials-container">
-            <h2 className="medical-title">Change Credentials</h2>
+        <Container>
+            <GradientTitle>Change Credentials</GradientTitle>
 
             {success ? (
-                <div className="medical-subtitle">
-                    <p>Credentials successfully changed! You will be redirected to the login page.</p>
-                </div>
+                <SuccessMessage message="Credentials successfully changed! You will be redirected to the login page." />
             ) : (
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="oldPassword">Current Password:</label>
-                        <input
-                            id="oldPassword"
-                            name="oldPassword"
-                            type="password"
-                            placeholder="Enter current password"
-                            value={formData.oldPassword}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="newPassword">New Password:</label>
-                        <input
-                            id="newPassword"
-                            name="newPassword"
-                            type="password"
-                            placeholder="Enter new password"
-                            value={formData.newPassword}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="confirmPassword">Confirm New Password:</label>
-                        <input
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            type="password"
-                            placeholder="Confirm new password"
-                            value={confirmPassword}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="newLogin">New Login:</label>
-                        <input
-                            id="newLogin"
-                            name="newLogin"
-                            placeholder="Enter new login"
-                            value={formData.newLogin}
-                            onChange={handleChange}
-                            required
-                        />
-                    </div>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <FormField
+                        label="Current Password:"
+                        id="oldPassword"
+                        type="password"
+                        placeholder="Enter current password"
+                        value={formData.oldPassword}
+                        onChange={handleChange}
+                        required
+                    />
+                    <FormField
+                        label="New Password:"
+                        id="newPassword"
+                        type="password"
+                        placeholder="Enter new password"
+                        value={formData.newPassword}
+                        onChange={handleChange}
+                        required
+                    />
+                    <FormField
+                        label="Confirm New Password:"
+                        id="confirmPassword"
+                        type="password"
+                        placeholder="Confirm new password"
+                        value={confirmPassword}
+                        onChange={handleChange}
+                        required
+                        error={!passwordsMatch ? "Passwords do not match!" : undefined}
+                    />
+                    <FormField
+                        label="New Login:"
+                        id="newLogin"
+                        placeholder="Enter new login"
+                        value={formData.newLogin}
+                        onChange={handleChange}
+                        required
+                    />
 
-                    {!passwordsMatch && (
-                        <p className="error-text">Passwords do not match</p>
+                    {error && (
+                        <ErrorMessage 
+                            message={"data" in error && typeof error.data === "object" && error.data && "message" in error.data
+                                ? String(error.data.message)
+                                : "Failed to change credentials"}
+                        />
                     )}
-                    <button
-                        type="submit"
-                        disabled={isLoading || !passwordsMatch}
-                        className="submit-button"
-                    >
-                        {isLoading ? "Saving..." : "Save Changes"}
-                    </button>
+
+                    <GradientButton type="submit" disabled={isLoading || !passwordsMatch} fullWidth>
+                        {isLoading ? "Changing..." : "Change Credentials"}
+                    </GradientButton>
                 </form>
             )}
-
-            {error && (
-                <p className="error-message">
-                    Error: {JSON.stringify(error)}
-                </p>
-            )}
-        </div>
+        </Container>
     );
 };
 

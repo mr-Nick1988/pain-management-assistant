@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../../api/api/apiPersonSlice.ts";
 import {UserRole} from "../../types/personRegister.ts";
+import { Container, FormField, GradientButton, GradientTitle } from "../ui";
 
 interface LoginResponse {
     firstName: string;
@@ -47,45 +48,39 @@ const Login: React.FC = () => {
         } catch (err: unknown) {
             const error = err as { data?: { message?: string } };
             setError(error?.data?.message || "Login failed. Please check your credentials.");
-        } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="login-container">
-            <h2>Login</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label htmlFor="login">Login:</label>
-                    <input
-                        id="login"
-                        type="text"
-                        placeholder="Enter username"
-                        value={login}
-                        onChange={(e) => setLogin(e.target.value)}
-                        disabled={isLoading}
-                        required
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="password">Password:</label>
-                    <input
-                        id="password"
-                        type="password"
-                        placeholder="Enter password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        disabled={isLoading}
-                        required
-                    />
-                </div>
-                {error && <div className="error-message">{error}</div>}
-                <button type="submit" disabled={isLoading} className="login-button">
-                    {isLoading ? 'Logging in...' : 'Login'}
-                </button>
+        <Container>
+            <GradientTitle>Login</GradientTitle>
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <FormField
+                    label="Login:"
+                    id="login"
+                    placeholder="Enter username"
+                    value={login}
+                    onChange={(e) => setLogin(e.target.value)}
+                    disabled={isLoading}
+                    required
+                />
+                <FormField
+                    label="Password:"
+                    id="password"
+                    type="password"
+                    placeholder="Enter password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading}
+                    required
+                />
+                {error && <p className="text-red-600 text-sm">{error}</p>}
+                <GradientButton type="submit" disabled={isLoading} fullWidth>
+                    {isLoading ? "Logging in..." : "Login"}
+                </GradientButton>
             </form>
-        </div>
+        </Container>
     );
 };
 

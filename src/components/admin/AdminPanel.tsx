@@ -2,7 +2,7 @@ import {useNavigate} from "react-router-dom";
 import React, {useState} from "react";
 import {useDeletePersonMutation, useGetPersonsQuery} from "../../api/api/apiAdminSlice.ts";
 import {PersonsList} from "../../exports/exports.ts";
-import { Button, Card, CardContent, CardHeader, CardTitle } from "../ui";
+import { Button, Card, CardContent, CardHeader, CardTitle, Modal, ModalHeader, ModalBody, ModalFooter, ErrorMessage, LoadingSpinner } from "../ui";
 
 const AdminPanel: React.FC = () => {
     const navigate = useNavigate();
@@ -53,29 +53,16 @@ const AdminPanel: React.FC = () => {
                 {/* Messages */}
                 {error && (
                     <CardContent>
-                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mb-4">
-                            {error}
-                            <button
-                                onClick={() => setError(null)}
-                                className="float-right ml-4 font-bold"
-                            >
-                                ×
-                            </button>
-                        </div>
+                        <ErrorMessage message={error} onClose={() => setError(null)} />
                     </CardContent>
                 )}
 
                 {/* Users List */}
                 <CardContent>
                     {isLoadingPersons ? (
-                        <div className="flex justify-center items-center py-8">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                            <span className="ml-2">Loading users...</span>
-                        </div>
+                        <LoadingSpinner message="Loading users..." />
                     ) : fetchError ? (
-                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-                            Error loading users
-                        </div>
+                        <ErrorMessage message="Error loading users" />
                     ) : persons && persons.length > 0 ? (
                         <PersonsList
                             persons={persons}
@@ -91,35 +78,31 @@ const AdminPanel: React.FC = () => {
             </Card>
 
             {/* Delete Confirmation Modal */}
-            {isDeleteConfirmOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <Card className="w-full max-w-md">
-                        <CardHeader>
-                            <CardTitle className="text-red-600">Confirm Delete</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-gray-700 mb-6">
-                                Are you sure you want to delete this user? This action cannot be undone.
-                            </p>
-                            <div className="flex space-x-3 justify-end">
-                                <Button
-                                    onClick={() => setIsDeleteConfirmOpen(false)}
-                                    variant="cancel"
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    onClick={confirmDelete}
-                                    disabled={isLoading}
-                                    variant="delete"
-                                >
-                                    {isDeleting ? "Deleting..." : "Delete"}
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
-            )}
+            <Modal isOpen={isDeleteConfirmOpen} onClose={() => setIsDeleteConfirmOpen(false)} className="max-w-md">
+                <ModalHeader>
+                    <h3 className="text-xl font-bold text-red-600">Confirm Delete</h3>
+                </ModalHeader>
+                <ModalBody>
+                    <p className="text-gray-700">
+                        Are you sure you want to delete this user? This action cannot be undone.
+                    </p>
+                </ModalBody>
+                <ModalFooter>
+                    <Button
+                        onClick={() => setIsDeleteConfirmOpen(false)}
+                        variant="cancel"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={confirmDelete}
+                        disabled={isLoading}
+                        variant="delete"
+                    >
+                        {isDeleting ? "Deleting..." : "Delete"}
+                    </Button>
+                </ModalFooter>
+            </Modal>
         </div>
     );
 };

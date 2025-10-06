@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {useGetEscalationsQuery} from "../../api/api/apiAnesthesiologistSlice.ts";
 import {EscalationStatus} from "../../types/anesthesiologist.ts";
 import {EscalationsList, ProtocolEditor} from "../../exports/exports.ts";
-import { Button, Card, CardContent, CardHeader, CardTitle } from "../ui";
+import { Button, Card, CardContent, CardHeader, CardTitle, LoadingSpinner, ErrorMessage, StatCard } from "../ui";
 
 const AnesthesiologistDashboard: React.FC = () => {
     const {data: escalations, isLoading, error} = useGetEscalationsQuery();
@@ -23,10 +23,7 @@ const AnesthesiologistDashboard: React.FC = () => {
     if (isLoading) {
         return (
             <div className="container mx-auto px-4 py-8 max-w-7xl">
-                <div className="flex justify-center items-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    <span className="ml-2">Loading anesthesiologist dashboard...</span>
-                </div>
+                <LoadingSpinner message="Loading anesthesiologist dashboard..." />
             </div>
         );
     }
@@ -34,9 +31,7 @@ const AnesthesiologistDashboard: React.FC = () => {
     if (error) {
         return (
             <div className="container mx-auto px-4 py-8 max-w-7xl">
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-                    Error loading data: {JSON.stringify(error)}
-                </div>
+                <ErrorMessage message={`Error loading data: ${JSON.stringify(error)}`} />
             </div>
         );
     }
@@ -82,73 +77,38 @@ const AnesthesiologistDashboard: React.FC = () => {
                         <div className="space-y-6">
                             {/* Statistics Cards */}
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <Card>
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center">
-                                            <div className="flex-shrink-0">
-                                                <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                                                    <span className="text-yellow-600 text-sm font-medium">P</span>
-                                                </div>
-                                            </div>
-                                            <div className="ml-4">
-                                                <h3 className="text-sm font-medium text-gray-900">Pending Escalations</h3>
-                                                <div className="text-2xl font-bold text-gray-900">{pendingCount}</div>
-                                                <p className="text-sm text-gray-500">Awaiting review</p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                <Card>
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center">
-                                            <div className="flex-shrink-0">
-                                                <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                                                    <span className="text-red-600 text-sm font-medium">C</span>
-                                                </div>
-                                            </div>
-                                            <div className="ml-4">
-                                                <h3 className="text-sm font-medium text-gray-900">Critical Escalations</h3>
-                                                <div className="text-2xl font-bold text-gray-900">{criticalCount}</div>
-                                                <p className="text-sm text-gray-500">Need immediate attention</p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                <Card>
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center">
-                                            <div className="flex-shrink-0">
-                                                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                                                    <span className="text-orange-600 text-sm font-medium">H</span>
-                                                </div>
-                                            </div>
-                                            <div className="ml-4">
-                                                <h3 className="text-sm font-medium text-gray-900">High Priority</h3>
-                                                <div className="text-2xl font-bold text-gray-900">{highPriorityCount}</div>
-                                                <p className="text-sm text-gray-500">Important escalations</p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                <Card>
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center">
-                                            <div className="flex-shrink-0">
-                                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                                    <span className="text-blue-600 text-sm font-medium">R</span>
-                                                </div>
-                                            </div>
-                                            <div className="ml-4">
-                                                <h3 className="text-sm font-medium text-gray-900">In Review</h3>
-                                                <div className="text-2xl font-bold text-gray-900">{inReviewCount}</div>
-                                                <p className="text-sm text-gray-500">Escalations under review</p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                <StatCard
+                                    title="Pending Escalations"
+                                    value={pendingCount}
+                                    description="Awaiting review"
+                                    icon="P"
+                                    iconBgColor="bg-yellow-100"
+                                    iconTextColor="text-yellow-600"
+                                />
+                                <StatCard
+                                    title="Critical Escalations"
+                                    value={criticalCount}
+                                    description="Need immediate attention"
+                                    icon="C"
+                                    iconBgColor="bg-red-100"
+                                    iconTextColor="text-red-600"
+                                />
+                                <StatCard
+                                    title="High Priority"
+                                    value={highPriorityCount}
+                                    description="Important escalations"
+                                    icon="H"
+                                    iconBgColor="bg-orange-100"
+                                    iconTextColor="text-orange-600"
+                                />
+                                <StatCard
+                                    title="In Review"
+                                    value={inReviewCount}
+                                    description="Escalations under review"
+                                    icon="R"
+                                    iconBgColor="bg-blue-100"
+                                    iconTextColor="text-blue-600"
+                                />
                             </div>
 
                             {/* Quick Actions */}
