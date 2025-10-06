@@ -51,15 +51,20 @@
     border-radius: 0.5rem !important;
 }
 
-/* Фон всего приложения - нежно-голубой */
+/* Фон всего приложения - сиреневый градиент как в Login */
 html, body {
-    background-color: hsl(210 40% 96%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
 }
 
 .app {
     min-height: 100vh;
-    background-color: hsl(210 40% 96%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* Cursor pointer на все кнопки */
+button {
+    cursor: pointer !important;
 }
 
 /* =================================

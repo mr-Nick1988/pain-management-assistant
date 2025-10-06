@@ -4,6 +4,7 @@ import {type Patient, PatientsGenders} from "../../types/doctor";
 import {useCreatePatientMutation} from "../../api/api/apiDoctorSlice.ts";
 import {getErrorMessage} from "../../utils/getErrorMessageHelper.ts";
 import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Select} from "../ui";
+import {validatePatient} from "../../utils/validationPatient";
 
 
 const PatientFormRegister: React.FC = () => {
@@ -23,6 +24,8 @@ const PatientFormRegister: React.FC = () => {
         isActive: true,
     });
 
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const {name, value} = e.target;
         setForm(prev => ({...prev, [name]: value}));
@@ -30,6 +33,12 @@ const PatientFormRegister: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Валидация формы
+        const validationErrors = validatePatient(form);
+        setErrors(validationErrors);
+        if (Object.keys(validationErrors).length > 0) return;
+
         try {
             const createdPatient = await createPatient(form).unwrap();
             navigate(`/doctor/emr-form/${createdPatient.mrn}`);
@@ -56,6 +65,7 @@ const PatientFormRegister: React.FC = () => {
                                 onChange={handleChange}
                                 required
                             />
+                            {errors.firstName && <p className="text-sm text-red-500 mt-1">{errors.firstName}</p>}
                         </div>
 
                         <div>
@@ -68,6 +78,7 @@ const PatientFormRegister: React.FC = () => {
                                 onChange={handleChange}
                                 required
                             />
+                            {errors.lastName && <p className="text-sm text-red-500 mt-1">{errors.lastName}</p>}
                         </div>
 
                         <div>
@@ -80,6 +91,7 @@ const PatientFormRegister: React.FC = () => {
                                 onChange={handleChange}
                                 required
                             />
+                            {errors.dateOfBirth && <p className="text-sm text-red-500 mt-1">{errors.dateOfBirth}</p>}
                         </div>
 
                         <div>
@@ -108,6 +120,7 @@ const PatientFormRegister: React.FC = () => {
                                 onChange={handleChange}
                                 required
                             />
+                            {errors.insurancePolicyNumber && <p className="text-sm text-red-500 mt-1">{errors.insurancePolicyNumber}</p>}
                         </div>
 
                         <div>
@@ -120,6 +133,7 @@ const PatientFormRegister: React.FC = () => {
                                 onChange={handleChange}
                                 required
                             />
+                            {errors.phoneNumber && <p className="text-sm text-red-500 mt-1">{errors.phoneNumber}</p>}
                         </div>
 
                         <div>
@@ -132,6 +146,7 @@ const PatientFormRegister: React.FC = () => {
                                 value={form.email}
                                 onChange={handleChange}
                             />
+                            {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
                         </div>
 
                         <div>
@@ -144,6 +159,7 @@ const PatientFormRegister: React.FC = () => {
                                 onChange={handleChange}
                                 required
                             />
+                            {errors.address && <p className="text-sm text-red-500 mt-1">{errors.address}</p>}
                         </div>
 
                         <div>

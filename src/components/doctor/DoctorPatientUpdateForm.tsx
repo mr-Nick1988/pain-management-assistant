@@ -3,6 +3,7 @@ import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useUpdatePatientMutation } from "../../api/api/apiDoctorSlice";
 import type { Patient, PatientUpdate } from "../../types/doctor";
 import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Select} from "../ui";
+import {validatePatient} from "../../utils/validationPatient";
 
 const PatientUpdateForm: React.FC = () => {
     const navigate = useNavigate();
@@ -23,6 +24,7 @@ const PatientUpdateForm: React.FC = () => {
         isActive: patient?.isActive,
     });
 
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const [updatePatient, { isLoading }] = useUpdatePatientMutation();
 
     // Проверка после вызова всех хуков
@@ -51,6 +53,12 @@ const PatientUpdateForm: React.FC = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Валидация формы (поля не обязательны при обновлении)
+        const validationErrors = validatePatient(formData, false);
+        setErrors(validationErrors);
+        if (Object.keys(validationErrors).length > 0) return;
+
         try {
             await updatePatient({ mrn: params.mrn!, data: formData }).unwrap();
             alert("Patient updated successfully!");
@@ -80,6 +88,7 @@ const PatientUpdateForm: React.FC = () => {
                                 value={formData.firstName || ""}
                                 onChange={handleChange}
                             />
+                            {errors.firstName && <p className="text-sm text-red-500 mt-1">{errors.firstName}</p>}
                         </div>
 
                         <div>
@@ -91,6 +100,7 @@ const PatientUpdateForm: React.FC = () => {
                                 value={formData.lastName || ""}
                                 onChange={handleChange}
                             />
+                            {errors.lastName && <p className="text-sm text-red-500 mt-1">{errors.lastName}</p>}
                         </div>
 
                         <div>
