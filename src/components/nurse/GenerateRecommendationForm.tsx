@@ -1,20 +1,19 @@
 import React, { useState } from "react";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
     useUpdateVasMutation,
     useCreateRecommendationMutation,
     useDeleteVasMutation
 } from "../../api/api/apiNurseSlice";
-import type { Patient, VAS, Recommendation } from "../../types/nurse";
+import type { Patient, VAS } from "../../types/nurse";
 
 const GenerateRecommendationForm: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const params = useParams<{ personId: string }>(); // MRN из URL
     const state = location.state as { patient?: Patient; vasData?: VAS };
     const { patient, vasData } = state || {};
 
-    // Простая защита от прямого захода
+    // 🧩 Защита от прямого захода
     if (!patient?.mrn || !vasData) {
         return (
             <div className="p-6">
@@ -29,15 +28,17 @@ const GenerateRecommendationForm: React.FC = () => {
         );
     }
 
+    // 📋 Локальное состояние
     const [formData, setFormData] = useState<VAS>({
         painPlace: vasData.painPlace || "",
         painLevel: vasData.painLevel || 0,
     });
 
-    const [updateVAS] = useUpdateVasMutation();
-    const [createRecommendation] = useCreateRecommendationMutation();
-    const [deleteVAS] = useDeleteVasMutation();
+    const [updateVAS, { isLoading: isUpdating }] = useUpdateVasMutation();
+    const [createRecommendation, { isLoading: isCreating }] = useCreateRecommendationMutation();
+    const [deleteVAS, { isLoading: isDeleting }] = useDeleteVasMutation();
 
+    // 🖊 Обработка изменений
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
@@ -46,6 +47,7 @@ const GenerateRecommendationForm: React.FC = () => {
         }));
     };
 
+    // 🔄 Обновление VAS
     const handleUpdateVAS = async () => {
         if (formData.painLevel < 0 || formData.painLevel > 10) {
             alert("Pain level must be between 0 and 10");
@@ -60,26 +62,25 @@ const GenerateRecommendationForm: React.FC = () => {
         }
     };
 
+    // 💊 Генерация рекомендации (теперь без тела запроса!)
     const handleCreateRecommendation = async () => {
         try {
-            const recommendation: Recommendation = {
-                status: "PENDING",
-                regimenHierarchy: formData.painLevel,
-            };
-            await createRecommendation({ mrn: patient.mrn!, data: recommendation }).unwrap();
-            alert("Recommendation created successfully!");
-            navigate(`/nurse/patient/${params.personId}`, { state: patient });
+            await createRecommendation({ mrn: patient.mrn! }).unwrap();
+            alert("Recommendation generated successfully!");
+            navigate(`/nurse/patient/${patient.mrn}`, { state: patient });
         } catch (error) {
-            console.error(error);
-            alert("Failed to create recommendation");
+            console.error("Failed to create recommendation:", error);
+            alert("Failed to generate recommendation");
         }
     };
 
+    // 🗑 Удаление VAS
     const handleDeleteVAS = async () => {
+        if (!window.confirm("Are you sure you want to delete this VAS record?")) return;
         try {
             await deleteVAS(patient.mrn!).unwrap();
             alert("VAS deleted successfully!");
-            navigate(`/nurse/patient/${params.personId}`, { state: patient });
+            navigate(`/nurse/patient/${patient.mrn}`, { state: patient });
         } catch (error) {
             console.error(error);
             alert("Failed to delete VAS");
@@ -90,17 +91,20 @@ const GenerateRecommendationForm: React.FC = () => {
 
     return (
         <div className="p-6 max-w-md mx-auto bg-white shadow rounded space-y-6">
-            <h1 className="text-2xl font-bold mb-4">Generate Recommendation</h1>
+            <h1 className="text-2xl font-bold mb-4 text-center">Generate Recommendation</h1>
 
+            {/* 🔹 Кнопка генерации рекомендации */}
             <button
                 className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full"
                 onClick={handleCreateRecommendation}
+                disabled={isCreating}
             >
-                Create Recommendation
+                {isCreating ? "Generating..." : "Generate Recommendation"}
             </button>
 
+            {/* 🔸 Блок редактирования VAS */}
             <div className="p-4 border rounded space-y-3 bg-gray-50">
-                <h2 className="text-lg font-semibold">Update VAS</h2>
+                <h2 className="text-lg font-semibold">Update Pain Data (VAS)</h2>
 
                 <div>
                     <label className="block font-medium mb-1">Pain Place (optional)</label>
@@ -115,7 +119,7 @@ const GenerateRecommendationForm: React.FC = () => {
                 </div>
 
                 <div>
-                    <label className="block font-medium mb-1">Pain Level (0-10)</label>
+                    <label className="block font-medium mb-1">Pain Level (0–10)</label>
                     <input
                         type="number"
                         name="painLevel"
@@ -129,19 +133,23 @@ const GenerateRecommendationForm: React.FC = () => {
                 </div>
 
                 <button
-                    className={`bg-yellow-500 text-white px-4 py-2 rounded w-full hover:bg-yellow-600 ${isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""}`}
+                    className={`bg-yellow-500 text-white px-4 py-2 rounded w-full hover:bg-yellow-600 ${
+                        isUpdateDisabled ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                     onClick={handleUpdateVAS}
-                    disabled={isUpdateDisabled}
+                    disabled={isUpdateDisabled || isUpdating}
                 >
-                    Update VAS
+                    {isUpdating ? "Updating..." : "Update VAS"}
                 </button>
             </div>
 
+            {/* 🔻 Кнопка удаления */}
             <button
                 className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 w-full"
                 onClick={handleDeleteVAS}
+                disabled={isDeleting}
             >
-                Delete VAS
+                {isDeleting ? "Deleting..." : "Delete VAS"}
             </button>
         </div>
     );

@@ -17,6 +17,7 @@ const EMRFormRegister: React.FC = () => {
         wbc: 0,
         sat: 0,
         sodium: 0,
+        sensitivities: [],
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

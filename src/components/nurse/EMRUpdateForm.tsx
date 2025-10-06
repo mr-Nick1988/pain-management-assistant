@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useUpdateEmrMutation } from "../../api/api/apiNurseSlice";
 import type { EMR, EMRUpdate, Patient } from "../../types/nurse";
+import { validateEmr } from "../../utils/validationEmr.ts";
 
 const EMRUpdateForm: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // Защита от прямого захода по URL
     const state = location.state as { patient: Patient; emrData: EMR } | undefined;
     if (!state || !state.patient || !state.patient?.mrn) {
         return (
@@ -24,11 +24,8 @@ const EMRUpdateForm: React.FC = () => {
     }
 
     const { patient, emrData } = state;
-
-    // RTK Mutation для обновления EMR
     const [updateEmr, { isLoading }] = useUpdateEmrMutation();
 
-    // Локальное состояние для формы
     const [form, setForm] = useState<EMRUpdate>({
         height: emrData.height,
         weight: emrData.weight,
@@ -38,11 +35,14 @@ const EMRUpdateForm: React.FC = () => {
         wbc: emrData.wbc,
         sat: emrData.sat,
         sodium: emrData.sodium,
+        sensitivities: emrData.sensitivities || [],
     });
+
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        setForm((prev) => ({
+        setForm(prev => ({
             ...prev,
             [name]: ["height", "weight", "plt", "wbc", "sat", "sodium"].includes(name)
                 ? Number(value)
@@ -50,11 +50,24 @@ const EMRUpdateForm: React.FC = () => {
         }));
     };
 
+    const handleSensitivitiesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const arr = e.target.value
+            .split(",")
+            .map(s => s.trim())
+            .filter(Boolean);
+        setForm(prev => ({ ...prev, sensitivities: arr }));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        const validationErrors = validateEmr(form as EMR);
+        setErrors(validationErrors);
+        if (Object.keys(validationErrors).length > 0) return;
+
         try {
             await updateEmr({ mrn: patient.mrn!, data: form }).unwrap();
-            navigate(-1); // возвращаемся на PatientDetails
+            navigate(-1);
         } catch (err) {
             console.error("Failed to update EMR:", err);
             alert("Error updating EMR");
@@ -75,8 +88,9 @@ const EMRUpdateForm: React.FC = () => {
                         name="height"
                         value={form.height || ""}
                         onChange={handleChange}
-                        className="border rounded w-full p-2"
+                        className={`border rounded w-full p-2 ${errors.height ? "border-red-500" : ""}`}
                     />
+                    {errors.height && <p className="text-red-500 text-sm">{errors.height}</p>}
                 </div>
 
                 <div>
@@ -86,8 +100,9 @@ const EMRUpdateForm: React.FC = () => {
                         name="weight"
                         value={form.weight || ""}
                         onChange={handleChange}
-                        className="border rounded w-full p-2"
+                        className={`border rounded w-full p-2 ${errors.weight ? "border-red-500" : ""}`}
                     />
+                    {errors.weight && <p className="text-red-500 text-sm">{errors.weight}</p>}
                 </div>
 
                 <div>
@@ -97,19 +112,25 @@ const EMRUpdateForm: React.FC = () => {
                         name="gfr"
                         value={form.gfr || ""}
                         onChange={handleChange}
-                        className="border rounded w-full p-2"
+                        className={`border rounded w-full p-2 ${errors.gfr ? "border-red-500" : ""}`}
                     />
+                    <p className="text-sm text-gray-500">Enter A–E or number (0–120)</p>
+                    {errors.gfr && <p className="text-red-500 text-sm">{errors.gfr}</p>}
                 </div>
 
                 <div>
-                    <label className="block font-semibold">Child Pugh Score</label>
+                    <label className="block font-semibold">Child-Pugh Score</label>
                     <input
                         type="text"
                         name="childPughScore"
                         value={form.childPughScore || ""}
                         onChange={handleChange}
-                        className="border rounded w-full p-2"
+                        className={`border rounded w-full p-2 ${errors.childPughScore ? "border-red-500" : ""}`}
                     />
+                    <p className="text-sm text-gray-500">Enter A, B, or C</p>
+                    {errors.childPughScore && (
+                        <p className="text-red-500 text-sm">{errors.childPughScore}</p>
+                    )}
                 </div>
 
                 <div>
@@ -119,8 +140,9 @@ const EMRUpdateForm: React.FC = () => {
                         name="plt"
                         value={form.plt || ""}
                         onChange={handleChange}
-                        className="border rounded w-full p-2"
+                        className={`border rounded w-full p-2 ${errors.plt ? "border-red-500" : ""}`}
                     />
+                    {errors.plt && <p className="text-red-500 text-sm">{errors.plt}</p>}
                 </div>
 
                 <div>
@@ -130,8 +152,9 @@ const EMRUpdateForm: React.FC = () => {
                         name="wbc"
                         value={form.wbc || ""}
                         onChange={handleChange}
-                        className="border rounded w-full p-2"
+                        className={`border rounded w-full p-2 ${errors.wbc ? "border-red-500" : ""}`}
                     />
+                    {errors.wbc && <p className="text-red-500 text-sm">{errors.wbc}</p>}
                 </div>
 
                 <div>
@@ -141,8 +164,9 @@ const EMRUpdateForm: React.FC = () => {
                         name="sat"
                         value={form.sat || ""}
                         onChange={handleChange}
-                        className="border rounded w-full p-2"
+                        className={`border rounded w-full p-2 ${errors.sat ? "border-red-500" : ""}`}
                     />
+                    {errors.sat && <p className="text-red-500 text-sm">{errors.sat}</p>}
                 </div>
 
                 <div>
@@ -152,8 +176,24 @@ const EMRUpdateForm: React.FC = () => {
                         name="sodium"
                         value={form.sodium || ""}
                         onChange={handleChange}
+                        className={`border rounded w-full p-2 ${errors.sodium ? "border-red-500" : ""}`}
+                    />
+                    {errors.sodium && <p className="text-red-500 text-sm">{errors.sodium}</p>}
+                </div>
+
+                <div>
+                    <label className="block font-semibold">Sensitivities (comma-separated)</label>
+                    <input
+                        type="text"
+                        name="sensitivities"
+                        placeholder="e.g. PARACETAMOL, IBUPROFEN"
+                        value={form.sensitivities?.join(", ") || ""}
+                        onChange={handleSensitivitiesChange}
                         className="border rounded w-full p-2"
                     />
+                    <p className="text-sm text-gray-500">
+                        Optional: list allergies separated by commas
+                    </p>
                 </div>
 
                 <div className="flex justify-end space-x-2">

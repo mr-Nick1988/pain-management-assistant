@@ -19,6 +19,7 @@ const EMRUpdateForm: React.FC = () => {
         wbc: state?.emrData?.wbc,
         sat: state?.emrData?.sat,
         sodium: state?.emrData?.sodium,
+        sensitivities:state?.emrData?.sensitivities??[],
     });
 
     // Проверка после вызова хуков
