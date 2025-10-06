@@ -27,8 +27,8 @@ const FirstLoginNotice: React.FC<FirstLoginNoticeProps> = ({
         <div className="medical-page">
             <div className="first-login-notice-container">
                 <header className="first-login-notice-header">
-                    <h1 className="medical-title">{dashboardTitle}</h1>
-                    <p className="medical-subtitle">
+                    <h1 className="text-4xl font-bold text-center mb-2 drop-shadow-lg !text-red-500">{dashboardTitle}</h1>
+                    <p className="text-lg text-center !text-red-400">
                         Welcome, {userName || userRole}
                     </p>
                 </header>
