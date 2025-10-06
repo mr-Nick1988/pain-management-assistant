@@ -28,9 +28,9 @@ const PatientList: React.FC = () => {
         isActive: "" as "" | "true" | "false"
     });
 
-    const [fetchByMrn, {data: patientByMrn, isFetching: isFetchingMrn, error: errorMrn}] = useLazyGetPatientByMrnQuery();
-    const [fetchByEmail, {data: patientByEmail, isFetching: isFetchingEmail, error: errorEmail}] = useLazyGetPatientByEmailQuery();
-    const [fetchByPhone, {data: patientByPhone, isFetching: isFetchingPhone, error: errorPhone}] = useLazyGetPatientByPhoneNumberQuery();
+    const [fetchByMrn, {isFetching: isFetchingMrn, error: errorMrn}] = useLazyGetPatientByMrnQuery();
+    const [fetchByEmail, {isFetching: isFetchingEmail, error: errorEmail}] = useLazyGetPatientByEmailQuery();
+    const [fetchByPhone, {isFetching: isFetchingPhone, error: errorPhone}] = useLazyGetPatientByPhoneNumberQuery();
     const [searchPatients, {data: searchResults, isFetching: isSearching, error: searchError}] = useLazySearchPatientsQuery();
 
     const handleSearchMrn = async () => {
@@ -61,7 +61,16 @@ const PatientList: React.FC = () => {
     };
 
     const handleAdvancedSearch = () => {
-        const params: any = {};
+        const params: {
+            firstName?: string;
+            lastName?: string;
+            birthDate?: string;
+            gender?: string;
+            insurancePolicyNumber?: string;
+            address?: string;
+            isActive?: boolean;
+        } = {};
+        
         if (advancedSearch.firstName.trim()) params.firstName = advancedSearch.firstName.trim();
         if (advancedSearch.lastName.trim()) params.lastName = advancedSearch.lastName.trim();
         if (advancedSearch.birthDate) {
@@ -114,7 +123,7 @@ const PatientList: React.FC = () => {
                                 placeholder="Enter MRN"
                                 value={searchMrn}
                                 onChange={(e) => setSearchMrn(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && handleSearchMrn()}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearchMrn()}
                                 className="flex-1"
                             />
                             <Button
@@ -140,7 +149,7 @@ const PatientList: React.FC = () => {
                                 placeholder="Enter email address"
                                 value={searchEmail}
                                 onChange={(e) => setSearchEmail(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && handleSearchEmail()}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearchEmail()}
                                 className="flex-1"
                             />
                             <Button
@@ -165,7 +174,7 @@ const PatientList: React.FC = () => {
                                 placeholder="Enter phone number"
                                 value={searchPhone}
                                 onChange={(e) => setSearchPhone(e.target.value)}
-                                onKeyPress={(e) => e.key === 'Enter' && handleSearchPhone()}
+                                onKeyDown={(e) => e.key === 'Enter' && handleSearchPhone()}
                                 className="flex-1"
                             />
                             <Button
