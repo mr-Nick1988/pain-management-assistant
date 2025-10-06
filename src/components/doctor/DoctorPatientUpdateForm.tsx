@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useUpdatePatientMutation } from "../../api/api/apiDoctorSlice";
 import type { Patient, PatientUpdate } from "../../types/doctor";
+import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Select} from "../ui";
 
 const PatientUpdateForm: React.FC = () => {
     const navigate = useNavigate();
@@ -28,13 +29,14 @@ const PatientUpdateForm: React.FC = () => {
     if (!patient?.mrn) {
         return (
             <div className="p-6">
-                <p>No patient data. Please navigate from the dashboard.</p>
-                <button
-                    onClick={() => navigate("/doctor")}
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                    Back to Dashboard
-                </button>
+                <Card>
+                    <CardContent className="text-center py-8">
+                        <p className="mb-4">No patient data. Please navigate from the dashboard.</p>
+                        <Button variant="update" onClick={() => navigate("/doctor")}>
+                            Back to Dashboard
+                        </Button>
+                    </CardContent>
+                </Card>
             </div>
         );
     }
@@ -62,128 +64,139 @@ const PatientUpdateForm: React.FC = () => {
     const handleCancel = () => navigate(-1);
 
     return (
-        <div className="p-6 max-w-md mx-auto bg-white shadow rounded">
-            <h1 className="text-2xl font-bold mb-4">Update Patient Data</h1>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label className="block font-semibold mb-1">First Name</label>
-                    <input
-                        type="text"
-                        name="firstName"
-                        value={formData.firstName || ""}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
+        <div className="p-6 max-w-2xl mx-auto">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Update Patient: {patient.firstName} {patient.lastName}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleSubmit} className="space-y-4">
+                        <div>
+                            <Label htmlFor="firstName">First Name</Label>
+                            <Input
+                                id="firstName"
+                                name="firstName"
+                                placeholder="Enter patient's first name"
+                                value={formData.firstName || ""}
+                                onChange={handleChange}
+                            />
+                        </div>
 
-                <div>
-                    <label className="block font-semibold mb-1">Last Name</label>
-                    <input
-                        type="text"
-                        name="lastName"
-                        value={formData.lastName || ""}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
+                        <div>
+                            <Label htmlFor="lastName">Last Name</Label>
+                            <Input
+                                id="lastName"
+                                name="lastName"
+                                placeholder="Enter patient's last name"
+                                value={formData.lastName || ""}
+                                onChange={handleChange}
+                            />
+                        </div>
 
-                <div>
-                    <label className="block font-semibold mb-1">Gender</label>
-                    <select
-                        name="gender"
-                        value={formData.gender || ""}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    >
-                        <option value="">Select Gender</option>
-                        <option value="MALE">Male</option>
-                        <option value="FEMALE">Female</option>
-                        <option value="OTHER">Other</option>
-                    </select>
-                </div>
+                        <div>
+                            <Label htmlFor="gender">Gender</Label>
+                            <Select
+                                id="gender"
+                                name="gender"
+                                value={formData.gender || ""}
+                                onChange={handleChange}
+                            >
+                                <option value="">Select gender</option>
+                                <option value="MALE">Male</option>
+                                <option value="FEMALE">Female</option>
+                                <option value="OTHER">Other</option>
+                            </Select>
+                        </div>
 
-                <div>
-                    <label className="block font-semibold mb-1">Insurance Policy Number</label>
-                    <input
-                        type="text"
-                        name="insurancePolicyNumber"
-                        value={formData.insurancePolicyNumber || ""}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
+                        <div>
+                            <Label htmlFor="insurancePolicyNumber">Insurance Policy Number</Label>
+                            <Input
+                                id="insurancePolicyNumber"
+                                name="insurancePolicyNumber"
+                                placeholder="Enter insurance policy number"
+                                value={formData.insurancePolicyNumber || ""}
+                                onChange={handleChange}
+                            />
+                        </div>
 
-                <div>
-                    <label className="block font-semibold mb-1">Phone Number</label>
-                    <input
-                        type="text"
-                        name="phoneNumber"
-                        value={formData.phoneNumber || ""}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
+                        <div>
+                            <Label htmlFor="phoneNumber">Phone Number</Label>
+                            <Input
+                                id="phoneNumber"
+                                name="phoneNumber"
+                                placeholder="Enter patient's phone number"
+                                value={formData.phoneNumber || ""}
+                                onChange={handleChange}
+                            />
+                        </div>
 
-                <div>
-                    <label className="block font-semibold mb-1">Email</label>
-                    <input
-                        type="email"
-                        name="email"
-                        value={formData.email || ""}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
+                        <div>
+                            <Label htmlFor="email">Email Address</Label>
+                            <Input
+                                id="email"
+                                type="email"
+                                name="email"
+                                placeholder="Enter patient's email address"
+                                value={formData.email || ""}
+                                onChange={handleChange}
+                            />
+                        </div>
 
-                <div>
-                    <label className="block font-semibold mb-1">Address</label>
-                    <input
-                        type="text"
-                        name="address"
-                        value={formData.address || ""}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
+                        <div>
+                            <Label htmlFor="address">Address</Label>
+                            <Input
+                                id="address"
+                                name="address"
+                                placeholder="Enter patient's full address"
+                                value={formData.address || ""}
+                                onChange={handleChange}
+                            />
+                        </div>
 
-                <div>
-                    <label className="block font-semibold mb-1">Additional Info</label>
-                    <input
-                        type="text"
-                        name="additionalInfo"
-                        value={formData.additionalInfo || ""}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
+                        <div>
+                            <Label htmlFor="additionalInfo">Additional Information</Label>
+                            <Input
+                                id="additionalInfo"
+                                name="additionalInfo"
+                                placeholder="Enter any additional information"
+                                value={formData.additionalInfo || ""}
+                                onChange={handleChange}
+                            />
+                        </div>
 
-                <div className="flex items-center space-x-2">
-                    <input
-                        type="checkbox"
-                        name="isActive"
-                        checked={formData.isActive || false}
-                        onChange={handleChange}
-                    />
-                    <label>In treatment</label>
-                </div>
+                        <div className="flex items-center space-x-2">
+                            <input
+                                type="checkbox"
+                                id="isActive"
+                                name="isActive"
+                                checked={formData.isActive || false}
+                                onChange={handleChange}
+                                className="h-4 w-4"
+                            />
+                            <Label htmlFor="isActive">Patient is currently in treatment</Label>
+                        </div>
 
-                <div className="flex space-x-2 mt-4">
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
-                    >
-                        Save
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleCancel}
-                        className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </form>
+                        <div className="flex space-x-2 pt-4">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={handleCancel}
+                                className="flex-1"
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                variant="update"
+                                disabled={isLoading}
+                                className="flex-1"
+                            >
+                                {isLoading ? "Updating..." : "Update Patient"}
+                            </Button>
+                        </div>
+                    </form>
+                </CardContent>
+            </Card>
         </div>
     );
 };

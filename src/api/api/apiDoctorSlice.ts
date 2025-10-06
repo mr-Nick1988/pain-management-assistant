@@ -64,6 +64,32 @@ export const apiDoctorSlice = createApi({
             }),
             invalidatesTags: ["Patient"],
         }),
+        searchPatients: builder.query<Patient[], {
+            firstName?: string;
+            lastName?: string;
+            isActive?: boolean;
+            birthDate?: string;
+            gender?: string;
+            insurancePolicyNumber?: string;
+            address?: string;
+            phoneNumber?: string;
+            email?: string;
+        }>({
+            query: (params) => {
+                const searchParams = new URLSearchParams();
+                if (params.firstName) searchParams.append('firstName', params.firstName);
+                if (params.lastName) searchParams.append('lastName', params.lastName);
+                if (params.isActive !== undefined) searchParams.append('isActive', String(params.isActive));
+                if (params.birthDate) searchParams.append('birthDate', params.birthDate);
+                if (params.gender) searchParams.append('gender', params.gender);
+                if (params.insurancePolicyNumber) searchParams.append('insurancePolicyNumber', params.insurancePolicyNumber);
+                if (params.address) searchParams.append('address', params.address);
+                if (params.phoneNumber) searchParams.append('phoneNumber', params.phoneNumber);
+                if (params.email) searchParams.append('email', params.email);
+                return `/doctor/patients?${searchParams.toString()}`;
+            },
+            providesTags: ["Patient"],
+        }),
 
         // EMR
         getEmrByPatientId: builder.query<EMR, string>({
@@ -129,6 +155,8 @@ export const {
     useCreatePatientMutation,
     useUpdatePatientMutation,
     useDeletePatientMutation,
+    useSearchPatientsQuery,
+    useLazySearchPatientsQuery,
     useGetEmrByPatientIdQuery,
     useGetAllEmrByPatientIdQuery,
     useCreateEmrMutation,

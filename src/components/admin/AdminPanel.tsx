@@ -1,6 +1,6 @@
 import {useNavigate} from "react-router-dom";
 import React, {useState} from "react";
-import {useDeletePersonMutation, useGetPersonsQuery} from "../../api/api/apiAdminSlice.tsx";
+import {useDeletePersonMutation, useGetPersonsQuery} from "../../api/api/apiAdminSlice.ts";
 import {PersonsList} from "../../exports/exports.ts";
 import { Button, Card, CardContent, CardHeader, CardTitle } from "../ui";
 

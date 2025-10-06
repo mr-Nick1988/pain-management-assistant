@@ -1,7 +1,7 @@
 import {useNavigate, useSearchParams} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import {type PersonRegister, UserRole} from "../../types/personRegister.ts";
-import {useCreatePersonMutation, useGetPersonsQuery, useUpdatePersonMutation} from "../../api/api/apiAdminSlice.tsx";
+import {useCreatePersonMutation, useGetPersonsQuery, useUpdatePersonMutation} from "../../api/api/apiAdminSlice.ts";
 import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label } from "../ui";
 
 const CreatePerson: React.FC = () => {
