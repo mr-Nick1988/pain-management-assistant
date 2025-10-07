@@ -99,19 +99,23 @@ const PatientList: React.FC = () => {
 
     return (
         <div className="p-6 space-y-6">
-            <div className="flex justify-between items-center">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Patient Search</h1>
-                    <p className="text-gray-600 mt-1">Search for patients using various criteria</p>
-                </div>
-                <Button variant="outline" onClick={() => navigate("/doctor")}>
+            <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-300 via-orange-400 to-pink-400 bg-clip-text text-transparent animate-gradient drop-shadow-lg">
+                    Patient Search
+                </h1>
+                <p className="text-lg font-medium mb-4 bg-gradient-to-r from-white via-yellow-100 to-white bg-clip-text text-transparent drop-shadow-md">
+                    Search for patients using various criteria
+                </p>
+                <Button variant="update" onClick={() => navigate("/doctor")}>
                     Back to Dashboard
                 </Button>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Quick Search</CardTitle>
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold text-gray-900">Quick Search</h2>
+                    </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {/* Search by MRN */}
@@ -194,7 +198,11 @@ const PatientList: React.FC = () => {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Advanced Search</CardTitle>
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold text-gray-900">
+                            Advanced Search
+                        </h2>
+                    </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -280,7 +288,7 @@ const PatientList: React.FC = () => {
                             {isSearching ? "Searching..." : "Search Patients"}
                         </Button>
                         <Button
-                            variant="outline"
+                            variant="reject"
                             onClick={handleClearAdvancedSearch}
                             className="flex-1"
                         >

@@ -1,99 +1,51 @@
 import React from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useGetRecommendationByPatientIdQuery } from "../../api/api/apiNurseSlice";
+import { PageHeader, DataCard, InfoGrid, InfoItem, LoadingSpinner } from "../ui";
 
 const RecommendationDetails: React.FC = () => {
-    const navigate = useNavigate();
     const { mrn } = useParams<{ mrn: string }>();
 
-    // 🩺 Запрос последней рекомендации
     const { data: recommendation, isLoading, isError } = useGetRecommendationByPatientIdQuery(mrn!, {
         skip: !mrn,
     });
 
-    if (isLoading) {
-        return <p className="p-6 text-gray-600">Loading recommendation...</p>;
-    }
-
-    if (isError || !recommendation) {
-        return (
-            <div className="p-6">
-                <p className="text-red-600">No recommendation found for this patient.</p>
-                <button
-                    onClick={() => navigate("/nurse")}
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                    Back to Dashboard
-                </button>
-            </div>
-        );
-    }
+    if (isLoading) return <div className="p-6"><LoadingSpinner message="Loading recommendation..." /></div>;
+    if (isError || !recommendation) return <div className="p-6"><p className="text-center text-red-600">No recommendation found</p></div>;
 
     return (
-        <div className="p-6 max-w-2xl mx-auto bg-white rounded shadow">
-            <h1 className="text-2xl font-bold mb-4">Recommendation Details</h1>
-
-            <div className="space-y-2 mb-6">
-                <p><strong>Status:</strong> {recommendation.status}</p>
-                <p><strong>Regimen Hierarchy:</strong> {recommendation.regimenHierarchy}</p>
-                <p><strong>Created At:</strong> {recommendation.createdAt || "N/A"}</p>
-                <p><strong>Created By:</strong> {recommendation.createdBy || "N/A"}</p>
-            </div>
-
-            {/* 💊 Список лекарств */}
-            {recommendation.drugs && recommendation.drugs.length > 0 ? (
-                <div>
-                    <h2 className="text-lg font-semibold mb-2">Drug Recommendations:</h2>
-                    {recommendation.drugs.map((drug, index) => (
-                        <div key={index} className="border rounded p-3 mb-3 bg-gray-50">
-                            <p><strong>Drug Name:</strong> {drug.drugName}</p>
-                            <p><strong>Active Moiety:</strong> {drug.activeMoiety}</p>
-                            <p><strong>Dosing:</strong> {drug.dosing}</p>
-                            <p><strong>Interval:</strong> {drug.interval}</p>
-                            <p><strong>Route:</strong> {drug.route}</p>
-                            <p><strong>Role:</strong> {drug.role}</p>
-                            <p><strong>Age Adjustment:</strong> {drug.ageAdjustment}</p>
-                            <p><strong>Weight Adjustment:</strong> {drug.weightAdjustment}</p>
-                            <p><strong>Child Pugh:</strong> {drug.childPugh}</p>
-                        </div>
-                    ))}
-                </div>
-            ) : (
-                <p>No drugs specified.</p>
+        <div className="p-6 space-y-6">
+            <PageHeader title="Recommendation Details" />
+            <DataCard title="Recommendation Info">
+                <InfoGrid columns={2}>
+                    <InfoItem label="Status" value={recommendation.status} />
+                    <InfoItem label="Regimen" value={recommendation.regimenHierarchy} />
+                    <InfoItem label="Created At" value={recommendation.createdAt || "N/A"} />
+                    <InfoItem label="Created By" value={recommendation.createdBy || "N/A"} />
+                </InfoGrid>
+            </DataCard>
+            {recommendation.drugs && recommendation.drugs.length > 0 && (
+                <DataCard title="Drug Recommendations">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {recommendation.drugs.map((drug, i) => (
+                            <div key={i} className="border rounded-lg p-4 bg-gray-50">
+                                <InfoGrid columns={1}>
+                                    <InfoItem label="Drug" value={drug.drugName} />
+                                    <InfoItem label="Dosing" value={drug.dosing} />
+                                    <InfoItem label="Route" value={drug.route} />
+                                </InfoGrid>
+                            </div>
+                        ))}
+                    </div>
+                </DataCard>
             )}
-
-            {/* ⚠️ Противопоказания */}
             {recommendation.contraindications && recommendation.contraindications.length > 0 && (
-                <div className="mt-4">
-                    <h2 className="text-lg font-semibold mb-2 text-red-600">Contraindications:</h2>
-                    <ul className="list-disc pl-5">
-                        {recommendation.contraindications.map((c, i) => (
-                            <li key={i}>{c}</li>
-                        ))}
+                <DataCard title="Contraindications">
+                    <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                        {recommendation.contraindications.map((c, i) => (<li key={i}>{c}</li>))}
                     </ul>
-                </div>
+                </DataCard>
             )}
-
-            {/* 💬 Комментарии */}
-            {recommendation.comments && recommendation.comments.length > 0 && (
-                <div className="mt-4">
-                    <h2 className="text-lg font-semibold mb-2 text-gray-700">Comments:</h2>
-                    <ul className="list-disc pl-5">
-                        {recommendation.comments.map((c, i) => (
-                            <li key={i}>{c}</li>
-                        ))}
-                    </ul>
-                </div>
-            )}
-
-            <div className="flex justify-end mt-6">
-                <button
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                    onClick={() => navigate(`/nurse/patient/${mrn}`)}
-                >
-                    Back to Patient
-                </button>
-            </div>
         </div>
     );
 };

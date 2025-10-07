@@ -2,34 +2,23 @@ import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useCreateVasMutation } from "../../api/api/apiNurseSlice";
 import type { Patient, VAS } from "../../types/nurse";
+import { FormCard, FormFieldWrapper, Input } from "../ui";
 
 const VASFormRegister: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const patient = location.state as Patient;
 
-    /*проверка на undefined на случай, если кто-то зайдет напрямую по URL*/
-    if (!patient?.mrn) {
-        return (
-            <div className="p-6">
-                <p>No patient data. Please navigate from the dashboard.</p>
-                <button
-                    onClick={() => navigate("/nurse")}
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                    Back to Dashboard
-                </button>
-            </div>
-        );
-    }
-
 
     const [formData, setFormData] = useState<VAS>({
         painPlace: "",
         painLevel: 0,
     });
-
     const [createVAS, { isLoading }] = useCreateVasMutation();
+
+    if (!patient?.mrn) {
+        return <div className="p-6"><p className="text-center text-gray-500">No patient data</p></div>;
+    }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -47,7 +36,6 @@ const VASFormRegister: React.FC = () => {
 
         try {
             await createVAS({ mrn: patient.mrn!, data: formData }).unwrap();
-            // Переход только после успешного создания VAS
             navigate(`/nurse/recommendation/${patient.mrn}`, { state: { patient, vasData: formData } });
         } catch (error) {
             console.error("Failed to create VAS:", error);
@@ -55,54 +43,22 @@ const VASFormRegister: React.FC = () => {
         }
     };
 
-    const handleCancel = () => {
-        navigate(-1); // Возврат на PatientDetails
-    };
-
     return (
-        <div className="p-6 max-w-md mx-auto bg-white shadow rounded">
-            <h1 className="text-2xl font-bold mb-4">Register Pain Complaint</h1>
-            <div className="space-y-4">
-                <div>
-                    <label className="block font-semibold mb-1">Pain Place</label>
-                    <input
-                        type="text"
-                        name="painPlace"
-                        value={formData.painPlace}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
-
-                <div>
-                    <label className="block font-semibold mb-1">Pain Level (0-10)</label>
-                    <input
-                        type="number"
-                        name="painLevel"
-                        min={0}
-                        max={10}
-                        value={formData.painLevel}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
-
-                <div className="flex space-x-2 mt-4">
-                    <button
-                        disabled={isLoading}
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
-                        onClick={handleNext}
-                    >
-                        Next
-                    </button>
-                    <button
-                        className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-                        onClick={handleCancel}
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </div>
+        <div className="p-6">
+            <FormCard
+                title="Register Pain Complaint (VAS)"
+                onSubmit={(e) => { e.preventDefault(); void handleNext(); }}
+                onCancel={() => navigate(-1)}
+                submitText="Next: Generate Recommendation"
+                isLoading={isLoading}
+            >
+                <FormFieldWrapper label="Pain Location">
+                    <Input type="text" name="painPlace" value={formData.painPlace} onChange={handleChange} placeholder="Enter pain location" />
+                </FormFieldWrapper>
+                <FormFieldWrapper label="Pain Level (0-10)" hint="0 = No pain, 10 = Worst pain imaginable">
+                    <Input type="number" name="painLevel" min={0} max={10} value={formData.painLevel} onChange={handleChange} placeholder="Enter pain level" />
+                </FormFieldWrapper>
+            </FormCard>
         </div>
     );
 };

@@ -6,230 +6,158 @@ import {
     useGetRecommendationByPatientIdQuery
 } from "../../api/api/apiNurseSlice";
 import type { Patient } from "../../types/nurse";
+import { PageHeader, DataCard, InfoGrid, InfoItem, Button, LoadingSpinner, Modal, ModalHeader, ModalBody, ModalFooter } from "../ui";
 
 const PatientDetails: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const patient = location.state as Patient;
-
-    if (!patient?.mrn)
-        return (
-            <div className="p-6">
-                <p>No patient data. Please navigate from the dashboard.</p>
-                <button
-                    onClick={() => navigate("/nurse")}
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                    Back to Dashboard
-                </button>
-            </div>
-        );
-
+    
+    // All hooks must be called before any conditional returns
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [loadEmr, setLoadEmr] = useState(false);
     const [loadRecommendation, setLoadRecommendation] = useState(false);
 
-    const { data: emrData, isFetching: emrLoading } = useGetEmrByPatientIdQuery(patient.mrn, {
-        skip: !loadEmr,
+    const { data: emrData, isFetching: emrLoading } = useGetEmrByPatientIdQuery(patient?.mrn || "", {
+        skip: !loadEmr || !patient?.mrn,
     });
 
     const { data: recommendation, isFetching: recLoading, isError: recError } =
-        useGetRecommendationByPatientIdQuery(patient.mrn, { skip: !loadRecommendation });
+        useGetRecommendationByPatientIdQuery(patient?.mrn || "", { skip: !loadRecommendation || !patient?.mrn });
 
     const [deletePatient] = useDeletePatientMutation();
 
-    const handleDeletePatient = async () => {
-        if (window.confirm(`Are you sure you want to delete ${patient.firstName} ${patient.lastName}?`)) {
-            await deletePatient(patient.mrn!);
-            navigate("/nurse");
-        }
+    if (!patient?.mrn) {
+        return <div className="p-6"><p className="text-center text-gray-500">No patient data</p></div>;
+    }
+
+    const confirmDelete = async () => {
+        await deletePatient(patient.mrn!);
+        setIsDeleteModalOpen(false);
+        navigate("/nurse");
     };
 
     return (
-        <div className="p-6">
-            {/* 🔙 Навигация */}
-            <button
-                onClick={() => navigate("/nurse")}
-                className="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        <div className="p-6 space-y-6">
+            <PageHeader title="Patient Details" />
+
+            <DataCard title="Patient Information">
+                <InfoGrid columns={2}>
+                    <InfoItem label="MRN" value={patient.mrn} />
+                    <InfoItem label="Name" value={`${patient.firstName} ${patient.lastName}`} />
+                    <InfoItem label="Date of Birth" value={patient.dateOfBirth} />
+                    <InfoItem label="Gender" value={patient.gender} />
+                    <InfoItem 
+                        label="Status" 
+                        value={patient.isActive ? "In treatment" : "Not in treatment"}
+                        valueClassName={patient.isActive ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}
+                    />
+                </InfoGrid>
+            </DataCard>
+
+            <DataCard 
+                title="Electronic Medical Record (EMR)"
+                actions={!loadEmr && <Button variant="default" onClick={() => setLoadEmr(true)}>Load EMR</Button>}
             >
-                Back to Dashboard
-            </button>
-
-            <h1 className="text-2xl font-bold mb-4">Patient Details</h1>
-
-            {/* 👤 Информация о пациенте */}
-            <div className="mb-6 space-y-1">
-                <p><strong>MRN:</strong> {patient.mrn}</p>
-                <p><strong>Name:</strong> {patient.firstName} {patient.lastName}</p>
-                <p><strong>Date of Birth:</strong> {patient.dateOfBirth}</p>
-                <p><strong>Gender:</strong> {patient.gender}</p>
-                <p><strong>Status:</strong> {patient.isActive ? "In treatment" : "Not in treatment"}</p>
-            </div>
-
-            {/* 🧬 EMR */}
-            {!loadEmr && (
-                <button
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-6"
-                    onClick={() => setLoadEmr(true)}
-                >
-                    Load EMR
-                </button>
-            )}
-
-            {loadEmr && (
-                <div className="border rounded p-4 mb-6 bg-white shadow">
-                    {emrLoading ? (
-                        <p>Loading EMR...</p>
-                    ) : emrData ? (
-                        <>
-                            <h2 className="text-lg font-semibold mb-3 text-gray-700">EMR Details</h2>
-                            <div className="grid grid-cols-2 gap-3 text-sm">
-                                <p><strong>Height:</strong> {emrData.height ?? "N/A"} cm</p>
-                                <p><strong>Weight:</strong> {emrData.weight ?? "N/A"} kg</p>
-                                <p><strong>GFR:</strong> {emrData.gfr ?? "N/A"}</p>
-                                <p><strong>Child-Pugh Score:</strong> {emrData.childPughScore ?? "N/A"}</p>
-                                <p><strong>PLT:</strong> {emrData.plt ?? "N/A"}</p>
-                                <p><strong>WBC:</strong> {emrData.wbc ?? "N/A"}</p>
-                                <p><strong>Oxygen Saturation (SAT):</strong> {emrData.sat ?? "N/A"}%</p>
-                                <p><strong>Sodium (Na):</strong> {emrData.sodium ?? "N/A"}</p>
+                {loadEmr && (emrLoading ? (
+                    <LoadingSpinner message="Loading EMR..." />
+                ) : emrData ? (
+                    <div className="space-y-4">
+                        <InfoGrid columns={4}>
+                            <InfoItem label="Height" value={`${emrData.height ?? "N/A"} cm`} />
+                            <InfoItem label="Weight" value={`${emrData.weight ?? "N/A"} kg`} />
+                            <InfoItem label="GFR" value={emrData.gfr ?? "N/A"} />
+                            <InfoItem label="Child-Pugh" value={emrData.childPughScore ?? "N/A"} />
+                            <InfoItem label="PLT" value={emrData.plt ?? "N/A"} />
+                            <InfoItem label="WBC" value={emrData.wbc ?? "N/A"} />
+                            <InfoItem label="SAT" value={`${emrData.sat ?? "N/A"}%`} />
+                            <InfoItem label="Sodium" value={emrData.sodium ?? "N/A"} />
+                        </InfoGrid>
+                        {emrData.sensitivities?.length ? (
+                            <div className="bg-yellow-50 p-4 rounded-lg">
+                                <p className="font-semibold text-gray-800 mb-2">Sensitivities:</p>
+                                <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                                    {emrData.sensitivities.map((s: string, i: number) => (<li key={i}>{s}</li>))}
+                                </ul>
                             </div>
+                        ) : null}
+                        <Button variant="update" onClick={() => navigate(`/nurse/emr-update/${patient.mrn}`, { state: { patient, emrData } })}>Update EMR</Button>
+                    </div>
+                ) : (
+                    <Button variant="approve" onClick={() => navigate(`/nurse/emr-form/${patient.mrn}`, { state: patient })}>Create EMR</Button>
+                ))}
+            </DataCard>
 
-                            {emrData.sensitivities?.length ? (
-                                <div className="mt-3">
-                                    <p><strong>Sensitivities:</strong></p>
-                                    <ul className="list-disc list-inside text-sm text-gray-700">
-                                        {emrData.sensitivities.map((s: string, i: number) => (
-                                            <li key={i}>{s}</li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            ) : (
-                                <p className="mt-3 text-sm text-gray-500 italic">No sensitivities recorded.</p>
-                            )}
-
-                            <button
-                                className="mt-5 bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-                                onClick={() =>
-                                    navigate(`/nurse/emr-update/${patient.mrn}`, {
-                                        state: { patient, emrData },
-                                    })
-                                }
-                            >
-                                Update EMR
-                            </button>
-                        </>
-                    ) : (
-                        <button
-                            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                            onClick={() => navigate(`/nurse/emr-form/${patient.mrn}`, { state: patient })}
-                        >
-                            Create EMR
-                        </button>
-                    )}
-                </div>
-            )}
-
-            {/* 💊 Recommendation */}
-            {!loadRecommendation && (
-                <button
-                    className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 mb-6"
-                    onClick={() => setLoadRecommendation(true)}
-                >
-                    Get Last Recommendation
-                </button>
-            )}
-
-            {loadRecommendation && (
-                <div className="border rounded p-4 bg-white shadow mb-6">
-                    {recLoading ? (
-                        <p>Loading recommendation...</p>
-                    ) : recError ? (
-                        <p className="text-red-600">No recommendation found.</p>
-                    ) : recommendation ? (
-                        <>
-                            <h2 className="text-lg font-semibold mb-3 text-gray-700">Latest Recommendation</h2>
-
-                            <div className="space-y-1 text-sm mb-3">
-                                <p><strong>Patient MRN:</strong> {recommendation.patientMrn}</p>
-                                <p><strong>Status:</strong> {recommendation.status}</p>
-                                <p><strong>Regimen Hierarchy:</strong> {recommendation.regimenHierarchy}</p>
-                                <p><strong>Created At:</strong> {recommendation.createdAt ?? "N/A"}</p>
-                                <p><strong>Created By:</strong> {recommendation.createdBy ?? "N/A"}</p>
+            <DataCard 
+                title="Pain Management Recommendation"
+                actions={!loadRecommendation && <Button variant="default" onClick={() => setLoadRecommendation(true)}>Get Last Recommendation</Button>}
+            >
+                {loadRecommendation && (recLoading ? (
+                    <LoadingSpinner message="Loading recommendation..." />
+                ) : recError ? (
+                    <p className="text-red-600">No recommendation found.</p>
+                ) : recommendation ? (
+                    <div className="space-y-4">
+                        <InfoGrid columns={2}>
+                            <InfoItem label="Status" value={recommendation.status} />
+                            <InfoItem label="Regimen" value={recommendation.regimenHierarchy} />
+                            <InfoItem label="Created At" value={recommendation.createdAt ?? "N/A"} />
+                            <InfoItem label="Created By" value={recommendation.createdBy ?? "N/A"} />
+                        </InfoGrid>
+                        {recommendation.comments?.length ? (
+                            <div className="bg-blue-50 p-4 rounded-lg">
+                                <p className="font-semibold text-gray-800 mb-2">Comments:</p>
+                                <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                                    {recommendation.comments.map((c, i) => (<li key={i}>{c}</li>))}
+                                </ul>
                             </div>
-
-                            {/*  Comments */}
-                            {recommendation.comments?.length ? (
-                                <div className="mt-3">
-                                    <h3 className="font-semibold text-gray-700">Comments:</h3>
-                                    <ul className="list-disc list-inside text-sm text-gray-700">
-                                        {recommendation.comments.map((c, i) => (
-                                            <li key={i}>{c}</li>
-                                        ))}
-                                    </ul>
+                        ) : null}
+                        {recommendation.contraindications?.length ? (
+                            <div className="bg-red-50 p-4 rounded-lg">
+                                <p className="font-semibold text-gray-800 mb-2">Contraindications:</p>
+                                <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                                    {recommendation.contraindications.map((c, i) => (<li key={i}>{c}</li>))}
+                                </ul>
+                            </div>
+                        ) : null}
+                        {recommendation.drugs?.length ? (
+                            <div>
+                                <p className="font-semibold text-gray-800 mb-3">Drug Recommendations:</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {recommendation.drugs.map((drug, i) => (
+                                        <div key={i} className="border rounded-lg p-4 bg-gray-50">
+                                            <p className="text-sm"><strong>Role:</strong> {drug.role}</p>
+                                            <p className="text-sm"><strong>Drug:</strong> {drug.drugName}</p>
+                                            <p className="text-sm"><strong>Active Moiety:</strong> {drug.activeMoiety}</p>
+                                            <p className="text-sm"><strong>Dosing:</strong> {drug.dosing}</p>
+                                            <p className="text-sm"><strong>Interval:</strong> {drug.interval}</p>
+                                            <p className="text-sm"><strong>Route:</strong> {drug.route}</p>
+                                        </div>
+                                    ))}
                                 </div>
-                            ) : (
-                                <p className="text-sm italic text-gray-500">No comments provided.</p>
-                            )}
+                            </div>
+                        ) : null}
+                    </div>
+                ) : null)}
+            </DataCard>
 
-                            {/*  Contraindications */}
-                            {recommendation.contraindications?.length ? (
-                                <div className="mt-4">
-                                    <h3 className="font-semibold text-gray-700">Contraindications:</h3>
-                                    <ul className="list-disc list-inside text-sm text-gray-700">
-                                        {recommendation.contraindications.map((c, i) => (
-                                            <li key={i}>{c}</li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            ) : null}
-
-                            {/*  Drugs */}
-                            {recommendation.drugs?.length ? (
-                                <div className="mt-5">
-                                    <h3 className="font-semibold mb-2 text-gray-700">Drug Recommendations:</h3>
-                                    <div className="space-y-3">
-                                        {recommendation.drugs.map((drug, i) => (
-                                            <div key={i} className="border rounded p-3 bg-gray-50 text-sm">
-                                                <p><strong>Role:</strong> {drug.role}</p>
-                                                <p><strong>Drug Name:</strong> {drug.drugName}</p>
-                                                <p><strong>Active Moiety:</strong> {drug.activeMoiety}</p>
-                                                <p><strong>Dosing:</strong> {drug.dosing}</p>
-                                                <p><strong>Interval:</strong> {drug.interval}</p>
-                                                <p><strong>Route:</strong> {drug.route}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ) : (
-                                <p className="mt-3 text-sm text-gray-500">No drug recommendations available.</p>
-                            )}
-                        </>
-                    ) : null}
+            <DataCard title="Patient Actions">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <Button variant="update" onClick={() => navigate(`/nurse/update-patient/${patient.mrn}`, { state: patient })}>Update Patient Data</Button>
+                    <Button variant="delete" onClick={() => setIsDeleteModalOpen(true)}>Delete Patient</Button>
                 </div>
-            )}
+            </DataCard>
 
-            {/* ⚙ Кнопки действий */}
-            <div className="flex flex-wrap gap-2 mt-6">
-                <button
-                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                    onClick={() => navigate(`/nurse/vas-form/${patient.mrn}`, { state: patient })}
-                >
-                    Register Pain Complaint
-                </button>
-
-                <button
-                    className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-                    onClick={() => navigate(`/nurse/update-patient/${patient.mrn}`, { state: patient })}
-                >
-                    Update Patient Data
-                </button>
-
-                <button
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                    onClick={handleDeletePatient}
-                >
-                    Delete Patient
-                </button>
-            </div>
+            <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
+                <ModalHeader>Confirm Delete</ModalHeader>
+                <ModalBody>
+                    <p>Are you sure you want to delete {patient.firstName} {patient.lastName}? This action cannot be undone.</p>
+                </ModalBody>
+                <ModalFooter>
+                    <Button variant="cancel" onClick={() => setIsDeleteModalOpen(false)}>Cancel</Button>
+                    <Button variant="delete" onClick={confirmDelete}>Delete</Button>
+                </ModalFooter>
+            </Modal>
         </div>
     );
 };

@@ -3,42 +3,32 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useUpdateEmrMutation } from "../../api/api/apiNurseSlice";
 import type { EMR, EMRUpdate, Patient } from "../../types/nurse";
 import { validateEmr } from "../../utils/validationEmr.ts";
+import { FormCard, FormGrid, FormFieldWrapper, Input } from "../ui";
 
 const EMRUpdateForm: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
-
     const state = location.state as { patient: Patient; emrData: EMR } | undefined;
+    
+    const [updateEmr, { isLoading }] = useUpdateEmrMutation();
+    const [form, setForm] = useState<EMRUpdate>({
+        height: state?.emrData?.height || 0,
+        weight: state?.emrData?.weight || 0,
+        gfr: state?.emrData?.gfr || "",
+        childPughScore: state?.emrData?.childPughScore || "",
+        plt: state?.emrData?.plt || 0,
+        wbc: state?.emrData?.wbc || 0,
+        sat: state?.emrData?.sat || 0,
+        sodium: state?.emrData?.sodium || 0,
+        sensitivities: state?.emrData?.sensitivities || [],
+    });
+    const [errors, setErrors] = useState<Record<string, string>>({});
+
     if (!state || !state.patient || !state.patient?.mrn) {
-        return (
-            <div className="p-6">
-                <p>No EMR data. Please navigate from the patient details page.</p>
-                <button
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                    onClick={() => navigate("/nurse")}
-                >
-                    Back to Dashboard
-                </button>
-            </div>
-        );
+        return <div className="p-6"><p className="text-center text-gray-500">No EMR data</p></div>;
     }
 
-    const { patient, emrData } = state;
-    const [updateEmr, { isLoading }] = useUpdateEmrMutation();
-
-    const [form, setForm] = useState<EMRUpdate>({
-        height: emrData.height,
-        weight: emrData.weight,
-        gfr: emrData.gfr,
-        childPughScore: emrData.childPughScore,
-        plt: emrData.plt,
-        wbc: emrData.wbc,
-        sat: emrData.sat,
-        sodium: emrData.sodium,
-        sensitivities: emrData.sensitivities || [],
-    });
-
-    const [errors, setErrors] = useState<Record<string, string>>({});
+    const { patient } = state;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -68,151 +58,51 @@ const EMRUpdateForm: React.FC = () => {
         try {
             await updateEmr({ mrn: patient.mrn!, data: form }).unwrap();
             navigate(-1);
-        } catch (err) {
-            console.error("Failed to update EMR:", err);
+        } catch (error: unknown) {
+            console.error("Failed to update EMR:", error);
             alert("Error updating EMR");
         }
     };
 
     return (
-        <div className="p-6 max-w-lg mx-auto bg-white rounded shadow">
-            <h1 className="text-2xl font-bold mb-4">
-                Update EMR for {patient.firstName} {patient.lastName}
-            </h1>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label className="block font-semibold">Height (cm)</label>
-                    <input
-                        type="number"
-                        name="height"
-                        value={form.height || ""}
-                        onChange={handleChange}
-                        className={`border rounded w-full p-2 ${errors.height ? "border-red-500" : ""}`}
-                    />
-                    {errors.height && <p className="text-red-500 text-sm">{errors.height}</p>}
-                </div>
-
-                <div>
-                    <label className="block font-semibold">Weight (kg)</label>
-                    <input
-                        type="number"
-                        name="weight"
-                        value={form.weight || ""}
-                        onChange={handleChange}
-                        className={`border rounded w-full p-2 ${errors.weight ? "border-red-500" : ""}`}
-                    />
-                    {errors.weight && <p className="text-red-500 text-sm">{errors.weight}</p>}
-                </div>
-
-                <div>
-                    <label className="block font-semibold">GFR</label>
-                    <input
-                        type="text"
-                        name="gfr"
-                        value={form.gfr || ""}
-                        onChange={handleChange}
-                        className={`border rounded w-full p-2 ${errors.gfr ? "border-red-500" : ""}`}
-                    />
-                    <p className="text-sm text-gray-500">Enter A–E or number (0–120)</p>
-                    {errors.gfr && <p className="text-red-500 text-sm">{errors.gfr}</p>}
-                </div>
-
-                <div>
-                    <label className="block font-semibold">Child-Pugh Score</label>
-                    <input
-                        type="text"
-                        name="childPughScore"
-                        value={form.childPughScore || ""}
-                        onChange={handleChange}
-                        className={`border rounded w-full p-2 ${errors.childPughScore ? "border-red-500" : ""}`}
-                    />
-                    <p className="text-sm text-gray-500">Enter A, B, or C</p>
-                    {errors.childPughScore && (
-                        <p className="text-red-500 text-sm">{errors.childPughScore}</p>
-                    )}
-                </div>
-
-                <div>
-                    <label className="block font-semibold">PLT</label>
-                    <input
-                        type="number"
-                        name="plt"
-                        value={form.plt || ""}
-                        onChange={handleChange}
-                        className={`border rounded w-full p-2 ${errors.plt ? "border-red-500" : ""}`}
-                    />
-                    {errors.plt && <p className="text-red-500 text-sm">{errors.plt}</p>}
-                </div>
-
-                <div>
-                    <label className="block font-semibold">WBC</label>
-                    <input
-                        type="number"
-                        name="wbc"
-                        value={form.wbc || ""}
-                        onChange={handleChange}
-                        className={`border rounded w-full p-2 ${errors.wbc ? "border-red-500" : ""}`}
-                    />
-                    {errors.wbc && <p className="text-red-500 text-sm">{errors.wbc}</p>}
-                </div>
-
-                <div>
-                    <label className="block font-semibold">Oxygen Saturation (SAT)</label>
-                    <input
-                        type="number"
-                        name="sat"
-                        value={form.sat || ""}
-                        onChange={handleChange}
-                        className={`border rounded w-full p-2 ${errors.sat ? "border-red-500" : ""}`}
-                    />
-                    {errors.sat && <p className="text-red-500 text-sm">{errors.sat}</p>}
-                </div>
-
-                <div>
-                    <label className="block font-semibold">Sodium (Na)</label>
-                    <input
-                        type="number"
-                        name="sodium"
-                        value={form.sodium || ""}
-                        onChange={handleChange}
-                        className={`border rounded w-full p-2 ${errors.sodium ? "border-red-500" : ""}`}
-                    />
-                    {errors.sodium && <p className="text-red-500 text-sm">{errors.sodium}</p>}
-                </div>
-
-                <div>
-                    <label className="block font-semibold">Sensitivities (comma-separated)</label>
-                    <input
-                        type="text"
-                        name="sensitivities"
-                        placeholder="e.g. PARACETAMOL, IBUPROFEN"
-                        value={form.sensitivities?.join(", ") || ""}
-                        onChange={handleSensitivitiesChange}
-                        className="border rounded w-full p-2"
-                    />
-                    <p className="text-sm text-gray-500">
-                        Optional: list allergies separated by commas
-                    </p>
-                </div>
-
-                <div className="flex justify-end space-x-2">
-                    <button
-                        type="button"
-                        className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400"
-                        onClick={() => navigate(-1)}
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
-                    >
-                        {isLoading ? "Saving..." : "Save"}
-                    </button>
-                </div>
-            </form>
+        <div className="p-6">
+            <FormCard
+                title={`Update EMR for ${patient.firstName} ${patient.lastName}`}
+                onSubmit={handleSubmit}
+                onCancel={() => navigate(-1)}
+                submitText="Save Changes"
+                isLoading={isLoading}
+            >
+                <FormGrid columns={2}>
+                    <FormFieldWrapper label="Height (cm)" error={errors.height}>
+                        <Input type="number" name="height" value={form.height || ""} onChange={handleChange} />
+                    </FormFieldWrapper>
+                    <FormFieldWrapper label="Weight (kg)" error={errors.weight}>
+                        <Input type="number" name="weight" value={form.weight || ""} onChange={handleChange} />
+                    </FormFieldWrapper>
+                    <FormFieldWrapper label="GFR" hint="Enter A–E or 0–120" error={errors.gfr}>
+                        <Input type="text" name="gfr" value={form.gfr || ""} onChange={handleChange} />
+                    </FormFieldWrapper>
+                    <FormFieldWrapper label="Child-Pugh Score" hint="Enter A, B or C" error={errors.childPughScore}>
+                        <Input type="text" name="childPughScore" value={form.childPughScore || ""} onChange={handleChange} />
+                    </FormFieldWrapper>
+                    <FormFieldWrapper label="PLT" error={errors.plt}>
+                        <Input type="number" name="plt" value={form.plt || ""} onChange={handleChange} />
+                    </FormFieldWrapper>
+                    <FormFieldWrapper label="WBC" error={errors.wbc}>
+                        <Input type="number" name="wbc" value={form.wbc || ""} onChange={handleChange} />
+                    </FormFieldWrapper>
+                    <FormFieldWrapper label="SAT (%)" error={errors.sat}>
+                        <Input type="number" name="sat" value={form.sat || ""} onChange={handleChange} />
+                    </FormFieldWrapper>
+                    <FormFieldWrapper label="Sodium (mmol/L)" error={errors.sodium}>
+                        <Input type="number" name="sodium" value={form.sodium || ""} onChange={handleChange} />
+                    </FormFieldWrapper>
+                </FormGrid>
+                <FormFieldWrapper label="Sensitivities" hint="Optional: list allergies separated by commas">
+                    <Input type="text" name="sensitivities" placeholder="e.g. PARACETAMOL, IBUPROFEN" value={form.sensitivities?.join(", ") || ""} onChange={handleSensitivitiesChange} />
+                </FormFieldWrapper>
+            </FormCard>
         </div>
     );
 };

@@ -2,31 +2,17 @@ import React, { useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useUpdatePatientMutation } from "../../api/api/apiNurseSlice";
 import type { Patient, PatientUpdate } from "../../types/nurse";
+import { FormCard, FormGrid, FormFieldWrapper, Input, Select, SuccessMessage } from "../ui";
 
 const PatientUpdateForm: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const params = useParams<{ mrn: string }>();
-
-    // Получаем пациента из state, переданного из PatientDetails
     const patient = location.state as Patient;
+    const [showSuccess, setShowSuccess] = useState(false);
 
-    // Защита от прямого захода
-    if (!patient?.mrn) {
-        return (
-            <div className="p-6">
-                <p>No patient data. Please navigate from the dashboard.</p>
-                <button
-                    onClick={() => navigate("/nurse")}
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                    Back to Dashboard
-                </button>
-            </div>
-        );
-    }
+    if (!patient?.mrn) return <div className="p-6"><p className="text-center text-gray-500">No patient data</p></div>;
 
-    // Локальный state для редактирования
     const [formData, setFormData] = useState<PatientUpdate>({
         firstName: patient.firstName,
         lastName: patient.lastName,
@@ -53,138 +39,61 @@ const PatientUpdateForm: React.FC = () => {
         e.preventDefault();
         try {
             await updatePatient({ mrn: params.mrn!, data: formData }).unwrap();
-            alert("Patient updated successfully!");
-            navigate(`/nurse/patient/${params.mrn}`, { state: { ...patient, ...formData } });
+            setShowSuccess(true);
+            setTimeout(() => {
+                navigate(`/nurse/patient/${params.mrn}`, { state: { ...patient, ...formData } });
+            }, 1500);
         } catch (error) {
             console.error("Failed to update patient:", error);
-            alert("Ошибка при обновлении пациента");
         }
     };
 
-    const handleCancel = () => navigate(-1);
-
     return (
-        <div className="p-6 max-w-md mx-auto bg-white shadow rounded">
-            <h1 className="text-2xl font-bold mb-4">Update Patient Data</h1>
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label className="block font-semibold mb-1">First Name</label>
-                    <input
-                        type="text"
-                        name="firstName"
-                        value={formData.firstName || ""}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    />
+        <div className="p-6">
+            {showSuccess && <SuccessMessage message="Patient updated successfully!" />}
+            <FormCard
+                title="Update Patient Data"
+                onSubmit={handleSubmit}
+                onCancel={() => navigate(-1)}
+                submitText="Save Changes"
+                cancelText="Cancel"
+                isLoading={isLoading}
+            >
+                <FormGrid columns={2}>
+                    <FormFieldWrapper label="First Name">
+                        <Input type="text" name="firstName" value={formData.firstName || ""} onChange={handleChange} />
+                    </FormFieldWrapper>
+                    <FormFieldWrapper label="Last Name">
+                        <Input type="text" name="lastName" value={formData.lastName || ""} onChange={handleChange} />
+                    </FormFieldWrapper>
+                    <FormFieldWrapper label="Gender">
+                        <Select name="gender" value={formData.gender || ""} onChange={handleChange}>
+                            <option value="">Select Gender</option>
+                            <option value="MALE">Male</option>
+                            <option value="FEMALE">Female</option>
+                        </Select>
+                    </FormFieldWrapper>
+                    <FormFieldWrapper label="Insurance Policy Number">
+                        <Input type="text" name="insurancePolicyNumber" value={formData.insurancePolicyNumber || ""} onChange={handleChange} />
+                    </FormFieldWrapper>
+                    <FormFieldWrapper label="Phone Number">
+                        <Input type="text" name="phoneNumber" value={formData.phoneNumber || ""} onChange={handleChange} />
+                    </FormFieldWrapper>
+                    <FormFieldWrapper label="Email">
+                        <Input type="email" name="email" value={formData.email || ""} onChange={handleChange} />
+                    </FormFieldWrapper>
+                </FormGrid>
+                <FormFieldWrapper label="Address">
+                    <Input type="text" name="address" value={formData.address || ""} onChange={handleChange} />
+                </FormFieldWrapper>
+                <FormFieldWrapper label="Additional Info">
+                    <Input type="text" name="additionalInfo" value={formData.additionalInfo || ""} onChange={handleChange} />
+                </FormFieldWrapper>
+                <div className="flex items-center gap-2">
+                    <input type="checkbox" name="isActive" checked={formData.isActive || false} onChange={handleChange} />
+                    <label className="text-sm font-semibold text-gray-700">In treatment</label>
                 </div>
-
-                <div>
-                    <label className="block font-semibold mb-1">Last Name</label>
-                    <input
-                        type="text"
-                        name="lastName"
-                        value={formData.lastName || ""}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
-
-                <div>
-                    <label className="block font-semibold mb-1">Gender</label>
-                    <select
-                        name="gender"
-                        value={formData.gender || ""}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    >
-                        <option value="">Select Gender</option>
-                        <option value="MALE">Male</option>
-                        <option value="FEMALE">Female</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label className="block font-semibold mb-1">Insurance Policy Number</label>
-                    <input
-                        type="text"
-                        name="insurancePolicyNumber"
-                        value={formData.insurancePolicyNumber || ""}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
-
-                <div>
-                    <label className="block font-semibold mb-1">Phone Number</label>
-                    <input
-                        type="text"
-                        name="phoneNumber"
-                        value={formData.phoneNumber || ""}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
-
-                <div>
-                    <label className="block font-semibold mb-1">Email</label>
-                    <input
-                        type="email"
-                        name="email"
-                        value={formData.email || ""}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
-
-                <div>
-                    <label className="block font-semibold mb-1">Address</label>
-                    <input
-                        type="text"
-                        name="address"
-                        value={formData.address || ""}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
-
-                <div>
-                    <label className="block font-semibold mb-1">Additional Info</label>
-                    <input
-                        type="text"
-                        name="additionalInfo"
-                        value={formData.additionalInfo || ""}
-                        onChange={handleChange}
-                        className="w-full border p-2 rounded"
-                    />
-                </div>
-
-                <div className="flex items-center space-x-2">
-                    <input
-                        type="checkbox"
-                        name="isActive"
-                        checked={formData.isActive || false}
-                        onChange={handleChange}
-                    />
-                    <label>In treatment</label>
-                </div>
-
-                <div className="flex space-x-2 mt-4">
-                    <button
-                        type="submit"
-                        disabled={isLoading}
-                        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
-                    >
-                        Save
-                    </button>
-                    <button
-                        type="button"
-                        onClick={handleCancel}
-                        className="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </form>
+            </FormCard>
         </div>
     );
 };

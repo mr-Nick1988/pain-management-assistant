@@ -3,7 +3,7 @@ import {useNavigate} from "react-router-dom";
 import {type Patient, PatientsGenders} from "../../types/doctor";
 import {useCreatePatientMutation} from "../../api/api/apiDoctorSlice.ts";
 import {getErrorMessage} from "../../utils/getErrorMessageHelper.ts";
-import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Select} from "../ui";
+import {Button, Card, CardContent, CardHeader,  Input, Label, Select} from "../ui";
 import {validatePatient} from "../../utils/validationPatient";
 
 
@@ -51,7 +51,9 @@ const PatientFormRegister: React.FC = () => {
         <div className="p-6 max-w-2xl mx-auto">
             <Card>
                 <CardHeader>
-                    <CardTitle>Register New Patient</CardTitle>
+                    <div className="text-center">
+                        <h2 className="text-2xl font-bold text-gray-900">Register New Patient</h2>
+                    </div>
                 </CardHeader>
                 <CardContent>
                     <form className="space-y-4" onSubmit={handleSubmit}>
@@ -193,7 +195,7 @@ const PatientFormRegister: React.FC = () => {
                         <div className="flex space-x-2 pt-4">
                             <Button
                                 type="button"
-                                variant="outline"
+                                variant="cancel"
                                 onClick={() => navigate("/doctor")}
                                 className="flex-1"
                             >

@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {useGetEscalationsQuery} from "../../api/api/apiAnesthesiologistSlice.ts";
 import {EscalationStatus} from "../../types/anesthesiologist.ts";
 import {EscalationsList, ProtocolEditor} from "../../exports/exports.ts";
-import { Button, Card, CardContent, CardHeader, CardTitle, LoadingSpinner, ErrorMessage, StatCard } from "../ui";
+import {Button, Card, CardContent, CardHeader, LoadingSpinner, ErrorMessage, StatCard} from "../ui";
 
 const AnesthesiologistDashboard: React.FC = () => {
     const {data: escalations, isLoading, error} = useGetEscalationsQuery();
@@ -23,7 +23,7 @@ const AnesthesiologistDashboard: React.FC = () => {
     if (isLoading) {
         return (
             <div className="container mx-auto px-4 py-8 max-w-7xl">
-                <LoadingSpinner message="Loading anesthesiologist dashboard..." />
+                <LoadingSpinner message="Loading anesthesiologist dashboard..."/>
             </div>
         );
     }
@@ -31,21 +31,24 @@ const AnesthesiologistDashboard: React.FC = () => {
     if (error) {
         return (
             <div className="container mx-auto px-4 py-8 max-w-7xl">
-                <ErrorMessage message={`Error loading data: ${JSON.stringify(error)}`} />
+                <ErrorMessage message={`Error loading data: ${JSON.stringify(error)}`}/>
             </div>
         );
     }
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-7xl">
+            <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-300 via-orange-400 to-pink-400 bg-clip-text text-transparent animate-gradient drop-shadow-lg">
+                    Anesthesiologist Dashboard
+                </h1>
+                <p className="text-lg font-medium bg-gradient-to-r from-white via-yellow-100 to-white bg-clip-text text-transparent drop-shadow-md">
+                    Welcome, {localStorage.getItem("userFirstName") || "Anesthesiologist"}
+                </p>
+            </div>
             <Card className="mb-6">
                 <CardHeader>
-                    <CardTitle>Anesthesiologist Dashboard</CardTitle>
-                    <p className="text-gray-600 mt-2">
-                        Welcome, {localStorage.getItem("userFirstName") || "Anesthesiologist"}
-                    </p>
                 </CardHeader>
-
                 <CardContent>
                     {/* Navigation Tabs */}
                     <nav className="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg">
@@ -128,7 +131,9 @@ const AnesthesiologistDashboard: React.FC = () => {
                                 {escalations && escalations.length > 0 ? (
                                     <div className="space-y-3">
                                         {escalations.slice(0, 5).map((escalation) => (
-                                            <Card key={escalation.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleEscalationSelect(escalation.id)}>
+                                            <Card key={escalation.id}
+                                                  className="cursor-pointer hover:shadow-md transition-shadow"
+                                                  onClick={() => handleEscalationSelect(escalation.id)}>
                                                 <CardContent className="p-4">
                                                     <div className="flex items-center justify-between">
                                                         <div className="flex-1">
@@ -137,19 +142,21 @@ const AnesthesiologistDashboard: React.FC = () => {
                                                             <p className="text-sm text-gray-600">Reason: {escalation.rejectedReason}</p>
                                                         </div>
                                                         <div className="flex flex-col items-end space-y-2">
-                                                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                                                escalation.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                                                                escalation.status === 'IN_REVIEW' ? 'bg-blue-100 text-blue-800' :
-                                                                'bg-gray-100 text-gray-800'
-                                                            }`}>
+                                                            <span
+                                                                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                                                    escalation.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                                                                        escalation.status === 'IN_REVIEW' ? 'bg-blue-100 text-blue-800' :
+                                                                            'bg-gray-100 text-gray-800'
+                                                                }`}>
                                                                 {escalation.status}
                                                             </span>
-                                                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                                                escalation.priority === 'CRITICAL' ? 'bg-red-100 text-red-800' :
-                                                                escalation.priority === 'HIGH' ? 'bg-orange-100 text-orange-800' :
-                                                                escalation.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
-                                                                'bg-gray-100 text-gray-800'
-                                                            }`}>
+                                                            <span
+                                                                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                                                                    escalation.priority === 'CRITICAL' ? 'bg-red-100 text-red-800' :
+                                                                        escalation.priority === 'HIGH' ? 'bg-orange-100 text-orange-800' :
+                                                                            escalation.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
+                                                                                'bg-gray-100 text-gray-800'
+                                                                }`}>
                                                                 {escalation.priority}
                                                             </span>
                                                         </div>
