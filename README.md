@@ -345,3 +345,86 @@ drugName, activeMoiety, dosing, interval, route, role.
 Обновлён PatientDetails.tsx:
 Расширен блок EMR Details (все 8 полей, включая sensitivities).
 Добавлен блок Recommendation Details с полным отображением вложенных данных.
+
+Add-Content -Path "C:\front_projects\pain_management_assistant\README.md" -Value @"
+
+
+## 08.10.2025 - Приведение модуля анестезиолога к стандарту бэкенда
+
+**Разработчик:** Ник
+
+#### Описание проблемы:
+
+Модуль анестезиолога содержал несоответствия с бэкенд API. В типах приоритетов эскалаций использовался уровень `CRITICAL`, которого не существует в бэкенде. Это приводило к ошибкам типизации и потенциальным проблемам при отправке данных на сервер.
+
+#### Процесс исправления:
+
+**1. Анализ бэкенд API**
+- **Проблема:** Фронтенд использовал 4 уровня приоритета (LOW, MEDIUM, HIGH, CRITICAL), а бэкенд поддерживает только 3 (LOW, MEDIUM, HIGH).
+- **Последствия:** TypeScript ошибки при работе с эскалациями, невозможность корректно отобразить приоритеты.
+
+**2. Обновление типов в `src/types/anesthesiologist.ts`**
+- **Решение:**
+    - Удален уровень `CRITICAL` из enum `EscalationPriority`
+    - Оставлены только валидные значения: `HIGH`, `MEDIUM`, `LOW`
+    - Приведено к единому стандарту с бэкенд моделью
+
+**3. Добавление новых эндпоинтов в `src/api/api/apiAnesthesiologistSlice.ts`**
+- **Решение:**
+    - Добавлен эндпоинт `approveEscalation` - POST `/anesthesiologist/escalations/{id}/approve`
+    - Добавлен эндпоинт `rejectEscalation` - POST `/anesthesiologist/escalations/{id}/reject`
+    - Оба эндпоинта принимают `EscalationResolution` с полями: `resolvedBy`, `resolution`, `approved`
+    - Добавлена инвалидация тегов для автоматического обновления списка эскалаций после approve/reject
+
+**4. Интеграция approve/reject в `EscalationsList.tsx`**
+- **Решение:**
+    - Добавлены модальные окна для approve и reject эскалаций
+    - Реализована логика отправки resolution с текстом объяснения
+    - Добавлена валидация - нельзя approve/reject без текста resolution
+    - Кнопки approve/reject показываются только для эскалаций со статусом PENDING или IN_PROGRESS
+
+**5. Рефакторинг компонентов**
+- **`EscalationsList.tsx`:** Обновлена логика отображения приоритетов - убраны проверки на CRITICAL
+- **`AnesthesiologistDashboard.tsx`:** Обновлена логика фильтрации и отображения статистики по приоритетам
+
+#### Ключевые результаты:
+
+1. **Соответствие бэкенду:** Типы приоритетов теперь полностью соответствуют API
+2. **Новый функционал:** Анестезиолог может approve/reject эскалации прямо из списка
+3. **Устранены ошибки типизации:** TypeScript больше не выдает ошибки при работе с приоритетами
+4. **Корректная работа:** Эскалации правильно отображаются, фильтруются и обрабатываются
+
+---
+*Разработчик: Ник*  
+*Последнее обновление: 08.10.2025*
+
+## Анализ UI компонентов - Отчет об использовании
+
+### Используемые UI компоненты (20 из 24):
+
+1. **Button.tsx** - 29 файлов (все модули)
+2. **Card.tsx** - 20+ файлов (все модули)
+3. **Input.tsx** - 15+ файлов (формы)
+4. **Modal.tsx** - 2 файла (Admin, Nurse)
+5. **ErrorMessage.tsx** - 5+ файлов
+6. **LoadingSpinner.tsx** - 3 файла
+7. **PageHeader.tsx** - 2 файла (Nurse)
+8. **ActionCard.tsx** - 1 файл (Nurse)
+9. **SearchCard.tsx** - 1 файл (Nurse)
+10. **DataCard.tsx** - 1 файл (Nurse)
+11. **InfoGrid.tsx** - 1 файл (Nurse)
+12. **FormCard.tsx** - 2 файла (Nurse)
+13. **Select.tsx** - 2 файла (Doctor)
+14. **StatCard.tsx** - 1 файл (Anesthesiologist)
+15. **Container.tsx** - 2 файла (Login)
+16. **GradientButton.tsx** - 2 файла (Login)
+17. **GradientTitle.tsx** - 2 файла (Login)
+18. **FormField.tsx** - 2 файла (Login)
+19. **NavigationContainer.tsx** - 1 файл
+20. **NoticeContainer.tsx** - 1 файл
+
+**Статистика использования:** 83% UI компонентов активно используются в приложении
+
+---
+*Разработчик: Ник*  
+*Последнее обновление: 08.10.2025*

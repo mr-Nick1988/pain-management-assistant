@@ -1,12 +1,15 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import {base_url} from "../../utils/constants.ts";
 import type {
-    CreateProtocolCommentRequest,
-    CreateProtocolRequest,
-    Escalation,
-    Protocol,
-    ProtocolComment,
-    UpdateProtocolRequest
+    EscalationResponse,
+    EscalationResolution,
+    EscalationStatus,
+    EscalationPriority,
+    EscalationStats,
+    ProtocolResponse,
+    ProtocolRequest,
+    CommentResponse,
+    CommentRequest
 } from "../../types/anesthesiologist.ts";
 
 
@@ -15,113 +18,133 @@ export const apiAnesthesiologistSlice = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: base_url,
     }),
-    tagTypes: ["Escalation", "Protocol", "ProtocolComment"],
+    tagTypes: ["Escalation", "Protocol", "Comment", "Stats"],
     endpoints: (builder) => ({
-        getEscalations: builder.query<Escalation[], void>({
+        // ================= ESCALATIONS ================= //
+
+        getAllEscalations: builder.query<EscalationResponse[], void>({
             query: () => "anesthesiologist/escalations",
             providesTags: ["Escalation"],
         }),
-        getEscalationById: builder.query<Escalation, string>({
-            query: (id) => `anesthesiologist/escalations/${id}`,
-            providesTags: (_result, _error, id) => [{type: "Escalation", id}],
+
+        getEscalationsByStatus: builder.query<EscalationResponse[], EscalationStatus>({
+            query: (status) => `anesthesiologist/escalations/status/${status}`,
+            providesTags: ["Escalation"],
         }),
-        takeEscalation: builder.mutation<void, string>({
-            query: (escalationId) => ({
-                url: `anesthesiologist/escalations/${escalationId}/take`,
+
+        getEscalationsByPriority: builder.query<EscalationResponse[], EscalationPriority>({
+            query: (priority) => `anesthesiologist/escalations/priority/${priority}`,
+            providesTags: ["Escalation"],
+        }),
+
+        getActiveEscalations: builder.query<EscalationResponse[], void>({
+            query: () => "anesthesiologist/escalations/active",
+            providesTags: ["Escalation"],
+        }),
+
+        approveEscalation: builder.mutation<EscalationResponse, { escalationId: number; resolution: EscalationResolution }>({
+            query: ({escalationId, resolution}) => ({
+                url: `anesthesiologist/escalations/${escalationId}/approve`,
                 method: "POST",
+                body: resolution,
             }),
-            invalidatesTags: (_result, _error, escalationId) => [{type: "Escalation", id: escalationId}],
+            invalidatesTags: ["Escalation", "Stats"],
         }),
-        getProtocolsByEscalation: builder.query<Protocol[], string>({
-            query: (escalationId) => `anesthesiologist/escalations/${escalationId}/protocols`,
-            providesTags: (_result, _error, escalationId) => [{type: "Protocol", id: escalationId}],
+
+        rejectEscalation: builder.mutation<EscalationResponse, { escalationId: number; resolution: EscalationResolution }>({
+            query: ({escalationId, resolution}) => ({
+                url: `anesthesiologist/escalations/${escalationId}/reject`,
+                method: "POST",
+                body: resolution,
+            }),
+            invalidatesTags: ["Escalation", "Stats"],
         }),
-        createProtocol: builder.mutation<Protocol, CreateProtocolRequest>({
+
+        getEscalationStats: builder.query<EscalationStats, void>({
+            query: () => "anesthesiologist/escalations/stats",
+            providesTags: ["Stats"],
+        }),
+
+        // ================= PROTOCOLS ================= //
+
+        createProtocol: builder.mutation<ProtocolResponse, ProtocolRequest>({
             query: (protocol) => ({
-                url: "/protocol",
+                url: "anesthesiologist/protocols",
                 method: "POST",
                 body: protocol
             }),
             invalidatesTags: ["Protocol", "Escalation"]
         }),
-        updateProtocol: builder.mutation<Protocol, UpdateProtocolRequest>({
-            query: ({id, ...patch}) => ({
-                url: `anesthesiologist/protocol/${id}`,
-                method: "PATCH",
-                body: patch,
-            }),
-            invalidatesTags: (_result, _error, {id}) => [{type: "Protocol", id}, "Protocol"]
-        }),
-        approveProtocol: builder.mutation<void, string>({
-            query: (protocolId) => ({
-                url: `anesthesiologist/protocol/${protocolId}/approve`,
+
+        approveProtocol: builder.mutation<ProtocolResponse, { protocolId: number; approvedBy: string }>({
+            query: ({protocolId, approvedBy}) => ({
+                url: `anesthesiologist/protocols/${protocolId}/approve`,
                 method: "POST",
+                body: { approvedBy },
             }),
-            invalidatesTags: (_result, _error, protocolId) => [{
-                type: "Protocol",
-                id: protocolId
-            }, "Protocol", "Escalation"]
+            invalidatesTags: ["Protocol", "Escalation"]
         }),
-        rejectProtocol: builder.mutation<void, { protocolId: string; reason: string }>({
-            query: ({protocolId, reason}) => ({
+
+        rejectProtocol: builder.mutation<ProtocolResponse, { protocolId: number; rejectedReason: string; rejectedBy: string }>({
+            query: ({protocolId, rejectedReason, rejectedBy}) => ({
                 url: `anesthesiologist/protocols/${protocolId}/reject`,
                 method: "POST",
-                body: {reason},
+                body: { rejectedReason, rejectedBy },
             }),
-            invalidatesTags: (_result, _error, {protocolId}) => [
-                {type: "Protocol", id: protocolId},
-                "Protocol",
-                "Escalation"
-            ],
+            invalidatesTags: ["Protocol", "Escalation"]
         }),
-        getProtocolComments: builder.query<ProtocolComment[], string>({
-            query: (protocolId) => `/protocol/${protocolId}/comments`,
-            providesTags: (_result, _error, protocolId) => [{type: "ProtocolComment", id: protocolId}],
+
+        getProtocolsByEscalation: builder.query<ProtocolResponse[], number>({
+            query: (escalationId) => `anesthesiologist/protocols/escalation/${escalationId}`,
+            providesTags: (_result, _error, escalationId) => [{type: "Protocol", id: escalationId}],
         }),
-        addProtocolComment: builder.mutation<ProtocolComment, CreateProtocolCommentRequest>({
+
+        getPendingApprovalProtocols: builder.query<ProtocolResponse[], void>({
+            query: () => "anesthesiologist/protocols/pending-approval",
+            providesTags: ["Protocol"],
+        }),
+
+        // ================= COMMENTS ================= //
+
+        addComment: builder.mutation<CommentResponse, CommentRequest>({
             query: (comment) => ({
-                url: "anesthesiologist/protocols/comments",
+                url: "anesthesiologist/comments",
                 method: "POST",
                 body: comment
             }),
-            invalidatesTags: (_result, _error, {protocolId}) => [{
-                type: "ProtocolComment",
-                id: protocolId
-            }, "ProtocolComment"]
+            invalidatesTags: (_result, _error, {protocolId}) => [{type: "Comment", id: protocolId}]
         }),
-        sendQuestionToDoctor: builder.mutation<void, { escalationId: string; question: string }>({
-            query: ({escalationId, question}) => ({
-                url: `anesthesiologist/escalations/${escalationId}/questions`,
-                method: "POST",
-                body: {question}
-            }),
-            invalidatesTags: (_result, _error, {escalationId}) => [{type: "Escalation", id: escalationId}, "Escalation"]
+
+        getCommentsByProtocol: builder.query<CommentResponse[], number>({
+            query: (protocolId) => `anesthesiologist/comments/protocol/${protocolId}`,
+            providesTags: (_result, _error, protocolId) => [{type: "Comment", id: protocolId}],
         }),
-        resolveEscalation: builder.mutation<void, { escalationId: string, resolution: string }>({
-            query: ({escalationId, resolution}) => ({
-                url: `anesthesiologist/escalations/${escalationId}/resolve`,
-                method: "POST",
-                body: {resolution}
+
+        deleteComment: builder.mutation<void, { commentId: number; userId: string }>({
+            query: ({commentId, userId}) => ({
+                url: `anesthesiologist/comments/${commentId}`,
+                method: "DELETE",
+                body: { userId }
             }),
-            invalidatesTags: (_result, _error, {escalationId}) => [{
-                type: "Escalation",
-                id: escalationId
-            }, "Escalation"],
+            invalidatesTags: ["Comment"]
         }),
     }),
 });
 
 export const {
-    useGetEscalationsQuery,
-    useGetEscalationByIdQuery,
-    useTakeEscalationMutation,
-    useGetProtocolsByEscalationQuery,
+    useGetAllEscalationsQuery,
+    useGetEscalationsByStatusQuery,
+    useGetEscalationsByPriorityQuery,
+    useGetActiveEscalationsQuery,
+    useApproveEscalationMutation,
+    useRejectEscalationMutation,
+    useGetEscalationStatsQuery,
     useCreateProtocolMutation,
-    useUpdateProtocolMutation,
     useApproveProtocolMutation,
     useRejectProtocolMutation,
-    useGetProtocolCommentsQuery,
-    useAddProtocolCommentMutation,
-    useSendQuestionToDoctorMutation,
-    useResolveEscalationMutation,
+    useGetProtocolsByEscalationQuery,
+    useGetPendingApprovalProtocolsQuery,
+    useAddCommentMutation,
+    useGetCommentsByProtocolQuery,
+    useDeleteCommentMutation,
 } = apiAnesthesiologistSlice;

@@ -1,23 +1,40 @@
 import React, {useState} from "react";
-import {useGetEscalationsQuery} from "../../api/api/apiAnesthesiologistSlice.ts";
-import {EscalationStatus} from "../../types/anesthesiologist.ts";
+import {useGetAllEscalationsQuery, useGetEscalationStatsQuery} from "../../api/api/apiAnesthesiologistSlice.ts";
+import {EscalationStatus, EscalationPriority} from "../../types/anesthesiologist.ts";
 import {EscalationsList, ProtocolEditor} from "../../exports/exports.ts";
 import {Button, Card, CardContent, CardHeader, LoadingSpinner, ErrorMessage, StatCard} from "../ui";
 
 const AnesthesiologistDashboard: React.FC = () => {
-    const {data: escalations, isLoading, error} = useGetEscalationsQuery();
-    const [selectedEscalationId, setSelectedEscalationId] = useState<string | null>(null);
+    const {data: escalations, isLoading, error} = useGetAllEscalationsQuery();
+    const {data: stats} = useGetEscalationStatsQuery();
+    const [selectedEscalationId, setSelectedEscalationId] = useState<number | null>(null);
     const [activeTab, setActiveTab] = useState<"overview" | "escalations" | "protocols">("overview");
 
-    //СТАТИСТИКА ЭСКАЛАЦИЙ БРО
-    const pendingCount = escalations?.filter(e => e.status === EscalationStatus.PENDING).length || 0;
-    const inReviewCount = escalations?.filter(e => e.status === EscalationStatus.IN_REVIEW).length || 0;
-    const criticalCount = escalations?.filter(e => e.priority === "CRITICAL").length || 0;
-    const highPriorityCount = escalations?.filter(e => e.priority === "HIGH").length || 0;
+    // Используем статистику из API или считаем локально
+    const pendingCount = stats?.pending || escalations?.filter(e => e.status === EscalationStatus.PENDING).length || 0;
+    const inProgressCount = stats?.inProgress || escalations?.filter(e => e.status === EscalationStatus.IN_PROGRESS).length || 0;
+    const highPriorityCount = stats?.high || escalations?.filter(e => e.priority === EscalationPriority.HIGH).length || 0;
+    const mediumPriorityCount = stats?.medium || escalations?.filter(e => e.priority === EscalationPriority.MEDIUM).length || 0;
 
-    const handleEscalationSelect = (escalationId: string) => {
+    const handleEscalationSelect = (escalationId: number) => {
         setSelectedEscalationId(escalationId);
         setActiveTab("protocols");
+    };
+
+    const getStatusBadgeClass = (status: EscalationStatus) => {
+        const baseClass = "inline-flex px-2 py-1 text-xs font-semibold rounded-full";
+        if (status === EscalationStatus.PENDING) return `${baseClass} bg-yellow-100 text-yellow-800`;
+        if (status === EscalationStatus.IN_PROGRESS) return `${baseClass} bg-blue-100 text-blue-800`;
+        if (status === EscalationStatus.RESOLVED) return `${baseClass} bg-green-100 text-green-800`;
+        return `${baseClass} bg-gray-100 text-gray-800`;
+    };
+
+    const getPriorityBadgeClass = (priority: EscalationPriority) => {
+        const baseClass = "inline-flex px-2 py-1 text-xs font-semibold rounded-full";
+        if (priority === EscalationPriority.HIGH) return `${baseClass} bg-red-100 text-red-800`;
+        if (priority === EscalationPriority.MEDIUM) return `${baseClass} bg-orange-100 text-orange-800`;
+        if (priority === EscalationPriority.LOW) return `${baseClass} bg-yellow-100 text-yellow-800`;
+        return `${baseClass} bg-gray-100 text-gray-800`;
     };
 
     if (isLoading) {
@@ -39,10 +56,10 @@ const AnesthesiologistDashboard: React.FC = () => {
     return (
         <div className="container mx-auto px-4 py-8 max-w-7xl">
             <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-300 via-orange-400 to-pink-400 bg-clip-text text-transparent animate-gradient drop-shadow-lg">
+                <h1 className="text-3xl font-bold mb-2 text-gray-900">
                     Anesthesiologist Dashboard
                 </h1>
-                <p className="text-lg font-medium bg-gradient-to-r from-white via-yellow-100 to-white bg-clip-text text-transparent drop-shadow-md">
+                <p className="text-lg text-gray-600">
                     Welcome, {localStorage.getItem("userFirstName") || "Anesthesiologist"}
                 </p>
             </div>
@@ -89,26 +106,26 @@ const AnesthesiologistDashboard: React.FC = () => {
                                     iconTextColor="text-yellow-600"
                                 />
                                 <StatCard
-                                    title="Critical Escalations"
-                                    value={criticalCount}
+                                    title="High Priority"
+                                    value={highPriorityCount}
                                     description="Need immediate attention"
-                                    icon="C"
+                                    icon="H"
                                     iconBgColor="bg-red-100"
                                     iconTextColor="text-red-600"
                                 />
                                 <StatCard
-                                    title="High Priority"
-                                    value={highPriorityCount}
+                                    title="Medium Priority"
+                                    value={mediumPriorityCount}
                                     description="Important escalations"
-                                    icon="H"
+                                    icon="M"
                                     iconBgColor="bg-orange-100"
                                     iconTextColor="text-orange-600"
                                 />
                                 <StatCard
-                                    title="In Review"
-                                    value={inReviewCount}
+                                    title="In Progress"
+                                    value={inProgressCount}
                                     description="Escalations under review"
-                                    icon="R"
+                                    icon="P"
                                     iconBgColor="bg-blue-100"
                                     iconTextColor="text-blue-600"
                                 />
@@ -137,26 +154,16 @@ const AnesthesiologistDashboard: React.FC = () => {
                                                 <CardContent className="p-4">
                                                     <div className="flex items-center justify-between">
                                                         <div className="flex-1">
-                                                            <h4 className="font-medium text-gray-900">{escalation.patientName}</h4>
-                                                            <p className="text-sm text-gray-600">Doctor: {escalation.doctorName}</p>
-                                                            <p className="text-sm text-gray-600">Reason: {escalation.rejectedReason}</p>
+                                                            <h4 className="font-medium text-gray-900">Escalation #{escalation.id}</h4>
+                                                            <p className="text-sm text-gray-600">Recommendation ID: {escalation.recommendationId}</p>
+                                                            <p className="text-sm text-gray-600">Reason: {escalation.escalationReason}</p>
+                                                            <p className="text-sm text-gray-500">Escalated by: {escalation.escalatedBy}</p>
                                                         </div>
                                                         <div className="flex flex-col items-end space-y-2">
-                                                            <span
-                                                                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                                                    escalation.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                                                                        escalation.status === 'IN_REVIEW' ? 'bg-blue-100 text-blue-800' :
-                                                                            'bg-gray-100 text-gray-800'
-                                                                }`}>
+                                                            <span className={getStatusBadgeClass(escalation.status)}>
                                                                 {escalation.status}
                                                             </span>
-                                                            <span
-                                                                className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                                                    escalation.priority === 'CRITICAL' ? 'bg-red-100 text-red-800' :
-                                                                        escalation.priority === 'HIGH' ? 'bg-orange-100 text-orange-800' :
-                                                                            escalation.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
-                                                                                'bg-gray-100 text-gray-800'
-                                                                }`}>
+                                                            <span className={getPriorityBadgeClass(escalation.priority)}>
                                                                 {escalation.priority}
                                                             </span>
                                                         </div>
