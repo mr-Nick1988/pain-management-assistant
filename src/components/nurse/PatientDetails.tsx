@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
     useGetEmrByPatientIdQuery,
     useDeletePatientMutation,
-    useGetRecommendationByPatientIdQuery
 } from "../../api/api/apiNurseSlice";
 import type { Patient } from "../../types/nurse";
 
@@ -26,14 +25,10 @@ const PatientDetails: React.FC = () => {
         );
 
     const [loadEmr, setLoadEmr] = useState(false);
-    const [loadRecommendation, setLoadRecommendation] = useState(false);
 
     const { data: emrData, isFetching: emrLoading } = useGetEmrByPatientIdQuery(patient.mrn, {
         skip: !loadEmr,
     });
-
-    const { data: recommendation, isFetching: recLoading, isError: recError } =
-        useGetRecommendationByPatientIdQuery(patient.mrn, { skip: !loadRecommendation });
 
     const [deletePatient] = useDeletePatientMutation();
 
@@ -129,83 +124,14 @@ const PatientDetails: React.FC = () => {
             )}
 
             {/* 💊 Recommendation */}
-            {!loadRecommendation && (
+            <div className="flex gap-3 mb-8">
                 <button
-                    className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600 mb-6"
-                    onClick={() => setLoadRecommendation(true)}
+                    className="bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-600"
+                    onClick={() => navigate(`/nurse/recommendation-details/${patient.mrn}`)}
                 >
-                    Get Last Recommendation
+                    View Last Recommendation
                 </button>
-            )}
-
-            {loadRecommendation && (
-                <div className="border rounded p-4 bg-white shadow mb-6">
-                    {recLoading ? (
-                        <p>Loading recommendation...</p>
-                    ) : recError ? (
-                        <p className="text-red-600">No recommendation found.</p>
-                    ) : recommendation ? (
-                        <>
-                            <h2 className="text-lg font-semibold mb-3 text-gray-700">Latest Recommendation</h2>
-
-                            <div className="space-y-1 text-sm mb-3">
-                                <p><strong>Patient MRN:</strong> {recommendation.patientMrn}</p>
-                                <p><strong>Status:</strong> {recommendation.status}</p>
-                                <p><strong>Regimen Hierarchy:</strong> {recommendation.regimenHierarchy}</p>
-                                <p><strong>Created At:</strong> {recommendation.createdAt ?? "N/A"}</p>
-                                <p><strong>Created By:</strong> {recommendation.createdBy ?? "N/A"}</p>
-                            </div>
-
-                            {/*  Comments */}
-                            {recommendation.comments?.length ? (
-                                <div className="mt-3">
-                                    <h3 className="font-semibold text-gray-700">Comments:</h3>
-                                    <ul className="list-disc list-inside text-sm text-gray-700">
-                                        {recommendation.comments.map((c, i) => (
-                                            <li key={i}>{c}</li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            ) : (
-                                <p className="text-sm italic text-gray-500">No comments provided.</p>
-                            )}
-
-                            {/*  Contraindications */}
-                            {recommendation.contraindications?.length ? (
-                                <div className="mt-4">
-                                    <h3 className="font-semibold text-gray-700">Contraindications:</h3>
-                                    <ul className="list-disc list-inside text-sm text-gray-700">
-                                        {recommendation.contraindications.map((c, i) => (
-                                            <li key={i}>{c}</li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            ) : null}
-
-                            {/*  Drugs */}
-                            {recommendation.drugs?.length ? (
-                                <div className="mt-5">
-                                    <h3 className="font-semibold mb-2 text-gray-700">Drug Recommendations:</h3>
-                                    <div className="space-y-3">
-                                        {recommendation.drugs.map((drug, i) => (
-                                            <div key={i} className="border rounded p-3 bg-gray-50 text-sm">
-                                                <p><strong>Role:</strong> {drug.role}</p>
-                                                <p><strong>Drug Name:</strong> {drug.drugName}</p>
-                                                <p><strong>Active Moiety:</strong> {drug.activeMoiety}</p>
-                                                <p><strong>Dosing:</strong> {drug.dosing}</p>
-                                                <p><strong>Interval:</strong> {drug.interval}</p>
-                                                <p><strong>Route:</strong> {drug.route}</p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ) : (
-                                <p className="mt-3 text-sm text-gray-500">No drug recommendations available.</p>
-                            )}
-                        </>
-                    ) : null}
-                </div>
-            )}
+            </div>
 
             {/* ⚙ Кнопки действий */}
             <div className="flex flex-wrap gap-2 mt-6">

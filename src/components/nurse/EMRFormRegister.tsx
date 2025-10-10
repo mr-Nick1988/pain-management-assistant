@@ -175,7 +175,7 @@ const EMRFormRegister: React.FC = () => {
                         }`}
                         required
                     />
-                    <p className="text-sm text-gray-500">Enter 2–30 ×10³/µL</p>
+                    <p className="text-sm text-gray-500">Enter 3.5–10.0 ×10³/µL</p>
                     {errors.wbc && <p className="text-red-500 text-sm">{errors.wbc}</p>}
                 </div>
 

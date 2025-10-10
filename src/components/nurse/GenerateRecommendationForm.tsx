@@ -67,7 +67,7 @@ const GenerateRecommendationForm: React.FC = () => {
         try {
             await createRecommendation({ mrn: patient.mrn! }).unwrap();
             alert("Recommendation generated successfully!");
-            navigate(`/nurse/patient/${patient.mrn}`, { state: patient });
+            navigate(`/nurse/recommendation-details/${patient.mrn}`);
         } catch (error) {
             console.error("Failed to create recommendation:", error);
             alert("Failed to generate recommendation");
@@ -80,7 +80,7 @@ const GenerateRecommendationForm: React.FC = () => {
         try {
             await deleteVAS(patient.mrn!).unwrap();
             alert("VAS deleted successfully!");
-            navigate(`/nurse/patient/${patient.mrn}`, { state: patient });
+            navigate(`/nurse/patient/${patient.mrn}`);
         } catch (error) {
             console.error(error);
             alert("Failed to delete VAS");

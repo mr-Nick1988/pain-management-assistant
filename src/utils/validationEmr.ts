@@ -22,8 +22,8 @@ export const validateEmr = (form: EMR): Record<string, string> => {
     if (form.plt < 10 || form.plt > 600) {
         errors.plt = "PLT must be between 10 and 600 (×10³/µL)";
     }
-    if (form.wbc < 1 || form.wbc > 50) {
-        errors.wbc = "WBC must be between 1 and 50 (×10³/µL)";
+    if (form.wbc < 3.5 || form.wbc > 10) {
+        errors.wbc = "WBC must be between 3.5 and 10 (×10³/µL)";
     }
     if (form.sat < 85 || form.sat > 100) {
         errors.sat = "Oxygen saturation must be between 85% and 100%";
