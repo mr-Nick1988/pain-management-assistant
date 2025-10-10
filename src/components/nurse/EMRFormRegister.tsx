@@ -1,14 +1,14 @@
-
-import React, { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import type { EMR } from "../../types/nurse";
-import { useCreateEmrMutation } from "../../api/api/apiNurseSlice";
+import React, {useState} from "react";
+import {useNavigate, useParams} from "react-router-dom";
+import type {EMR} from "../../types/nurse";
+import {useCreateEmrMutation} from "../../api/api/apiNurseSlice";
 import {validateEmr} from "../../utils/validationEmr.ts";
+import {FormCard, FormGrid, FormFieldWrapper, Input, ErrorMessage} from "../ui";
 
 const EMRFormRegister: React.FC = () => {
     const navigate = useNavigate();
-    const { mrn } = useParams<{ mrn: string }>();
-    const [createEmr, { isLoading, error }] = useCreateEmrMutation();
+    const {mrn} = useParams<{ mrn: string }>();
+    const [createEmr, {isLoading, error}] = useCreateEmrMutation();
 
     // состояние формы
     const [form, setForm] = useState<EMR>({
@@ -28,7 +28,7 @@ const EMRFormRegister: React.FC = () => {
 
     // обработчик изменения полей
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, type } = e.target;
+        const {name, value, type} = e.target;
         setForm((prev) => ({
             ...prev,
             [name]: type === "number" ? Number(value) : value,
@@ -37,7 +37,7 @@ const EMRFormRegister: React.FC = () => {
 
     //  обработчик для Sensitivities
     const handleSensitivitiesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { value } = e.target;
+        const {value} = e.target;
         const items = value
             .split(",")
             .map((s) => s.trim())
@@ -47,8 +47,6 @@ const EMRFormRegister: React.FC = () => {
             sensitivities: items,
         }));
     };
-
-
 
 
     // ✅ обработчик отправки
@@ -63,190 +61,140 @@ const EMRFormRegister: React.FC = () => {
         if (Object.keys(validationErrors).length > 0) return;
 
         try {
-            await createEmr({ mrn, data: form }).unwrap();
+            await createEmr({mrn, data: form}).unwrap();
             navigate("/nurse");
-        } catch (err) {
-            console.error(" EMR creation error: ", err);
+        } catch (error: unknown) {
+            console.error("Failed to create EMR:", error);
         }
     };
 
 
     return (
-        <div className="p-6 max-w-md mx-auto">
-            <h1 className="text-2xl font-bold mb-6">Register EMR</h1>
-            <form className="space-y-4" onSubmit={handleSubmit}>
-                {/* HEIGHT */}
-                <div>
-                    <input
-                        type="number"
-                        name="height"
-                        placeholder="Height (cm)"
-                        value={form.height || ""}
-                        onChange={handleChange}
-                        className={`w-full border rounded px-3 py-2 ${
-                            errors.height ? "border-red-500" : ""
-                        }`}
-                        required
-                    />
-                    <p className="text-sm text-gray-500">Enter 50–250 cm</p>
-                    {errors.height && <p className="text-red-500 text-sm">{errors.height}</p>}
-                </div>
+        <div className="p-6">
+            <FormCard
+                title="Register EMR"
+                onSubmit={handleSubmit}
+                onCancel={() => navigate("/nurse")}
+                submitText="Save & Go to Dashboard"
+                isLoading={isLoading}
+                error={
+                    error && (
+                        <ErrorMessage
+                            message={
+                                ("data" in error &&
+                                error.data &&
+                                typeof error.data === "object" &&
+                                "message" in error.data
+                                    ? String((error.data as any).message)
+                                    : undefined) || "Failed to save EMR"
+                            }
+                        />
+                    )
+                }
+            >
+                <FormGrid columns={2}>
+                    <FormFieldWrapper label="Height (cm)" required hint="Enter 50–250 cm" error={errors.height}>
+                        <Input
+                            type="number"
+                            name="height"
+                            placeholder="Height"
+                            value={form.height || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                    </FormFieldWrapper>
 
-                {/* WEIGHT */}
-                <div>
-                    <input
-                        type="number"
-                        name="weight"
-                        placeholder="Weight (kg)"
-                        value={form.weight || ""}
-                        onChange={handleChange}
-                        className={`w-full border rounded px-3 py-2 ${
-                            errors.weight ? "border-red-500" : ""
-                        }`}
-                        required
-                    />
-                    <p className="text-sm text-gray-500">Enter 20–300 kg</p>
-                    {errors.weight && <p className="text-red-500 text-sm">{errors.weight}</p>}
-                </div>
+                    <FormFieldWrapper label="Weight (kg)" required hint="Enter 20–300 kg" error={errors.weight}>
+                        <Input
+                            type="number"
+                            name="weight"
+                            placeholder="Weight"
+                            value={form.weight || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                    </FormFieldWrapper>
 
-                {/* GFR */}
-                <div>
-                    <input
-                        type="text"
-                        name="gfr"
-                        placeholder="Kidney function (GFR)"
-                        value={form.gfr}
-                        onChange={handleChange}
-                        className={`w-full border rounded px-3 py-2 ${
-                            errors.gfr ? "border-red-500" : ""
-                        }`}
-                        required
-                    />
-                    <p className="text-sm text-gray-500">Enter A–E or number (0–150 ml/min)</p>
-                    {errors.gfr && <p className="text-red-500 text-sm">{errors.gfr}</p>}
-                </div>
+                    <FormFieldWrapper label="GFR" required hint="Enter A–E or 0–150 ml/min" error={errors.gfr}>
+                        <Input
+                            type="text"
+                            name="gfr"
+                            placeholder="Kidney function"
+                            value={form.gfr}
+                            onChange={handleChange}
+                            required
+                        />
+                    </FormFieldWrapper>
 
-                {/* Child-Pugh */}
-                <div>
-                    <input
-                        type="text"
-                        name="childPughScore"
-                        placeholder="Liver function (Child-Pugh: A/B/C)"
-                        value={form.childPughScore}
-                        onChange={handleChange}
-                        className={`w-full border rounded px-3 py-2 ${
-                            errors.childPughScore ? "border-red-500" : ""
-                        }`}
-                        required
-                    />
-                    <p className="text-sm text-gray-500">Enter A, B or C</p>
-                    {errors.childPughScore && (
-                        <p className="text-red-500 text-sm">{errors.childPughScore}</p>
-                    )}
-                </div>
+                    <FormFieldWrapper label="Child-Pugh Score" required hint="Enter A, B or C"
+                                      error={errors.childPughScore}>
+                        <Input
+                            type="text"
+                            name="childPughScore"
+                            placeholder="A/B/C"
+                            value={form.childPughScore}
+                            onChange={handleChange}
+                            required
+                        />
+                    </FormFieldWrapper>
 
-                {/* PLT */}
-                <div>
-                    <input
-                        type="number"
-                        name="plt"
-                        placeholder="Platelet count (PLT)"
-                        value={form.plt || ""}
-                        onChange={handleChange}
-                        className={`w-full border rounded px-3 py-2 ${
-                            errors.plt ? "border-red-500" : ""
-                        }`}
-                        required
-                    />
-                    <p className="text-sm text-gray-500">Enter 50–600 K/µL</p>
-                    {errors.plt && <p className="text-red-500 text-sm">{errors.plt}</p>}
-                </div>
+                    <FormFieldWrapper label="PLT" required hint="Enter 50–600 K/µL" error={errors.plt}>
+                        <Input
+                            type="number"
+                            name="plt"
+                            placeholder="Platelet count"
+                            value={form.plt || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                    </FormFieldWrapper>
 
-                {/* WBC */}
-                <div>
-                    <input
-                        type="number"
-                        name="wbc"
-                        placeholder="White blood cells (WBC)"
-                        value={form.wbc || ""}
-                        onChange={handleChange}
-                        className={`w-full border rounded px-3 py-2 ${
-                            errors.wbc ? "border-red-500" : ""
-                        }`}
-                        required
-                    />
-                    <p className="text-sm text-gray-500">Enter 3.5–10.0 ×10³/µL</p>
-                    {errors.wbc && <p className="text-red-500 text-sm">{errors.wbc}</p>}
-                </div>
+                    <FormFieldWrapper label="WBC" required hint="Enter 3.5–10.0 ×10³/µL" error={errors.wbc}>
+                        <Input
+                            type="number"
+                            name="wbc"
+                            placeholder="White blood cells"
+                            value={form.wbc || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                    </FormFieldWrapper>
 
-                {/* SAT */}
-                <div>
-                    <input
-                        type="number"
-                        name="sat"
-                        placeholder="Oxygen saturation (SAT %)"
-                        value={form.sat || ""}
-                        onChange={handleChange}
-                        className={`w-full border rounded px-3 py-2 ${
-                            errors.sat ? "border-red-500" : ""
-                        }`}
-                        required
-                    />
-                    <p className="text-sm text-gray-500">Enter 85–100 (%)</p>
-                    {errors.sat && <p className="text-red-500 text-sm">{errors.sat}</p>}
-                </div>
+                    <FormFieldWrapper label="SAT (%)" required hint="Enter 85–100%" error={errors.sat}>
+                        <Input
+                            type="number"
+                            name="sat"
+                            placeholder="Oxygen saturation"
+                            value={form.sat || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                    </FormFieldWrapper>
 
-                {/* SODIUM */}
-                <div>
-                    <input
-                        type="number"
-                        name="sodium"
-                        placeholder="Sodium (mmol/L)"
-                        value={form.sodium || ""}
-                        onChange={handleChange}
-                        className={`w-full border rounded px-3 py-2 ${
-                            errors.sodium ? "border-red-500" : ""
-                        }`}
-                        required
-                    />
-                    <p className="text-sm text-gray-500">Enter 110–160 mmol/L</p>
-                    {errors.sodium && <p className="text-red-500 text-sm">{errors.sodium}</p>}
-                </div>
+                    <FormFieldWrapper label="Sodium (mmol/L)" required hint="Enter 110–160 mmol/L"
+                                      error={errors.sodium}>
+                        <Input
+                            type="number"
+                            name="sodium"
+                            placeholder="Sodium"
+                            value={form.sodium || ""}
+                            onChange={handleChange}
+                            required
+                        />
+                    </FormFieldWrapper>
+                </FormGrid>
 
-                {/* ✅ NEW: SENSITIVITIES */}
-                <div>
-                    <input
+                {/* ✅ NEW: Sensitivities */}
+                <FormFieldWrapper label="Sensitivities" hint="Example: Paracetamol, Tramadol, Ibuprofen">
+                    <Input
                         type="text"
                         name="sensitivities"
-                        placeholder="Sensitivities (comma-separated, e.g. Paracetamol, Tramadol)"
+                        placeholder="Comma-separated (e.g. Paracetamol, Tramadol)"
                         onChange={handleSensitivitiesChange}
-                        className="w-full border rounded px-3 py-2"
                     />
-                    <p className="text-sm text-gray-500">
-                        Example: <i>Paracetamol, Tramadol, Ibuprofen</i>
-                    </p>
-                </div>
-
-                {/* SUBMIT */}
-                <button
-                    type="submit"
-                    disabled={isLoading}
-                    className={`w-full py-2 px-4 rounded text-white ${
-                        isLoading ? "bg-gray-400" : "bg-green-500 hover:bg-green-600"
-                    }`}
-                >
-                    {isLoading ? "Saving..." : "Save & Go to Dashboard"}
-                </button>
-
-                {error && (
-                    <p className="text-red-500 text-sm mt-2">
-                        {("data" in error && (error as any).data?.message) ||
-                            "Ошибка при сохранении EMR"}
-                    </p>
-                )}
-            </form>
+                </FormFieldWrapper>
+            </FormCard>
         </div>
     );
-};
-
+}
 export default EMRFormRegister;

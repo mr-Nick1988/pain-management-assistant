@@ -7,6 +7,7 @@ import {
     useLazyGetLastRecommendationQuery
 } from "../../api/api/apiDoctorSlice";
 import type {Patient, EMR} from "../../types/doctor";
+import {Button, Card, CardContent, CardHeader, CardTitle} from "../ui";
 
 const PatientDetails: React.FC = () => {
     const navigate = useNavigate();
@@ -34,13 +35,14 @@ const PatientDetails: React.FC = () => {
     if (!patient?.mrn || !patient) {
         return (
             <div className="p-6">
-                <p>No patient data. Please navigate from the dashboard.</p>
-                <button
-                    onClick={() => navigate("/doctor")}
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                    Back to Dashboard
-                </button>
+                <Card>
+                    <CardContent className="text-center py-8">
+                        <p className="mb-4">No patient data. Please navigate from the dashboard.</p>
+                        <Button variant="update" onClick={() => navigate("/doctor")}>
+                            Back to Dashboard
+                        </Button>
+                    </CardContent>
+                </Card>
             </div>
         );
     }
@@ -67,162 +69,296 @@ const PatientDetails: React.FC = () => {
     };
 
     return (
-        <div className="p-6">
-            <button
-                onClick={() => navigate("/doctor")}
-                className="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-                Back to Dashboard
-            </button>
-
-            <h1 className="text-2xl font-bold mb-4">Patient Details</h1>
-
-            <div className="mb-6">
-                <p><strong>MRN:</strong> {patient.mrn}</p>
-                <p><strong>First Name:</strong> {patient.firstName}</p>
-                <p><strong>Last Name:</strong> {patient.lastName}</p>
-                <p><strong>Date of Birth:</strong> {patient.dateOfBirth}</p>
-                <p><strong>Gender:</strong> {patient.gender}</p>
-                <p><strong>Insurance Policy Number:</strong> {patient.insurancePolicyNumber || "N/A"}</p>
-                <p><strong>Email:</strong> {patient.email || "N/A"}</p>
-                <p><strong>Phone Number:</strong> {patient.phoneNumber}</p>
-                <p><strong>Address:</strong> {patient.address}</p>
-                <p><strong>Status:</strong> {patient.isActive ? "In treatment" : "Not in treatment"}</p>
-                <p><strong>Additional Information:</strong> {patient.additionalInfo}</p>
-                <p><strong>Created At:</strong> {patient.createdAt}</p>
-                <p><strong>Created By:</strong> {patient.createdBy || "N/A"}</p>
+        <div className="p-6 space-y-6">
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900">Patient Details</h1>
+                    <p className="text-gray-600 mt-1">{patient.firstName} {patient.lastName}</p>
+                </div>
+                <Button variant="outline" onClick={() => navigate("/doctor")}>
+                    Back to Dashboard
+                </Button>
             </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Patient Information</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-500">Medical Record Number</p>
+                            <p className="font-semibold">{patient.mrn}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-500">Full Name</p>
+                            <p className="font-semibold">{patient.firstName} {patient.lastName}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-500">Date of Birth</p>
+                            <p className="font-semibold">{patient.dateOfBirth}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-500">Gender</p>
+                            <p className="font-semibold">{patient.gender}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-500">Insurance Policy Number</p>
+                            <p className="font-semibold">{patient.insurancePolicyNumber || "N/A"}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-500">Phone Number</p>
+                            <p className="font-semibold">{patient.phoneNumber}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-500">Email</p>
+                            <p className="font-semibold">{patient.email || "N/A"}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-500">Treatment Status</p>
+                            <p className="font-semibold">
+                                <span
+                                    className={`px-2 py-1 rounded text-sm ${patient.isActive ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-800"}`}>
+                                    {patient.isActive ? "In Treatment" : "Not in Treatment"}
+                                </span>
+                            </p>
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                            <p className="text-sm text-gray-500">Address</p>
+                            <p className="font-semibold">{patient.address}</p>
+                        </div>
+                        {patient.additionalInfo && (
+                            <div className="space-y-2 md:col-span-2">
+                                <p className="text-sm text-gray-500">Additional Information</p>
+                                <p className="font-semibold">{patient.additionalInfo}</p>
+                            </div>
+                        )}
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-500">Created At</p>
+                            <p className="font-semibold text-sm">{patient.createdAt ? new Date(patient.createdAt).toLocaleString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            }) : 'N/A'}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-500">Created By</p>
+                            <p className="font-semibold text-sm">{patient.createdBy || "N/A"}</p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
 
             {/* EMR Section */}
             {!loadEmr && (
-                <button
-                    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mb-4"
-                    onClick={() => setLoadEmr(true)}
-                >
-                    Load EMR
-                </button>
+                <Button variant="update" onClick={() => setLoadEmr(true)}>
+                    Load EMR Data
+                </Button>
             )}
 
             {loadEmr && (
-                <div className="border rounded p-4 mb-4 bg-white shadow">
-                    {emrLoading ? (
-                        <p>Loading EMR...</p>
-                    ) : emrData ? (
-                        <>
-                            <h2 className="text-xl font-bold mb-2">Last EMR</h2>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="flex justify-between bg-gray-50 p-2 rounded">
-                                    <span className="font-semibold">Height:</span>
-                                    <span>{emrData.height || "N/A"}</span>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Electronic Medical Record (EMR)</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {emrLoading ? (
+                            <p className="text-center py-4">Loading EMR...</p>
+                        ) : emrData ? (
+                            <>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div className="bg-gray-50 p-3 rounded">
+                                        <p className="text-sm text-gray-500">Height</p>
+                                        <p className="font-semibold">{emrData.height || "N/A"} cm</p>
+                                    </div>
+                                    <div className="bg-gray-50 p-3 rounded">
+                                        <p className="text-sm text-gray-500">Weight</p>
+                                        <p className="font-semibold">{emrData.weight || "N/A"} kg</p>
+                                    </div>
+                                    <div className="bg-gray-50 p-3 rounded">
+                                        <p className="text-sm text-gray-500">GFR</p>
+                                        <p className="font-semibold">{emrData.gfr}</p>
+                                    </div>
+                                    <div className="bg-gray-50 p-3 rounded">
+                                        <p className="text-sm text-gray-500">Child-Pugh</p>
+                                        <p className="font-semibold">{emrData.childPughScore}</p>
+                                    </div>
+                                    <div className="bg-gray-50 p-3 rounded">
+                                        <p className="text-sm text-gray-500">PLT</p>
+                                        <p className="font-semibold">{emrData.plt} ×10⁹/L</p>
+                                    </div>
+                                    <div className="bg-gray-50 p-3 rounded">
+                                        <p className="text-sm text-gray-500">WBC</p>
+                                        <p className="font-semibold">{emrData.wbc} ×10⁹/L</p>
+                                    </div>
+                                    <div className="bg-gray-50 p-3 rounded">
+                                        <p className="text-sm text-gray-500">SpO₂</p>
+                                        <p className="font-semibold">{emrData.sat}%</p>
+                                    </div>
+                                    <div className="bg-gray-50 p-3 rounded">
+                                        <p className="text-sm text-gray-500">Sodium</p>
+                                        <p className="font-semibold">{emrData.sodium} mmol/L</p>
+                                    </div>
                                 </div>
-                                <div className="flex justify-between bg-gray-50 p-2 rounded">
-                                    <span className="font-semibold">Weight:</span>
-                                    <span>{emrData.weight || "N/A"}</span>
-                                </div>
-                                <div className="flex justify-between bg-gray-50 p-2 rounded">
-                                    <span className="font-semibold">GFR:</span>
-                                    <span>{emrData.gfr}</span>
-                                </div>
-                                <div className="flex justify-between bg-gray-50 p-2 rounded">
-                                    <span className="font-semibold">Child Pugh Score:</span>
-                                    <span>{emrData.childPughScore}</span>
-                                </div>
-                                <div className="flex justify-between bg-gray-50 p-2 rounded">
-                                    <span className="font-semibold">PLT:</span>
-                                    <span>{emrData.plt}</span>
-                                </div>
-                                <div className="flex justify-between bg-gray-50 p-2 rounded">
-                                    <span className="font-semibold">WBC:</span>
-                                    <span>{emrData.wbc}</span>
-                                </div>
-                                <div className="flex justify-between bg-gray-50 p-2 rounded">
-                                    <span className="font-semibold">SAT:</span>
-                                    <span>{emrData.sat}</span>
-                                </div>
-                                <div className="flex justify-between bg-gray-50 p-2 rounded">
-                                    <span className="font-semibold">Sodium:</span>
-                                    <span>{emrData.sodium}</span>
-                                </div>
-                            </div>
 
-                            <div className="mt-4 flex space-x-2">
-                                <button
-                                    className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-                                    onClick={() =>
-                                        navigate(`/doctor/emr-update/${patient.mrn}`, {
-                                            state: {patient, emrData},
-                                        })
-                                    }
+                                {emrData.sensitivities && emrData.sensitivities.length > 0 && (
+                                    <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                                        <p className="text-sm font-semibold text-red-800 mb-2">⚠️ Drug Allergies /
+                                            Sensitivities</p>
+                                        <div className="flex flex-wrap gap-2">
+                                            {emrData.sensitivities.map((drug, index) => (
+                                                <span key={index}
+                                                      className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
+                                                    {drug}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                <div className="flex space-x-2 mt-4">
+                                    <Button
+                                        variant="update"
+                                        onClick={() =>
+                                            navigate(`/doctor/emr-update/${patient.mrn}`, {
+                                                state: {patient, emrData},
+                                            })
+                                        }
+                                    >
+                                        Update EMR
+                                    </Button>
+                                    <Button
+                                        variant="default"
+                                        onClick={handleGetAllEmr}
+                                        disabled={allEmrLoading}
+                                    >
+                                        {allEmrLoading ? "Loading..." : "View EMR History"}
+                                    </Button>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="text-center py-4">
+                                <p className="mb-4 text-gray-600">No EMR data available for this patient</p>
+                                <Button
+                                    variant="approve"
+                                    onClick={() => navigate(`/doctor/emr-form/${patient.mrn}`, {state: patient})}
                                 >
-                                    Update EMR
-                                </button>
-                                <button
-                                    className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
-                                    onClick={handleGetAllEmr}
-                                    disabled={allEmrLoading}
-                                >
-                                    {allEmrLoading ? "Loading..." : "Get All EMRs"}
-                                </button>
+                                    Create EMR
+                                </Button>
                             </div>
-                        </>
-                    ) : (
-                        <button
-                            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                            onClick={() => navigate(`/doctor/emr-form/${patient.mrn}`, {state: patient})}
-                        >
-                            Create EMR
-                        </button>
-                    )}
-                </div>
+                        )}
+                    </CardContent>
+                </Card>
             )}
 
-            {/* All EMRs */}
+            {/* All EMRs History */}
             {loadAllEmr && allEmrData && allEmrData.length > 0 && (
-                <div className="border rounded p-4 mb-4 bg-white shadow">
-                    <h2 className="text-xl font-bold mb-2">All EMRs History</h2>
-                    {allEmrData.map((emr: EMR, index: number) => (
-                        <div key={index} className="mb-4 p-3 bg-gray-50 rounded">
-                            <p className="font-semibold mb-2">EMR #{index + 1}</p>
-                            <div className="grid grid-cols-2 gap-2 text-sm">
-                                <p>Height: {emr.height}</p>
-                                <p>Weight: {emr.weight}</p>
-                                <p>GFR: {emr.gfr}</p>
-                                <p>Child Pugh: {emr.childPughScore}</p>
-                                <p>PLT: {emr.plt}</p>
-                                <p>WBC: {emr.wbc}</p>
-                                <p>SAT: {emr.sat}</p>
-                                <p>Sodium: {emr.sodium}</p>
-                                <p className="col-span-2 text-gray-500">Created: {emr.createdAt}</p>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>EMR History ({allEmrData.length} records)</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {allEmrData.map((emr: EMR, index: number) => (
+                            <div key={index} className="p-4 bg-gray-50 rounded-lg border">
+                                <p className="font-semibold mb-3 text-gray-700">Record #{index + 1}</p>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                                    <div>
+                                        <p className="text-gray-500">Height</p>
+                                        <p className="font-semibold">{emr.height} cm</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-500">Weight</p>
+                                        <p className="font-semibold">{emr.weight} kg</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-500">GFR</p>
+                                        <p className="font-semibold">{emr.gfr}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-500">Child-Pugh</p>
+                                        <p className="font-semibold">{emr.childPughScore}</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-500">PLT</p>
+                                        <p className="font-semibold">{emr.plt} ×10⁹/L</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-500">WBC</p>
+                                        <p className="font-semibold">{emr.wbc} ×10⁹/L</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-500">SpO₂</p>
+                                        <p className="font-semibold">{emr.sat}%</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-gray-500">Sodium</p>
+                                        <p className="font-semibold">{emr.sodium} mmol/L</p>
+                                    </div>
+                                    <div className="col-span-2 md:col-span-4">
+                                        <p className="text-gray-500 text-xs">Created: {emr.createdAt ? new Date(emr.createdAt).toLocaleString('en-US', {
+                                            year: 'numeric',
+                                            month: 'short',
+                                            day: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        }) : 'N/A'}</p>
+                                    </div>
+                                </div>
+                                {emr.sensitivities && emr.sensitivities.length > 0 && (
+                                    <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded">
+                                        <p className="text-xs font-semibold text-red-800 mb-2">⚠️ Drug Allergies</p>
+                                        <div className="flex flex-wrap gap-1">
+                                            {emr.sensitivities.map((drug, idx) => (
+                                                <span key={idx}
+                                                      className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs">
+                                                    {drug}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
-                        </div>
-                    ))}
-                </div>
+                        ))}
+                    </CardContent>
+                </Card>
             )}
 
             {/* Actions */}
-            <div className="flex space-x-2 mt-6">
-                <button
-                    className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
-                    onClick={handleGetRecommendation}
-                    disabled={recommendationLoading}
-                >
-                    {recommendationLoading ? "Loading..." : "Get Recommendation"}
-                </button>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Patient Actions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <Button
+                            variant="default"
+                            onClick={handleGetRecommendation}
+                            disabled={recommendationLoading}
+                            className="w-full"
+                        >
+                            {recommendationLoading ? "Loading..." : "View Recommendation"}
+                        </Button>
 
-                <button
-                    className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-                    onClick={() => navigate(`/doctor/update-patient/${patient.mrn}`, {state: patient})}
-                >
-                    Update Patient Data
-                </button>
+                        <Button
+                            variant="update"
+                            onClick={() => navigate(`/doctor/update-patient/${patient.mrn}`, {state: patient})}
+                            className="w-full"
+                        >
+                            Update Patient
+                        </Button>
 
-                <button
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-                    onClick={handleDeletePatient}
-                >
-                    Delete Patient
-                </button>
-            </div>
+                        <Button
+                            variant="delete"
+                            onClick={handleDeletePatient}
+                            className="w-full"
+                        >
+                            Delete Patient
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 };

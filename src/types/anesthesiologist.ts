@@ -1,72 +1,117 @@
+// ============================================
+// ENUMS - соответствуют backend
+// ============================================
+
 export enum EscalationStatus {
     PENDING = "PENDING",
-    IN_REVIEW = "IN_REVIEW",
+    IN_PROGRESS = "IN_PROGRESS",
     RESOLVED = "RESOLVED",
-    REQUIRES_CLARIFICATION = "REQUIRES_CLARIFICATION"
+    CANCELLED = "CANCELLED"
+}
+
+export enum EscalationPriority {
+    HIGH = "HIGH",
+    MEDIUM = "MEDIUM",
+    LOW = "LOW"
 }
 
 export enum ProtocolStatus {
     DRAFT = "DRAFT",
+    PENDING_APPROVAL = "PENDING_APPROVAL",
     APPROVED = "APPROVED",
-    REJECTED = "REJECTED",
-    NEEDS_REVISION = "NEEDS_REVISION"
+    REJECTED = "REJECTED"
 }
 
-export interface Escalation {
-    id: string;
-    patientId: string;
-    patientName: string;
-    doctorId: string;
-    doctorName: string;
-    originalRecommendationId: string;
-    rejectedReason: string;
-    escalationDate: string;
+// ============================================
+// ESCALATION - соответствует backend Escalation entity
+// ============================================
+
+export interface EscalationResponse {
+    id: number;
+    recommendationId: number;
     status: EscalationStatus;
-    priority: "LOW"|"MEDIUM"|"HIGH"|"CRITICAL";
-    description: string;
-    currentProtocol?:Protocol;
+    priority: EscalationPriority;
+    
+    // Escalation info
+    escalatedBy: string; // Doctor ID
+    escalatedAt: string;
+    escalationReason: string;
+    description?: string;
+    
+    // Resolution info
+    resolvedBy?: string; // Anesthesiologist ID
+    resolvedAt?: string;
+    resolution?: string;
+    
+    // Audit
+    createdAt: string;
+    updatedAt: string;
 }
 
-export interface Protocol {
-    id: string;
-    escalationId: string;
+export interface EscalationResolution {
+    resolvedBy: string; // Anesthesiologist ID
+    resolution: string;
+    comment?: string;
+    approved?: boolean; // true = approve, false = reject
+}
+
+export interface EscalationStats {
+    total: number;
+    pending: number;
+    inProgress: number;
+    resolved: number;
+    high: number;
+    medium: number;
+    low: number;
+}
+
+// ============================================
+// PROTOCOL - соответствует backend TreatmentsProtocol entity
+// ============================================
+
+export interface ProtocolResponse {
+    id: number;
+    escalationId: number;
     title: string;
     content: string;
-    version: string;
+    version: number;
     status: ProtocolStatus;
+    
     createdBy: string;
     createdAt: string;
     updatedAt: string;
+    
     approvedBy?: string;
     approvedAt?: string;
-    comments?:ProtocolComment[];
+    rejectedReason?: string;
 }
 
-export interface ProtocolComment {
-    id:string;
-    protocolId:string;
-    authorId:string;
-    authorName:string;
-    content:string;
-    createdAt:string;
-    isQuestion:boolean;
+export interface ProtocolRequest {
+    escalationId: number;
+    title: string;
+    content: string;
 }
 
-export interface CreateProtocolRequest {
-    escalationId:string;
-    title:string;
-    content:string;
+export interface ProtocolUpdate {
+    id: number;
+    title?: string;
+    content?: string;
 }
 
-export interface UpdateProtocolRequest {
-    id:string;
-    title?:string;
-    content?:string;
-    status?:ProtocolStatus;
+// ============================================
+// PROTOCOL COMMENT - соответствует backend TreatmentProtocolComment entity
+// ============================================
+
+export interface CommentResponse {
+    id: number;
+    protocolId: number;
+    authorId: string;
+    authorName: string;
+    content: string;
+    createdAt: string;
 }
 
-export interface CreateProtocolCommentRequest {
-    protocolId:string;
-    content:string;
-    isQuestion:boolean;
+export interface CommentRequest {
+    protocolId: number;
+    content: string;
 }

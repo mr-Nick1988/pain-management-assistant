@@ -1,44 +1,49 @@
-import React, {useMemo, useState} from "react";
-import {type Escalation, EscalationStatus} from "../../types/anesthesiologist.ts";
-import {useSendQuestionToDoctorMutation, useTakeEscalationMutation} from "../../api/api/apiAnesthesiologistSlice.ts";
-import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label } from "../ui";
+﻿import React, {useMemo, useState} from "react";
+import {type EscalationResponse, EscalationStatus, EscalationPriority} from "../../types/anesthesiologist.ts";
+import {useApproveEscalationMutation, useRejectEscalationMutation} from "../../api/api/apiAnesthesiologistSlice.ts";
+import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label} from "../ui";
 
 interface EscalationListProps {
-    escalations: Escalation[];
-    onEscalationSelect: (escalationId: string) => void;
+    escalations: EscalationResponse[];
+    onEscalationSelect: (escalationId: number) => void;
 }
 
 const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalationSelect}) => {
     const [filteredStatus, setFilteredStatus] = useState<EscalationStatus | "ALL">("ALL");
-    const [filterPriority, setFilterPriority] = useState<"ALL" | "CRITICAL" | "HIGH" | "MEDIUM" | "LOW">("ALL");
+    const [filterPriority, setFilterPriority] = useState<EscalationPriority | "ALL">("ALL");
     const [sortBy, setSortBy] = useState<"date" | "priority" | "status">("date");
     const [searchTerm, setSearchTerm] = useState<string>("");
-    const [selectedEscalation, setSelectedEscalation] = useState<Escalation | null>(null);
-    const [questionText, setQuestionText] = useState<string>("");
+    const [selectedEscalation, setSelectedEscalation] = useState<EscalationResponse | null>(null);
+    const [resolutionText, setResolutionText] = useState<string>("");
+    const [showApproveModal, setShowApproveModal] = useState(false);
+    const [showRejectModal, setShowRejectModal] = useState(false);
 
-    const [takeEscalation, {isLoading: isTaking}] = useTakeEscalationMutation();
-    const [sendQuestionToDoctor, {isLoading: isSendingQuestion}] = useSendQuestionToDoctorMutation();
+    const [approveEscalation, {isLoading: isApproving}] = useApproveEscalationMutation();
+    const [rejectEscalation, {isLoading: isRejecting}] = useRejectEscalationMutation();
 
     const filteredAndSortedEscalations = useMemo(() => {
         const filteredEscalations = escalations.filter((escalation) => {
             const matchesStatus = filteredStatus === "ALL" || escalation.status === filteredStatus;
             const matchesPriority = filterPriority === "ALL" || escalation.priority === filterPriority;
             const matchesSearch = searchTerm === "" ||
-                escalation.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                escalation.doctorName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                escalation.rejectedReason.toLowerCase().includes(searchTerm.toLowerCase());
+                escalation.escalationReason.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                escalation.escalatedBy.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                escalation.id.toString().includes(searchTerm);
             return matchesStatus && matchesPriority && matchesSearch;
         });
 
         filteredEscalations.sort((a, b) => {
             switch (sortBy) {
-                case "date":
-                    return new Date(b.escalationDate).getTime() - new Date(a.escalationDate).getTime();
-                case "priority":
-                    const priorityOrder = {"CRITICAL": 4, "HIGH": 3, "MEDIUM": 2, "LOW": 1};
+                case "date": {
+                    return new Date(b.escalatedAt).getTime() - new Date(a.escalatedAt).getTime();
+                }
+                case "priority": {
+                    const priorityOrder = {"HIGH": 3, "MEDIUM": 2, "LOW": 1};
                     return priorityOrder[b.priority] - priorityOrder[a.priority];
-                case "status":
+                }
+                case "status": {
                     return b.status.localeCompare(a.status);
+                }
                 default:
                     return 0;
             }
@@ -46,25 +51,84 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
         return filteredEscalations;
     }, [escalations, filteredStatus, filterPriority, sortBy, searchTerm]);
 
-    const handleTakeEscalation = async (escalationId: string) => {
+    const handleApprove = async () => {
+        if (!selectedEscalation || !resolutionText.trim()) return;
         try {
-            await takeEscalation(escalationId).unwrap();
+            const anesthesiologistId = localStorage.getItem("userPersonId") || "anesthesiologist_id";
+            await approveEscalation({
+                escalationId: selectedEscalation.id,
+                resolution: {
+                    resolvedBy: anesthesiologistId,
+                    resolution: resolutionText,
+                    approved: true
+                }
+            }).unwrap();
+            setResolutionText("");
+            setSelectedEscalation(null);
+            setShowApproveModal(false);
         } catch (error) {
-            console.error("Error taking escalation:", error);
+            console.error("Error approving escalation:", error);
         }
     };
 
-    const handleSendQuestionToDoctor = async () => {
-        if (!selectedEscalation || !questionText.trim()) return;
+    const handleReject = async () => {
+        if (!selectedEscalation || !resolutionText.trim()) return;
         try {
-            await sendQuestionToDoctor({
+            const anesthesiologistId = localStorage.getItem("userPersonId") || "anesthesiologist_id";
+            await rejectEscalation({
                 escalationId: selectedEscalation.id,
-                question: questionText
+                resolution: {
+                    resolvedBy: anesthesiologistId,
+                    resolution: resolutionText,
+                    approved: false
+                }
             }).unwrap();
-            setQuestionText("");
+            setResolutionText("");
             setSelectedEscalation(null);
+            setShowRejectModal(false);
         } catch (error) {
-            console.error("Error sending question to doctor:", error);
+            console.error("Error rejecting escalation:", error);
+        }
+    };
+
+    const getStatusBadgeClass = (status: EscalationStatus) => {
+        const baseClass = "inline-flex px-2 py-1 text-xs font-semibold rounded-full";
+        switch (status) {
+            case EscalationStatus.PENDING:
+                return `${baseClass} bg-yellow-100 text-yellow-800`;
+            case EscalationStatus.IN_PROGRESS:
+                return `${baseClass} bg-blue-100 text-blue-800`;
+            case EscalationStatus.RESOLVED:
+                return `${baseClass} bg-green-100 text-green-800`;
+            default:
+                return `${baseClass} bg-gray-100 text-gray-800`;
+        }
+    };
+
+    const getPriorityBadgeClass = (priority: EscalationPriority) => {
+        const baseClass = "inline-flex px-2 py-1 text-xs font-semibold rounded-full";
+        switch (priority) {
+            case EscalationPriority.HIGH:
+                return `${baseClass} bg-red-100 text-red-800`;
+            case EscalationPriority.MEDIUM:
+                return `${baseClass} bg-orange-100 text-orange-800`;
+            case EscalationPriority.LOW:
+                return `${baseClass} bg-yellow-100 text-yellow-800`;
+            default:
+                return `${baseClass} bg-gray-100 text-gray-800`;
+        }
+    };
+
+    const getBorderClass = (priority: EscalationPriority) => {
+        switch (priority) {
+            case EscalationPriority.HIGH:
+                return "border-red-300";
+            case EscalationPriority.MEDIUM:
+                return "border-orange-300";
+            case EscalationPriority.LOW:
+                return "border-yellow-300";
+            default:
+                return "border-gray-300";
         }
     };
 
@@ -75,7 +139,6 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
                     <CardTitle>Escalations Management</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    {/* Filters and Search */}
                     <div className="bg-gray-50 p-4 rounded-lg space-y-4">
                         <div className="flex flex-col sm:flex-row gap-4">
                             <div className="flex-1">
@@ -102,9 +165,9 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
                                 >
                                     <option value="ALL">All Status</option>
                                     <option value={EscalationStatus.PENDING}>Pending</option>
-                                    <option value={EscalationStatus.IN_REVIEW}>In Review</option>
+                                    <option value={EscalationStatus.IN_PROGRESS}>In Progress</option>
                                     <option value={EscalationStatus.RESOLVED}>Resolved</option>
-                                    <option value={EscalationStatus.REQUIRES_CLARIFICATION}>Requires Clarification</option>
+                                    <option value={EscalationStatus.CANCELLED}>Cancelled</option>
                                 </select>
                             </div>
 
@@ -113,14 +176,13 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
                                 <select
                                     id="priority-filter"
                                     value={filterPriority}
-                                    onChange={(e) => setFilterPriority(e.target.value as "ALL" | "CRITICAL" | "HIGH" | "MEDIUM" | "LOW")}
+                                    onChange={(e) => setFilterPriority(e.target.value as EscalationPriority | "ALL")}
                                     className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >
                                     <option value="ALL">All Priority</option>
-                                    <option value="CRITICAL">Critical</option>
-                                    <option value="HIGH">High</option>
-                                    <option value="MEDIUM">Medium</option>
-                                    <option value="LOW">Low</option>
+                                    <option value={EscalationPriority.HIGH}>High</option>
+                                    <option value={EscalationPriority.MEDIUM}>Medium</option>
+                                    <option value={EscalationPriority.LOW}>Low</option>
                                 </select>
                             </div>
 
@@ -140,36 +202,21 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
                         </div>
                     </div>
 
-                    {/* Escalations Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredAndSortedEscalations.map((escalation) => (
-                            <Card key={escalation.id} className={`hover:shadow-lg transition-shadow ${
-                                escalation.priority === 'CRITICAL' ? 'border-red-300' :
-                                    escalation.priority === 'HIGH' ? 'border-orange-300' :
-                                        escalation.priority === 'MEDIUM' ? 'border-yellow-300' :
-                                            'border-gray-300'
-                            }`}>
+                            <Card key={escalation.id} className={`hover:shadow-lg transition-shadow ${getBorderClass(escalation.priority)}`}>
                                 <CardHeader className="pb-3">
                                     <div className="flex items-start justify-between">
                                         <div className="flex-1">
-                                            <CardTitle className="text-lg">{escalation.patientName}</CardTitle>
-                                            <p className="text-sm text-gray-600 mt-1">Doctor: {escalation.doctorName}</p>
+                                            <CardTitle className="text-lg">Escalation #{escalation.id}</CardTitle>
+                                            <p className="text-sm text-gray-600 mt-1">Recommendation: #{escalation.recommendationId}</p>
+                                            <p className="text-sm text-gray-500">By: {escalation.escalatedBy}</p>
                                         </div>
                                         <div className="flex flex-col items-end space-y-2">
-                                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                                escalation.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                                                    escalation.status === 'IN_REVIEW' ? 'bg-blue-100 text-blue-800' :
-                                                        escalation.status === 'RESOLVED' ? 'bg-green-100 text-green-800' :
-                                                            'bg-purple-100 text-purple-800'
-                                            }`}>
+                                            <span className={getStatusBadgeClass(escalation.status)}>
                                                 {escalation.status}
                                             </span>
-                                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                                escalation.priority === 'CRITICAL' ? 'bg-red-100 text-red-800' :
-                                                    escalation.priority === 'HIGH' ? 'bg-orange-100 text-orange-800' :
-                                                        escalation.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
-                                                            'bg-gray-100 text-gray-800'
-                                            }`}>
+                                            <span className={getPriorityBadgeClass(escalation.priority)}>
                                                 {escalation.priority}
                                             </span>
                                         </div>
@@ -178,40 +225,53 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
                                 <CardContent className="pt-0">
                                     <div className="space-y-3">
                                         <div>
-                                            <p className="text-sm text-gray-700"><strong>Date:</strong> {new Date(escalation.escalationDate).toLocaleDateString()}</p>
-                                            <p className="text-sm text-gray-700 mt-2"><strong>Reason:</strong> {escalation.rejectedReason}</p>
+                                            <p className="text-sm text-gray-700">
+                                                <strong>Date:</strong> {new Date(escalation.escalatedAt).toLocaleDateString()}
+                                            </p>
+                                            <p className="text-sm text-gray-700 mt-2">
+                                                <strong>Reason:</strong> {escalation.escalationReason}
+                                            </p>
+                                            {escalation.description && (
+                                                <p className="text-sm text-gray-600 mt-1">{escalation.description}</p>
+                                            )}
                                         </div>
 
                                         <div className="flex flex-col space-y-2 pt-2">
-                                            {escalation.status === EscalationStatus.PENDING && (
-                                                <Button
-                                                    onClick={() => handleTakeEscalation(escalation.id)}
-                                                    disabled={isTaking}
-                                                    variant="update"
-                                                    size="sm"
-                                                    className="w-full"
-                                                >
-                                                    {isTaking ? "Taking..." : "Take Escalation"}
-                                                </Button>
-                                            )}
-
                                             <Button
                                                 onClick={() => onEscalationSelect(escalation.id)}
                                                 variant="submit"
                                                 size="sm"
                                                 className="w-full"
                                             >
-                                                View Protocol
+                                                View Details
                                             </Button>
 
-                                            <Button
-                                                onClick={() => setSelectedEscalation(escalation)}
-                                                variant="outline"
-                                                size="sm"
-                                                className="w-full"
-                                            >
-                                                Ask Question
-                                            </Button>
+                                            {(escalation.status === EscalationStatus.PENDING || escalation.status === EscalationStatus.IN_PROGRESS) && (
+                                                <>
+                                                    <Button
+                                                        onClick={() => {
+                                                            setSelectedEscalation(escalation);
+                                                            setShowApproveModal(true);
+                                                        }}
+                                                        variant="approve"
+                                                        size="sm"
+                                                        className="w-full"
+                                                    >
+                                                        Approve
+                                                    </Button>
+                                                    <Button
+                                                        onClick={() => {
+                                                            setSelectedEscalation(escalation);
+                                                            setShowRejectModal(true);
+                                                        }}
+                                                        variant="reject"
+                                                        size="sm"
+                                                        className="w-full"
+                                                    >
+                                                        Reject
+                                                    </Button>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
                                 </CardContent>
@@ -229,14 +289,17 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
                 </CardContent>
             </Card>
 
-            {/* Question Modal */}
-            {selectedEscalation && (
+            {showApproveModal && selectedEscalation && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <Card className="w-full max-w-md">
+                    <Card className="w-full max-w-lg">
                         <CardHeader>
-                            <CardTitle>Ask a Question</CardTitle>
+                            <CardTitle>Approve Escalation</CardTitle>
                             <Button
-                                onClick={() => setSelectedEscalation(null)}
+                                onClick={() => {
+                                    setShowApproveModal(false);
+                                    setSelectedEscalation(null);
+                                    setResolutionText("");
+                                }}
                                 variant="ghost"
                                 size="sm"
                                 className="absolute top-4 right-4"
@@ -245,38 +308,100 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
                             </Button>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="flex justify-between items-center">
-                                <Label>Patient:</Label>
-                                <span className="font-medium">{selectedEscalation.patientName}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <Label>Doctor:</Label>
-                                <span className="font-medium">{selectedEscalation.doctorName}</span>
+                            <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                                <p className="text-sm"><strong>Escalation ID:</strong> #{selectedEscalation.id}</p>
+                                <p className="text-sm"><strong>Recommendation ID:</strong> #{selectedEscalation.recommendationId}</p>
+                                <p className="text-sm"><strong>Escalated By:</strong> {selectedEscalation.escalatedBy}</p>
+                                <p className="text-sm"><strong>Reason:</strong> {selectedEscalation.escalationReason}</p>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="question">Your Question:</Label>
+                                <Label htmlFor="approve-resolution">Resolution Summary:</Label>
                                 <textarea
-                                    id="question"
-                                    value={questionText}
-                                    onChange={(e) => setQuestionText(e.target.value)}
+                                    id="approve-resolution"
+                                    value={resolutionText}
+                                    onChange={(e) => setResolutionText(e.target.value)}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    rows={4}
-                                    placeholder="Type your question here..."
+                                    rows={5}
+                                    placeholder="Describe how this escalation was resolved and approved..."
                                 />
                             </div>
                             <div className="flex space-x-3 justify-end pt-4">
                                 <Button
-                                    onClick={() => setSelectedEscalation(null)}
+                                    onClick={() => {
+                                        setShowApproveModal(false);
+                                        setSelectedEscalation(null);
+                                        setResolutionText("");
+                                    }}
                                     variant="cancel"
                                 >
                                     Cancel
                                 </Button>
                                 <Button
-                                    onClick={handleSendQuestionToDoctor}
-                                    disabled={!questionText.trim() || isSendingQuestion}
-                                    variant="submit"
+                                    onClick={handleApprove}
+                                    disabled={!resolutionText.trim() || isApproving}
+                                    variant="approve"
                                 >
-                                    {isSendingQuestion ? "Sending..." : "Send Question"}
+                                    {isApproving ? "Approving..." : "Approve Escalation"}
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+
+            {showRejectModal && selectedEscalation && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                    <Card className="w-full max-w-lg">
+                        <CardHeader>
+                            <CardTitle>Reject Escalation</CardTitle>
+                            <Button
+                                onClick={() => {
+                                    setShowRejectModal(false);
+                                    setSelectedEscalation(null);
+                                    setResolutionText("");
+                                }}
+                                variant="ghost"
+                                size="sm"
+                                className="absolute top-4 right-4"
+                            >
+                                ×
+                            </Button>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                                <p className="text-sm"><strong>Escalation ID:</strong> #{selectedEscalation.id}</p>
+                                <p className="text-sm"><strong>Recommendation ID:</strong> #{selectedEscalation.recommendationId}</p>
+                                <p className="text-sm"><strong>Escalated By:</strong> {selectedEscalation.escalatedBy}</p>
+                                <p className="text-sm"><strong>Reason:</strong> {selectedEscalation.escalationReason}</p>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="reject-resolution">Rejection Reason:</Label>
+                                <textarea
+                                    id="reject-resolution"
+                                    value={resolutionText}
+                                    onChange={(e) => setResolutionText(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    rows={5}
+                                    placeholder="Explain why this escalation is being rejected..."
+                                />
+                            </div>
+                            <div className="flex space-x-3 justify-end pt-4">
+                                <Button
+                                    onClick={() => {
+                                        setShowRejectModal(false);
+                                        setSelectedEscalation(null);
+                                        setResolutionText("");
+                                    }}
+                                    variant="cancel"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    onClick={handleReject}
+                                    disabled={!resolutionText.trim() || isRejecting}
+                                    variant="reject"
+                                >
+                                    {isRejecting ? "Rejecting..." : "Reject Escalation"}
                                 </Button>
                             </div>
                         </CardContent>

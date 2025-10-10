@@ -1,132 +1,70 @@
-import React, {useState} from "react";
+import React from "react";
 import {useNavigate} from "react-router-dom";
-import {getErrorMessage} from "../../utils/getErrorMessageHelper";
-import {
-    useLazyGetPatientByMrnQuery,
-    useLazyGetPatientByEmailQuery,
-    useLazyGetPatientByPhoneNumberQuery
-} from "../../api/api/apiDoctorSlice.ts";
-
+import {Button, Card, CardContent, CardDescription, CardHeader, CardTitle} from "../ui";
 
 const DoctorDashboard: React.FC = () => {
     const navigate = useNavigate();
 
-    const [mrn, setMrn] = useState("");
-    const [email, setEmail] = useState("");
-    const [phoneNumber, setPhoneNumber] = useState("");
-
-    // Lazy queries
-    const [fetchPatientByMrn, {isError: isMrnError, error: mrnError}] = useLazyGetPatientByMrnQuery();
-    const [fetchPatientByEmail, {isError: isEmailError, error: emailError}] = useLazyGetPatientByEmailQuery();
-    const [fetchPatientByPhone, {isError: isPhoneError, error: phoneError}] = useLazyGetPatientByPhoneNumberQuery();
-
-    // Поиск по MRN
-    const handleFindByMRN = async () => {
-        const result = await fetchPatientByMrn(mrn.trim());
-        if (result.data) {
-            navigate(`/doctor/patient/${mrn.trim()}`, {state: result.data});
+    const dashboardCards = [
+        {
+            title: "Register Patient",
+            description: "Register a new patient in the system",
+            action: () => navigate("/doctor/register-patient"),
+            variant: "default" as const,
+            icon: "👤"
+        },
+        {
+            title: "Patient List",
+            description: "Search and view all patients",
+            action: () => navigate("/doctor/patients-list"),
+            variant: "update" as const,
+            icon: "📋"
+        },
+        {
+            title: "Pending Recommendations",
+            description: "Review and approve/reject recommendations",
+            action: () => navigate("/doctor/recommendations"),
+            variant: "approve" as const,
+            icon: "📝"
         }
-    };
-
-    // Поиск по Email
-    const handleFindByEmail = async () => {
-        const result = await fetchPatientByEmail(email.trim());
-        if (result.data) {
-            navigate(`/doctor/patient/${result.data.mrn}`, {state: result.data});
-        }
-    };
-
-    // Поиск по Phone Number
-    const handleFindByPhoneNumber = async () => {
-        const result = await fetchPatientByPhone(phoneNumber.trim());
-        if (result.data) {
-            navigate(`/doctor/patient/${result.data.mrn}`, {state: result.data});
-        }
-    };
+    ];
 
     return (
-        <div className="space-y-6">
-            <h2 className="text-xl font-bold mb-4">Doctor Dashboard</h2>
-
-            {/* Pending Recommendations Button */}
-            <button
-                className="w-full bg-purple-500 text-white py-2 px-4 rounded hover:bg-purple-600"
-                onClick={() => navigate("/doctor/recommendations")}
-            >
-                View Pending Recommendations
-            </button>
-
-            {/* Find by MRN */}
-            <div className="flex space-x-2 items-center">
-                <input
-                    type="text"
-                    placeholder="Enter MRN"
-                    value={mrn}
-                    onChange={(e) => setMrn(e.target.value)}
-                    className="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                />
-                <button
-                    className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
-                    onClick={handleFindByMRN}
-                    disabled={!mrn}
-                >
-                    Find by MRN
-                </button>
-            </div>
-            {isMrnError && (
-                <p className="text-red-500">
-                    {getErrorMessage(mrnError) || "Patient not found"}
+        <div className="p-6 space-y-6">
+            <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r from-yellow-300 via-orange-400 to-pink-400 bg-clip-text text-transparent animate-gradient drop-shadow-lg">
+                    Doctor Dashboard
+                </h1>
+                <p className="text-lg font-medium bg-gradient-to-r from-white via-yellow-100 to-white bg-clip-text text-transparent drop-shadow-md">
+                    Manage patients and review recommendations
                 </p>
-            )}
-
-            {/* Find by Email */}
-            <div className="flex space-x-2 items-center">
-                <input
-                    type="email"
-                    placeholder="Enter Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                />
-                <button
-                    className="bg-purple-500 text-white py-2 px-4 rounded hover:bg-purple-600"
-                    onClick={handleFindByEmail}
-                    disabled={!email}
-                >
-                    Find by Email
-                </button>
             </div>
-            {isEmailError && (
-                <p className="text-red-500">
-                    {getErrorMessage(emailError) || "Patient not found"}
-                </p>
-            )}
 
-            {/* Find by Phone Number */}
-            <div className="flex space-x-2 items-center">
-                <input
-                    type="text"
-                    placeholder="Enter Phone Number"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-pink-400"
-                />
-                <button
-                    className="bg-pink-500 text-white py-2 px-4 rounded hover:bg-pink-600"
-                    onClick={handleFindByPhoneNumber}
-                    disabled={!phoneNumber}
-                >
-                    Find by Phone Number
-                </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {dashboardCards.map((card, index) => (
+                    <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer" onClick={card.action}>
+                        <CardHeader>
+                            <div className="text-4xl mb-2">{card.icon}</div>
+                            <CardTitle>{card.title}</CardTitle>
+                            <CardDescription>{card.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Button
+                                variant={card.variant}
+                                className="w-full"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    card.action();
+                                }}
+                            >
+                                Open
+                            </Button>
+                        </CardContent>
+                    </Card>
+                ))}
             </div>
-            {isPhoneError && (
-                <p className="text-red-500">
-                    {getErrorMessage(phoneError) || "Patient not found"}
-                </p>
-            )}
         </div>
     );
 };
 
 export default DoctorDashboard;
-

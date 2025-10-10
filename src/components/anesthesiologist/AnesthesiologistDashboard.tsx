@@ -1,32 +1,46 @@
 import React, {useState} from "react";
-import {useGetEscalationsQuery} from "../../api/api/apiAnesthesiologistSlice.ts";
-import {EscalationStatus} from "../../types/anesthesiologist.ts";
+import {useGetAllEscalationsQuery, useGetEscalationStatsQuery} from "../../api/api/apiAnesthesiologistSlice.ts";
+import {EscalationStatus, EscalationPriority} from "../../types/anesthesiologist.ts";
 import {EscalationsList, ProtocolEditor} from "../../exports/exports.ts";
-import { Button, Card, CardContent, CardHeader, CardTitle } from "../ui";
+import {Button, Card, CardContent, CardHeader, LoadingSpinner, ErrorMessage, StatCard} from "../ui";
 
 const AnesthesiologistDashboard: React.FC = () => {
-    const {data: escalations, isLoading, error} = useGetEscalationsQuery();
-    const [selectedEscalationId, setSelectedEscalationId] = useState<string | null>(null);
+    const {data: escalations, isLoading, error} = useGetAllEscalationsQuery();
+    const {data: stats} = useGetEscalationStatsQuery();
+    const [selectedEscalationId, setSelectedEscalationId] = useState<number | null>(null);
     const [activeTab, setActiveTab] = useState<"overview" | "escalations" | "protocols">("overview");
 
-    //СТАТИСТИКА ЭСКАЛАЦИЙ БРО
-    const pendingCount = escalations?.filter(e => e.status === EscalationStatus.PENDING).length || 0;
-    const inReviewCount = escalations?.filter(e => e.status === EscalationStatus.IN_REVIEW).length || 0;
-    const criticalCount = escalations?.filter(e => e.priority === "CRITICAL").length || 0;
-    const highPriorityCount = escalations?.filter(e => e.priority === "HIGH").length || 0;
+    // Используем статистику из API или считаем локально
+    const pendingCount = stats?.pending || escalations?.filter(e => e.status === EscalationStatus.PENDING).length || 0;
+    const inProgressCount = stats?.inProgress || escalations?.filter(e => e.status === EscalationStatus.IN_PROGRESS).length || 0;
+    const highPriorityCount = stats?.high || escalations?.filter(e => e.priority === EscalationPriority.HIGH).length || 0;
+    const mediumPriorityCount = stats?.medium || escalations?.filter(e => e.priority === EscalationPriority.MEDIUM).length || 0;
 
-    const handleEscalationSelect = (escalationId: string) => {
+    const handleEscalationSelect = (escalationId: number) => {
         setSelectedEscalationId(escalationId);
         setActiveTab("protocols");
+    };
+
+    const getStatusBadgeClass = (status: EscalationStatus) => {
+        const baseClass = "inline-flex px-2 py-1 text-xs font-semibold rounded-full";
+        if (status === EscalationStatus.PENDING) return `${baseClass} bg-yellow-100 text-yellow-800`;
+        if (status === EscalationStatus.IN_PROGRESS) return `${baseClass} bg-blue-100 text-blue-800`;
+        if (status === EscalationStatus.RESOLVED) return `${baseClass} bg-green-100 text-green-800`;
+        return `${baseClass} bg-gray-100 text-gray-800`;
+    };
+
+    const getPriorityBadgeClass = (priority: EscalationPriority) => {
+        const baseClass = "inline-flex px-2 py-1 text-xs font-semibold rounded-full";
+        if (priority === EscalationPriority.HIGH) return `${baseClass} bg-red-100 text-red-800`;
+        if (priority === EscalationPriority.MEDIUM) return `${baseClass} bg-orange-100 text-orange-800`;
+        if (priority === EscalationPriority.LOW) return `${baseClass} bg-yellow-100 text-yellow-800`;
+        return `${baseClass} bg-gray-100 text-gray-800`;
     };
 
     if (isLoading) {
         return (
             <div className="container mx-auto px-4 py-8 max-w-7xl">
-                <div className="flex justify-center items-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    <span className="ml-2">Loading anesthesiologist dashboard...</span>
-                </div>
+                <LoadingSpinner message="Loading anesthesiologist dashboard..."/>
             </div>
         );
     }
@@ -34,23 +48,24 @@ const AnesthesiologistDashboard: React.FC = () => {
     if (error) {
         return (
             <div className="container mx-auto px-4 py-8 max-w-7xl">
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md">
-                    Error loading data: {JSON.stringify(error)}
-                </div>
+                <ErrorMessage message={`Error loading data: ${JSON.stringify(error)}`}/>
             </div>
         );
     }
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-7xl">
+            <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold mb-2 text-gray-900">
+                    Anesthesiologist Dashboard
+                </h1>
+                <p className="text-lg text-gray-600">
+                    Welcome, {localStorage.getItem("userFirstName") || "Anesthesiologist"}
+                </p>
+            </div>
             <Card className="mb-6">
                 <CardHeader>
-                    <CardTitle>Anesthesiologist Dashboard</CardTitle>
-                    <p className="text-gray-600 mt-2">
-                        Welcome, {localStorage.getItem("userFirstName") || "Anesthesiologist"}
-                    </p>
                 </CardHeader>
-
                 <CardContent>
                     {/* Navigation Tabs */}
                     <nav className="flex space-x-1 mb-6 bg-gray-100 p-1 rounded-lg">
@@ -82,73 +97,38 @@ const AnesthesiologistDashboard: React.FC = () => {
                         <div className="space-y-6">
                             {/* Statistics Cards */}
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <Card>
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center">
-                                            <div className="flex-shrink-0">
-                                                <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                                                    <span className="text-yellow-600 text-sm font-medium">P</span>
-                                                </div>
-                                            </div>
-                                            <div className="ml-4">
-                                                <h3 className="text-sm font-medium text-gray-900">Pending Escalations</h3>
-                                                <div className="text-2xl font-bold text-gray-900">{pendingCount}</div>
-                                                <p className="text-sm text-gray-500">Awaiting review</p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                <Card>
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center">
-                                            <div className="flex-shrink-0">
-                                                <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                                                    <span className="text-red-600 text-sm font-medium">C</span>
-                                                </div>
-                                            </div>
-                                            <div className="ml-4">
-                                                <h3 className="text-sm font-medium text-gray-900">Critical Escalations</h3>
-                                                <div className="text-2xl font-bold text-gray-900">{criticalCount}</div>
-                                                <p className="text-sm text-gray-500">Need immediate attention</p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                <Card>
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center">
-                                            <div className="flex-shrink-0">
-                                                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                                                    <span className="text-orange-600 text-sm font-medium">H</span>
-                                                </div>
-                                            </div>
-                                            <div className="ml-4">
-                                                <h3 className="text-sm font-medium text-gray-900">High Priority</h3>
-                                                <div className="text-2xl font-bold text-gray-900">{highPriorityCount}</div>
-                                                <p className="text-sm text-gray-500">Important escalations</p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                                <Card>
-                                    <CardContent className="p-6">
-                                        <div className="flex items-center">
-                                            <div className="flex-shrink-0">
-                                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                                    <span className="text-blue-600 text-sm font-medium">R</span>
-                                                </div>
-                                            </div>
-                                            <div className="ml-4">
-                                                <h3 className="text-sm font-medium text-gray-900">In Review</h3>
-                                                <div className="text-2xl font-bold text-gray-900">{inReviewCount}</div>
-                                                <p className="text-sm text-gray-500">Escalations under review</p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
+                                <StatCard
+                                    title="Pending Escalations"
+                                    value={pendingCount}
+                                    description="Awaiting review"
+                                    icon="P"
+                                    iconBgColor="bg-yellow-100"
+                                    iconTextColor="text-yellow-600"
+                                />
+                                <StatCard
+                                    title="High Priority"
+                                    value={highPriorityCount}
+                                    description="Need immediate attention"
+                                    icon="H"
+                                    iconBgColor="bg-red-100"
+                                    iconTextColor="text-red-600"
+                                />
+                                <StatCard
+                                    title="Medium Priority"
+                                    value={mediumPriorityCount}
+                                    description="Important escalations"
+                                    icon="M"
+                                    iconBgColor="bg-orange-100"
+                                    iconTextColor="text-orange-600"
+                                />
+                                <StatCard
+                                    title="In Progress"
+                                    value={inProgressCount}
+                                    description="Escalations under review"
+                                    icon="P"
+                                    iconBgColor="bg-blue-100"
+                                    iconTextColor="text-blue-600"
+                                />
                             </div>
 
                             {/* Quick Actions */}
@@ -168,28 +148,22 @@ const AnesthesiologistDashboard: React.FC = () => {
                                 {escalations && escalations.length > 0 ? (
                                     <div className="space-y-3">
                                         {escalations.slice(0, 5).map((escalation) => (
-                                            <Card key={escalation.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => handleEscalationSelect(escalation.id)}>
+                                            <Card key={escalation.id}
+                                                  className="cursor-pointer hover:shadow-md transition-shadow"
+                                                  onClick={() => handleEscalationSelect(escalation.id)}>
                                                 <CardContent className="p-4">
                                                     <div className="flex items-center justify-between">
                                                         <div className="flex-1">
-                                                            <h4 className="font-medium text-gray-900">{escalation.patientName}</h4>
-                                                            <p className="text-sm text-gray-600">Doctor: {escalation.doctorName}</p>
-                                                            <p className="text-sm text-gray-600">Reason: {escalation.rejectedReason}</p>
+                                                            <h4 className="font-medium text-gray-900">Escalation #{escalation.id}</h4>
+                                                            <p className="text-sm text-gray-600">Recommendation ID: {escalation.recommendationId}</p>
+                                                            <p className="text-sm text-gray-600">Reason: {escalation.escalationReason}</p>
+                                                            <p className="text-sm text-gray-500">Escalated by: {escalation.escalatedBy}</p>
                                                         </div>
                                                         <div className="flex flex-col items-end space-y-2">
-                                                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                                                escalation.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                                                                escalation.status === 'IN_REVIEW' ? 'bg-blue-100 text-blue-800' :
-                                                                'bg-gray-100 text-gray-800'
-                                                            }`}>
+                                                            <span className={getStatusBadgeClass(escalation.status)}>
                                                                 {escalation.status}
                                                             </span>
-                                                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                                                escalation.priority === 'CRITICAL' ? 'bg-red-100 text-red-800' :
-                                                                escalation.priority === 'HIGH' ? 'bg-orange-100 text-orange-800' :
-                                                                escalation.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-800' :
-                                                                'bg-gray-100 text-gray-800'
-                                                            }`}>
+                                                            <span className={getPriorityBadgeClass(escalation.priority)}>
                                                                 {escalation.priority}
                                                             </span>
                                                         </div>

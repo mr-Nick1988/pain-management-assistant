@@ -1,42 +1,37 @@
 import React, {useEffect, useState} from "react";
-import {type Protocol, ProtocolStatus} from "../../types/anesthesiologist.ts";
+import {type ProtocolResponse, ProtocolStatus} from "../../types/anesthesiologist.ts";
 import {
-    useAddProtocolCommentMutation,
+    useAddCommentMutation,
     useApproveProtocolMutation,
     useCreateProtocolMutation,
-    useGetEscalationByIdQuery,
-    useGetProtocolCommentsQuery,
-    useGetProtocolsByEscalationQuery, useRejectProtocolMutation, useResolveEscalationMutation, useUpdateProtocolMutation
+    useGetCommentsByProtocolQuery,
+    useGetProtocolsByEscalationQuery,
+    useRejectProtocolMutation
 } from "../../api/api/apiAnesthesiologistSlice.ts";
 import {Button, Card, CardContent, CardHeader, CardTitle} from "../ui";
 
 
 interface ProtocolEditorProps {
-    selectedEscalationId: string | null;
+    selectedEscalationId: number | null;
 }
 
 const ProtocolEditor: React.FC<ProtocolEditorProps> = ({selectedEscalationId}) => {
-    const [activeProtocol, setActiveProtocol] = useState<Protocol | null>(null);
+    const [activeProtocol, setActiveProtocol] = useState<ProtocolResponse | null>(null);
     const [isEditing, setIsEditing] = useState(false);
     const [protocolTitle, setProtocolTitle] = useState("");
     const [protocolContent, setProtocolContent] = useState("");
     const [commentText, setCommentText] = useState("");
-    const [resolutionText, setResolutionText] = useState("");
-    const [showResolutionModal, setShowResolutionModal] = useState(false);
 
     //API HOOKS
-    const {data: escalation} = useGetEscalationByIdQuery(selectedEscalationId!, {skip: !selectedEscalationId});
     const {
         data: protocols,
         isLoading: protocolsLoading
     } = useGetProtocolsByEscalationQuery(selectedEscalationId!, {skip: !selectedEscalationId});
-    const {data: comments} = useGetProtocolCommentsQuery(activeProtocol?.id ?? "", {skip: !activeProtocol?.id});
+    const {data: comments} = useGetCommentsByProtocolQuery(activeProtocol?.id ?? 0, {skip: !activeProtocol?.id});
     const [createProtocol, {isLoading: isCreating}] = useCreateProtocolMutation();
-    const [updateProtocol, {isLoading: isUpdating}] = useUpdateProtocolMutation();
     const [approveProtocol, {isLoading: isApproving}] = useApproveProtocolMutation();
     const [rejectProtocol, {isLoading: isRejecting}] = useRejectProtocolMutation();
-    const [addComment, {isLoading: isAddingComment}] = useAddProtocolCommentMutation();
-    const [resolveEscalation, {isLoading: isResolving}] = useResolveEscalationMutation();
+    const [addComment, {isLoading: isAddingComment}] = useAddCommentMutation();
 
     useEffect(() => {
         if (selectedEscalationId) {
@@ -77,63 +72,46 @@ const ProtocolEditor: React.FC<ProtocolEditorProps> = ({selectedEscalationId}) =
             console.error("Error creating protocol:", error);
         }
     };
-    const handleUpdateProtocol = async () => {
-        if (!activeProtocol) return;
-        try {
-            const updatedProtocol = await updateProtocol({
-                id: activeProtocol.id,
-                title: protocolTitle,
-                content: protocolContent,
-            }).unwrap();
-            setActiveProtocol(updatedProtocol);
-            setIsEditing(false);
-        } catch (error) {
-            console.error("Error updating protocol:", error);
-        }
-    };
+
     const handleApproveProtocol = async () => {
         if (!activeProtocol) return;
-
         try {
-            await approveProtocol(activeProtocol.id).unwrap();
+            const anesthesiologistId = localStorage.getItem("userPersonId") || "anesthesiologist_id";
+            await approveProtocol({
+                protocolId: activeProtocol.id,
+                approvedBy: anesthesiologistId
+            }).unwrap();
         } catch (error) {
             console.error("Error approving protocol:", error);
         }
     };
+
     const handleRejectProtocol = async (reason: string) => {
         if (!activeProtocol) return;
         try {
-            await rejectProtocol({protocolId: activeProtocol.id, reason}).unwrap();
+            const anesthesiologistId = localStorage.getItem("userPersonId") || "anesthesiologist_id";
+            await rejectProtocol({
+                protocolId: activeProtocol.id,
+                rejectedReason: reason,
+                rejectedBy: anesthesiologistId
+            }).unwrap();
         } catch (error) {
             console.error("Error rejecting protocol:", error);
         }
-    }
+    };
+
     const handleAddComment = async () => {
         if (!activeProtocol || !commentText.trim()) return;
         try {
             await addComment({
                 protocolId: activeProtocol.id,
                 content: commentText,
-                isQuestion: false,
             }).unwrap();
             setCommentText("");
         } catch (error) {
             console.error("Error adding comment:", error);
         }
-    }
-    const handleResolveEscalation = async () => {
-        if (!selectedEscalationId || !resolutionText.trim()) return;
-        try {
-            await resolveEscalation({
-                escalationId: selectedEscalationId,
-                resolution: resolutionText,
-            }).unwrap();
-            setShowResolutionModal(false);
-            setResolutionText("");
-        } catch (error) {
-            console.error("Error resolving escalation:", error);
-        }
-    }
+    };
 
     const startNewProtocol = () => {
         setActiveProtocol(null);
@@ -178,12 +156,8 @@ const ProtocolEditor: React.FC<ProtocolEditorProps> = ({selectedEscalationId}) =
                 <CardHeader>
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <div className="mb-4 sm:mb-0">
-                            {escalation && (
-                                <div>
-                                    <CardTitle className="text-xl">Protocols for: {escalation.patientName}</CardTitle>
-                                    <p className="text-gray-600 mt-1">Managing escalation from Dr. {escalation.doctorName}</p>
-                                </div>
-                            )}
+                            <CardTitle className="text-xl">Protocol Management</CardTitle>
+                            <p className="text-gray-600 mt-1">Escalation ID: #{selectedEscalationId}</p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-3">
                             <Button
@@ -193,14 +167,6 @@ const ProtocolEditor: React.FC<ProtocolEditorProps> = ({selectedEscalationId}) =
                             >
                                 Create New Protocol
                             </Button>
-                            {activeProtocol && activeProtocol.status === ProtocolStatus.APPROVED && (
-                                <Button
-                                    onClick={() => setShowResolutionModal(true)}
-                                    variant="approve"
-                                >
-                                    Complete Escalation
-                                </Button>
-                            )}
                         </div>
                     </div>
                 </CardHeader>
@@ -293,11 +259,11 @@ const ProtocolEditor: React.FC<ProtocolEditorProps> = ({selectedEscalationId}) =
                                             Cancel
                                         </Button>
                                         <Button
-                                            onClick={activeProtocol ? handleUpdateProtocol : handleCreateProtocol}
-                                            disabled={!protocolTitle.trim() || !protocolContent.trim() || isCreating || isUpdating}
+                                            onClick={handleCreateProtocol}
+                                            disabled={!protocolTitle.trim() || !protocolContent.trim() || isCreating}
                                             variant="submit"
                                         >
-                                            {isCreating || isUpdating ? "Saving..." : "Save Protocol"}
+                                            {isCreating ? "Saving..." : "Save Protocol"}
                                         </Button>
                                     </div>
                                 </div>
@@ -382,43 +348,8 @@ const ProtocolEditor: React.FC<ProtocolEditorProps> = ({selectedEscalationId}) =
                 </CardContent>
             </Card>
 
-            {showResolutionModal && (
-                <div className="anesthesiologist-modal-overlay">
-                    <div className="resolution-modal">
-                        <div className="add-patient-modal-header">
-                            <h3>Complete Escalation</h3>
-                            <Button onClick={() => setShowResolutionModal(false)} variant="ghost">
-                                &times;
-                            </Button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="form-group">
-                                <label htmlFor="resolution">Final Resolution Summary</label>
-                                <textarea
-                                    id="resolution"
-                                    value={resolutionText}
-                                    onChange={(e) => setResolutionText(e.target.value)}
-                                    placeholder="Summarize the final resolution for this escalation..."
-                                    rows={5}
-                                />
-                            </div>
-                        </div>
-                        <div className="form-actions">
-                            <Button onClick={() => setShowResolutionModal(false)} variant="cancel">
-                                Cancel
-                            </Button>
-                            <Button
-                                onClick={handleResolveEscalation}
-                                disabled={!resolutionText.trim() || isResolving}
-                                variant="approve"
-                            >
-                                {isResolving ? "Resolving..." : "Resolve Escalation"}
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
+
 export default ProtocolEditor;

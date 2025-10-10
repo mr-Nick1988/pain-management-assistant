@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useApproveRecommendationMutation, useRejectRecommendationMutation} from "../../api/api/apiDoctorSlice";
 import type {RecommendationWithVas, RecommendationApprovalRejection, DrugRecommendation, RecommendationStatus} from "../../types/doctor";
+import {Button, Card, CardContent, CardHeader, CardTitle, Label, Textarea} from "../ui";
 
 const RecommendationDetails: React.FC = () => {
     const navigate = useNavigate();
@@ -17,13 +18,14 @@ const RecommendationDetails: React.FC = () => {
     if (!recWithVas) {
         return (
             <div className="p-6">
-                <p>No recommendation data. Please navigate from the recommendations list.</p>
-                <button
-                    onClick={() => navigate("/doctor/recommendations")}
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                    Back to Recommendations
-                </button>
+                <Card>
+                    <CardContent className="text-center py-8">
+                        <p className="mb-4">No recommendation data. Please navigate from the recommendations list.</p>
+                        <Button variant="update" onClick={() => navigate("/doctor/recommendations")}>
+                            Back to Recommendations
+                        </Button>
+                    </CardContent>
+                </Card>
             </div>
         );
     }
@@ -68,142 +70,186 @@ const RecommendationDetails: React.FC = () => {
     };
 
     return (
-        <div className="p-6 max-w-4xl mx-auto">
-            <button
-                onClick={() => navigate("/doctor/recommendations")}
-                className="mb-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-                Back to Recommendations
-            </button>
-
-            <h1 className="text-2xl font-bold mb-4">Recommendation Details</h1>
+        <div className="p-6 max-w-4xl mx-auto space-y-6">
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900">Recommendation Details</h1>
+                    <p className="text-gray-600 mt-1">Patient MRN: {patientMrn}</p>
+                </div>
+                <Button variant="outline" onClick={() => navigate("/doctor/recommendations")}>
+                    Back to Recommendations
+                </Button>
+            </div>
 
             {/* VAS (Pain Assessment) */}
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded">
-                <h2 className="text-xl font-semibold mb-2">Pain Assessment (VAS)</h2>
-                <p><strong>Pain Level:</strong> {vas.painLevel}/10</p>
-                <p><strong>Pain Place:</strong> {vas.painPlace}</p>
-                <p><strong>Created At:</strong> {vas.createdAt}</p>
-            </div>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Pain Assessment (VAS)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="bg-red-50 p-4 rounded-lg">
+                            <p className="text-sm text-gray-500">Pain Level</p>
+                            <p className="text-2xl font-bold text-red-600">{vas.painLevel}/10</p>
+                        </div>
+                        <div className="bg-blue-50 p-4 rounded-lg">
+                            <p className="text-sm text-gray-500">Pain Location</p>
+                            <p className="font-semibold">{vas.painPlace}</p>
+                        </div>
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                            <p className="text-sm text-gray-500">Assessed At</p>
+                            <p className="font-semibold text-sm">{vas.createdAt ? new Date(vas.createdAt).toLocaleString('en-US', { 
+                                year: 'numeric', 
+                                month: 'short', 
+                                day: 'numeric', 
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                            }) : 'N/A'}</p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
 
             {/* Recommendation */}
-            <div className="mb-6 p-4 bg-white border rounded shadow">
-                <h2 className="text-xl font-semibold mb-2">Recommendation</h2>
-                <p><strong>Patient MRN:</strong> {patientMrn}</p>
-                <p><strong>Status:</strong> <span className={`px-2 py-1 rounded ${
-                    recommendation.status === "PENDING" ? "bg-yellow-100 text-yellow-800" :
-                    recommendation.status === "APPROVED" ? "bg-green-100 text-green-800" :
-                    "bg-red-100 text-red-800"
-                }`}>{recommendation.status}</span></p>
-                <p><strong>Regimen Hierarchy:</strong> {recommendation.regimenHierarchy}</p>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Recommendation Details</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex items-center space-x-4">
+                        <div>
+                            <p className="text-sm text-gray-500">Status</p>
+                            <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold ${
+                                recommendation.status === "PENDING" ? "bg-yellow-100 text-yellow-800" :
+                                recommendation.status === "APPROVED" ? "bg-green-100 text-green-800" :
+                                "bg-red-100 text-red-800"
+                            }`}>{recommendation.status}</span>
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500">Regimen Hierarchy</p>
+                            <p className="font-semibold">{recommendation.regimenHierarchy}</p>
+                        </div>
+                    </div>
                 
-                {/* Drugs */}
-                {recommendation.drugs && recommendation.drugs.length > 0 && (
-                    <div className="mt-4">
-                        <h3 className="font-semibold mb-2">Drugs:</h3>
-                        {recommendation.drugs.map((drug: DrugRecommendation, index: number) => (
-                            <div key={index} className="mb-3 p-3 bg-gray-50 rounded">
-                                <p><strong>Drug Name:</strong> {drug.drugName}</p>
-                                <p><strong>Active Moiety:</strong> {drug.activeMoiety}</p>
-                                <p><strong>Dosing:</strong> {drug.dosing}</p>
-                                <p><strong>Interval:</strong> {drug.interval}</p>
-                                <p><strong>Route:</strong> {drug.route}</p>
-                                <p><strong>Role:</strong> {drug.role}</p>
-                                <p><strong>Age Adjustment:</strong> {drug.ageAdjustment}</p>
-                                <p><strong>Weight Adjustment:</strong> {drug.weightAdjustment}</p>
-                                <p><strong>Child Pugh:</strong> {drug.childPugh}</p>
+                    {/* Drugs */}
+                    {recommendation.drugs && recommendation.drugs.length > 0 && (
+                        <div>
+                            <h3 className="font-semibold text-lg mb-3">Prescribed Medications</h3>
+                            <div className="space-y-3">
+                                {recommendation.drugs.map((drug: DrugRecommendation, index: number) => (
+                                    <div key={index} className="p-4 bg-gray-50 rounded-lg border">
+                                        <p className="font-bold text-blue-600 mb-2">{drug.drugName}</p>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                                            <div>
+                                                <p className="text-gray-500">Active Moiety</p>
+                                                <p className="font-semibold">{drug.activeMoiety}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-500">Dosing</p>
+                                                <p className="font-semibold">{drug.dosing}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-500">Interval</p>
+                                                <p className="font-semibold">{drug.interval}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-500">Route</p>
+                                                <p className="font-semibold">{drug.route}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-500">Role</p>
+                                                <p className="font-semibold">{drug.role}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
-                )}
+                        </div>
+                    )}
 
-                {/* Contraindications */}
-                {recommendation.contraindications && recommendation.contraindications.length > 0 && (
-                    <div className="mt-4">
-                        <h3 className="font-semibold mb-2">Contraindications:</h3>
-                        <ul className="list-disc list-inside">
-                            {recommendation.contraindications.map((item: string, index: number) => (
-                                <li key={index}>{item}</li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
+                    {/* Contraindications */}
+                    {recommendation.contraindications && recommendation.contraindications.length > 0 && (
+                        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                            <h3 className="font-semibold text-lg mb-2 text-red-800">⚠️ Contraindications</h3>
+                            <ul className="list-disc list-inside space-y-1">
+                                {recommendation.contraindications.map((item: string, index: number) => (
+                                    <li key={index} className="text-red-700">{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
 
-                {/* Avoid If Sensitivity */}
-                {recommendation.avoidIfSensitivity && recommendation.avoidIfSensitivity.length > 0 && (
-                    <div className="mt-4">
-                        <h3 className="font-semibold mb-2">Avoid If Sensitivity:</h3>
-                        <ul className="list-disc list-inside">
-                            {recommendation.avoidIfSensitivity.map((item: string, index: number) => (
-                                <li key={index}>{item}</li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
 
-                {/* Comments */}
-                {recommendation.comments && recommendation.comments.length > 0 && (
-                    <div className="mt-4">
-                        <h3 className="font-semibold mb-2">Comments:</h3>
-                        <ul className="list-disc list-inside">
-                            {recommendation.comments.map((item: string, index: number) => (
-                                <li key={index}>{item}</li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
+                    {/* Comments */}
+                    {recommendation.comments && recommendation.comments.length > 0 && (
+                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <h3 className="font-semibold text-lg mb-2">💬 Comments</h3>
+                            <ul className="list-disc list-inside space-y-1">
+                                {recommendation.comments.map((item: string, index: number) => (
+                                    <li key={index}>{item}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
 
-                {recommendation.rejectedReason && (
-                    <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded">
-                        <p><strong>Rejected Reason:</strong> {recommendation.rejectedReason}</p>
-                    </div>
-                )}
-            </div>
+                    {recommendation.rejectedReason && (
+                        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                            <h3 className="font-semibold text-red-800 mb-2">Rejection Reason</h3>
+                            <p className="text-red-700">{recommendation.rejectedReason}</p>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
 
             {/* Approve/Reject Section (only if PENDING) */}
             {isPending && (
-                <div className="p-4 bg-gray-50 border rounded">
-                    <h2 className="text-xl font-semibold mb-4">Actions</h2>
-                    
-                    <div className="mb-4">
-                        <label className="block font-semibold mb-1">Comment (optional):</label>
-                        <textarea
-                            value={comment}
-                            onChange={(e) => setComment(e.target.value)}
-                            className="w-full border rounded px-3 py-2"
-                            rows={3}
-                            placeholder="Add your comment here..."
-                        />
-                    </div>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Review & Decision</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div>
+                            <Label htmlFor="comment">Comment (Optional)</Label>
+                            <Textarea
+                                id="comment"
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                                rows={3}
+                                placeholder="Add your professional comment or notes here..."
+                            />
+                        </div>
 
-                    <div className="mb-4">
-                        <label className="block font-semibold mb-1">Rejected Reason (required for rejection):</label>
-                        <textarea
-                            value={rejectedReason}
-                            onChange={(e) => setRejectedReason(e.target.value)}
-                            className="w-full border rounded px-3 py-2"
-                            rows={3}
-                            placeholder="Provide reason if rejecting..."
-                        />
-                    </div>
+                        <div>
+                            <Label htmlFor="rejectedReason">Rejection Reason (Required if rejecting)</Label>
+                            <Textarea
+                                id="rejectedReason"
+                                value={rejectedReason}
+                                onChange={(e) => setRejectedReason(e.target.value)}
+                                rows={3}
+                                placeholder="Provide detailed reason for rejection..."
+                            />
+                        </div>
 
-                    <div className="flex space-x-2">
-                        <button
-                            onClick={handleApprove}
-                            disabled={isApproving}
-                            className="bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 disabled:opacity-50"
-                        >
-                            {isApproving ? "Approving..." : "Approve"}
-                        </button>
-                        <button
-                            onClick={handleReject}
-                            disabled={isRejecting}
-                            className="bg-red-500 text-white px-6 py-2 rounded hover:bg-red-600 disabled:opacity-50"
-                        >
-                            {isRejecting ? "Rejecting..." : "Reject"}
-                        </button>
-                    </div>
-                </div>
+                        <div className="flex space-x-2 pt-4">
+                            <Button
+                                variant="approve"
+                                onClick={handleApprove}
+                                disabled={isApproving}
+                                className="flex-1"
+                            >
+                                {isApproving ? "Approving..." : "✓ Approve Recommendation"}
+                            </Button>
+                            <Button
+                                variant="reject"
+                                onClick={handleReject}
+                                disabled={isRejecting}
+                                className="flex-1"
+                            >
+                                {isRejecting ? "Rejecting..." : "✗ Reject Recommendation"}
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
             )}
         </div>
     );
