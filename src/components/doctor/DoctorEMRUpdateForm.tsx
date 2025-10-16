@@ -12,8 +12,8 @@ import {
     CardHeader,
     CardTitle,
     Input,
-    Label,
-} from "../ui";
+    Label, PageNavigation } from "../ui";
+
 import { validateEmr } from "../../utils/validationEmr";
 
 const EMRUpdateForm: React.FC = () => {
@@ -162,7 +162,7 @@ const EMRUpdateForm: React.FC = () => {
                                         name={id}
                                         type={type}
                                         placeholder={`Enter ${label.toLowerCase()}`}
-                                        value={(form as any)[id] || ""}
+                                        value={(form as Record<string, string | number | undefined>)[id] ?? ""}
                                         onChange={handleChange}
                                     />
                                     {errors[id] && (
@@ -274,6 +274,8 @@ const EMRUpdateForm: React.FC = () => {
                     </form>
                 </CardContent>
             </Card>
+        <PageNavigation />
+
         </div>
     );
 };

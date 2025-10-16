@@ -8,7 +8,7 @@ import {
     useGetProtocolsByEscalationQuery,
     useRejectProtocolMutation
 } from "../../api/api/apiAnesthesiologistSlice.ts";
-import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Textarea} from "../ui";
+import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Textarea, PageNavigation } from "../ui";
 
 
 interface ProtocolEditorProps {
@@ -355,6 +355,9 @@ const ProtocolEditor: React.FC<ProtocolEditorProps> = ({selectedEscalationId}) =
                     </div>
                 </CardContent>
             </Card>
+
+        <PageNavigation />
+
 
         </div>
     );

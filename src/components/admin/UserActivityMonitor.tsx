@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useGetUserActivityQuery } from '../../api/api/apiAdminSlice.ts';
-import { Card, CardHeader, CardTitle, CardContent, Input, LoadingSpinner, ErrorMessage, Badge, ProgressBar } from "../ui";
+import { Card, CardHeader, CardTitle, CardContent, Input, LoadingSpinner, ErrorMessage, ProgressBar , PageNavigation } from "../ui";
+import { Badge } from "../ui/Badge.tsx";
 
 const UserActivityMonitor: React.FC = () => {
     const [userId, setUserId] = useState("");
@@ -277,6 +278,8 @@ const UserActivityMonitor: React.FC = () => {
                     </CardContent>
                 </Card>
             )}
+        <PageNavigation />
+
         </div>
     );
 };

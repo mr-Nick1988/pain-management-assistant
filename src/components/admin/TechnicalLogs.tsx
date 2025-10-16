@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useGetRecentLogsQuery, useGetLogsByLevelQuery } from '../../api/api/apiAdminSlice.ts';
-import { Card, CardHeader, CardTitle, CardContent, Input, LoadingSpinner, ErrorMessage, Badge, Select } from "../ui";
+import { Card, CardHeader, CardTitle, CardContent, Input, LoadingSpinner, ErrorMessage, Select , PageNavigation } from "../ui";
+import {Badge} from "../ui/Badge.tsx";
 
 const TechnicalLogs: React.FC = () => {
     const [limit, setLimit] = useState(100);
@@ -285,6 +286,8 @@ const TechnicalLogs: React.FC = () => {
                     </CardContent>
                 </Card>
             )}
+        <PageNavigation />
+
         </div>
     );
 };

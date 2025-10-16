@@ -7,8 +7,7 @@ import {
     InfoGrid,
     InfoItem,
     LoadingSpinner,
-    Button,
-} from "../ui";
+    Button, PageNavigation } from "../ui";
 
 // 📅 Утилита для форматирования даты
 const formatDate = (dateString?: string): string => {
@@ -175,6 +174,8 @@ const RecommendationDetails: React.FC = () => {
                     Back to Patient
                 </Button>
             </div>
+        <PageNavigation />
+
         </div>
     );
 };

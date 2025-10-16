@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {useGetPatientStatsQuery} from '../../api/api/apiAdminSlice.ts';
-import {Card, CardHeader, CardTitle, CardContent, Input, LoadingSpinner, ErrorMessage} from "../ui";
+import {Card, CardHeader, CardTitle, CardContent, Input, LoadingSpinner, ErrorMessage, PageNavigation } from "../ui";
 
 
 const PatientStatistics: React.FC = () => {
@@ -303,6 +303,8 @@ const PatientStatistics: React.FC = () => {
                     </CardContent>
                 </Card>
             )}
+        <PageNavigation />
+
         </div>
     );
 };

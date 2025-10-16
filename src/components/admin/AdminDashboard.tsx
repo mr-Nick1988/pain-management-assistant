@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, MetricCard } from "../ui";
+import { Card, CardContent, MetricCard , PageNavigation } from "../ui";
 import { useGetPersonsQuery, useGetEventStatsQuery, useGetPerformanceStatsQuery, useGetAllPatientsQuery } from '../../api/api/apiAdminSlice.ts';
 
 const AdminDashboard: React.FC = () => {
@@ -219,6 +219,8 @@ const AdminDashboard: React.FC = () => {
                     </div>
                 </CardContent>
             </Card>
+        <PageNavigation />
+
         </div>
     );
 };

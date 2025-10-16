@@ -1,7 +1,7 @@
 import React from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useGetPatientsQuery} from "../../api/api/apiNurseSlice.ts";
-import { PageHeader, DataCard, InfoGrid, InfoItem, LoadingSpinner } from "../ui";
+import { PageHeader, DataCard, InfoGrid, InfoItem, LoadingSpinner , PageNavigation } from "../ui";
 
 const PatientList: React.FC = () => {
     const navigate = useNavigate();
@@ -46,6 +46,8 @@ const PatientList: React.FC = () => {
                     </DataCard>
                 ))}
             </div>
+        <PageNavigation />
+
         </div>
     );
 };

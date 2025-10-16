@@ -1,6 +1,6 @@
 import React, {useState} from "react";
 import {useGetEventStatsQuery} from '../../api/api/apiAdminSlice.ts';
-import {Card, CardContent, CardHeader, CardTitle, ErrorMessage, Input, LoadingSpinner} from "../ui";
+import {Card, CardContent, CardHeader, CardTitle, ErrorMessage, Input, LoadingSpinner, PageNavigation } from "../ui";
 
 
 const AnalyticsOverview: React.FC = () => {
@@ -214,6 +214,8 @@ const AnalyticsOverview: React.FC = () => {
                     </CardContent>
                 </Card>
             )}
+        <PageNavigation />
+
         </div>
     );
 };

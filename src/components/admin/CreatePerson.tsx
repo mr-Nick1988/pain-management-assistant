@@ -2,7 +2,7 @@ import {useNavigate, useSearchParams} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import {type PersonRegister, UserRole} from "../../types/personRegister.ts";
 import {useCreatePersonMutation, useGetPersonsQuery, useUpdatePersonMutation} from "../../api/api/apiAdminSlice.ts";
-import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label } from "../ui";
+import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label , PageNavigation } from "../ui";
 
 const CreatePerson: React.FC = () => {
     const navigate = useNavigate();
@@ -242,6 +242,8 @@ const CreatePerson: React.FC = () => {
                     </form>
                 </CardContent>
             </Card>
+        <PageNavigation />
+
         </div>
     );
 };

@@ -1,7 +1,7 @@
 import React, {useMemo, useState} from "react";
 import {type EscalationResponse, EscalationStatus, EscalationPriority} from "../../types/anesthesiologist.ts";
 import {useApproveEscalationMutation, useRejectEscalationMutation} from "../../api/api/apiAnesthesiologistSlice.ts";
-import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label} from "../ui";
+import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label, PageNavigation } from "../ui";
 
 interface EscalationListProps {
     escalations: EscalationResponse[];
@@ -408,6 +408,8 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
                     </Card>
                 </div>
             )}
+        <PageNavigation />
+
         </div>
     );
 };

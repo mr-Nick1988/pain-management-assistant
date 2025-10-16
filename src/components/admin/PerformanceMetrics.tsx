@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useGetPerformanceStatsQuery } from '../../api/api/apiAdminSlice.ts';
-import { Card, CardHeader, CardTitle, CardContent, Input, LoadingSpinner, ErrorMessage, MetricCard, ProgressBar, StatCard } from "../ui";
+import { Card, CardHeader, CardTitle, CardContent, Input, LoadingSpinner, ErrorMessage, MetricCard, ProgressBar, StatCard , PageNavigation } from "../ui";
 
 const PerformanceMetrics: React.FC = () => {
     const [startDate, setStartDate] = useState("");
@@ -234,6 +234,8 @@ const PerformanceMetrics: React.FC = () => {
                     </CardContent>
                 </Card>
             )}
+        <PageNavigation />
+
         </div>
     );
 };

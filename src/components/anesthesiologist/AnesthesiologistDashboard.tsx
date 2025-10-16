@@ -2,7 +2,7 @@ import React, {useState} from "react";
 import {useGetAllEscalationsQuery, useGetEscalationStatsQuery} from "../../api/api/apiAnesthesiologistSlice.ts";
 import {EscalationStatus, EscalationPriority} from "../../types/anesthesiologist.ts";
 import {EscalationsList, ProtocolEditor} from "../../exports/exports.ts";
-import {Button, Card, CardContent, CardHeader, LoadingSpinner, ErrorMessage, StatCard} from "../ui";
+import {Button, Card, CardContent, CardHeader, LoadingSpinner, ErrorMessage, StatCard, PageNavigation } from "../ui";
 
 const AnesthesiologistDashboard: React.FC = () => {
     const {data: escalations, isLoading, error} = useGetAllEscalationsQuery();
@@ -201,6 +201,8 @@ const AnesthesiologistDashboard: React.FC = () => {
                     )}
                 </CardContent>
             </Card>
+        <PageNavigation />
+
         </div>
     );
 };

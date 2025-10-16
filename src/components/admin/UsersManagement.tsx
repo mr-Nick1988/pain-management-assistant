@@ -1,7 +1,7 @@
 import {useNavigate} from "react-router-dom";
 import React, {useState} from "react";
 import {useDeletePersonMutation, useGetPersonsQuery} from "../../api/api/apiAdminSlice.ts";
-import { Button, Card, CardContent, CardHeader, CardTitle, Modal, ModalHeader, ModalBody, ModalFooter, ErrorMessage, LoadingSpinner } from "../ui";
+import { Button, Card, CardContent, CardHeader, CardTitle, Modal, ModalHeader, ModalBody, ModalFooter, ErrorMessage, LoadingSpinner , PageNavigation } from "../ui";
 
 /**
  * Компонент управления сотрудниками больницы
@@ -216,6 +216,8 @@ const UsersManagement: React.FC = () => {
                     </Button>
                 </ModalFooter>
             </Modal>
+        <PageNavigation />
+
         </div>
     );
 };

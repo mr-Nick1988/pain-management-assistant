@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import type {ChangeCredentialsType} from "../../types/personRegister.ts";
 import {useChangeCredentialsMutation} from "../../api/api/apiPersonSlice.ts";
-import { Container, FormField, GradientButton, GradientTitle, SuccessMessage, ErrorMessage } from "../ui";
+import { Container, FormField, GradientButton, GradientTitle, SuccessMessage, ErrorMessage, PageNavigation } from "../ui";
 
 
 const ChangeCredentials: React.FC = () => {
@@ -128,6 +128,7 @@ const ChangeCredentials: React.FC = () => {
                     </GradientButton>
                 </form>
             )}
+            <PageNavigation />
         </Container>
     );
 };

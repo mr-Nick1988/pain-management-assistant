@@ -6,7 +6,7 @@ import {
     useLazyGetPatientByEmailQuery,
     useLazyGetPatientByPhoneNumberQuery,
 } from "../../api/api/apiNurseSlice.ts";
-import { PageHeader, ActionCard, SearchCard, SearchField, Button, Input } from "../ui";
+import { PageHeader, ActionCard, SearchCard, SearchField, Button, Input , PageNavigation } from "../ui";
 
 interface PatientSearchParams {
     firstName?: string;
@@ -178,6 +178,8 @@ const NurseDashboard: React.FC = () => {
                     </SearchCard>
                 </>
             )}
+        <PageNavigation />
+
         </div>
     );
 };

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import type { EMR, Diagnosis } from "../../types/nurse";
 import { useCreateEmrMutation, useGetIcdDiagnosesQuery } from "../../api/api/apiNurseSlice";
 import { validateEmr } from "../../utils/validationEmr.ts";
-import { FormCard, FormGrid, FormFieldWrapper, Input, ErrorMessage } from "../ui";
+import { FormCard, FormGrid, FormFieldWrapper, Input, ErrorMessage , PageNavigation } from "../ui";
 
 const EMRFormRegister: React.FC = () => {
     const navigate = useNavigate();
@@ -292,6 +292,8 @@ const EMRFormRegister: React.FC = () => {
                     )}
                 </FormFieldWrapper>
             </FormCard>
+        <PageNavigation />
+
         </div>
     );
 };

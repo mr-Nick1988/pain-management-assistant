@@ -14,7 +14,7 @@ import {
     CardTitle,
     Input,
     Label,
-} from "../ui";
+ PageNavigation } from "../ui";
 
 const EMRFormRegister: React.FC = () => {
     const navigate = useNavigate();
@@ -259,6 +259,8 @@ const EMRFormRegister: React.FC = () => {
                     </form>
                 </CardContent>
             </Card>
+        <PageNavigation />
+
         </div>
     );
 };

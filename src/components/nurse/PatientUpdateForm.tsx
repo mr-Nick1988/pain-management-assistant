@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useUpdatePatientMutation } from "../../api/api/apiNurseSlice";
 import type { Patient, PatientUpdate } from "../../types/nurse";
-import { FormCard, FormGrid, FormFieldWrapper, Input, Select, SuccessMessage } from "../ui";
+import { FormCard, FormGrid, FormFieldWrapper, Input, Select, SuccessMessage , PageNavigation } from "../ui";
 
 const PatientUpdateForm: React.FC = () => {
     const navigate = useNavigate();
@@ -94,6 +94,8 @@ const PatientUpdateForm: React.FC = () => {
                     <label className="text-sm font-semibold text-gray-700">In treatment</label>
                 </div>
             </FormCard>
+        <PageNavigation />
+
         </div>
     );
 };

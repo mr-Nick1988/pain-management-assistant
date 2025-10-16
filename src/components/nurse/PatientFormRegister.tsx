@@ -3,7 +3,7 @@ import {useNavigate} from "react-router-dom";
 import type {Patient, PatientsGenders} from "../../types/nurse";
 import {useCreatePatientMutation} from "../../api/api/apiNurseSlice.ts";
 import {getErrorMessage} from "../../utils/getErrorMessageHelper.ts";
-import { FormCard, FormGrid, FormFieldWrapper, Input, Select, ErrorMessage } from "../ui";
+import { FormCard, FormGrid, FormFieldWrapper, Input, Select, ErrorMessage , PageNavigation } from "../ui";
 
 const PatientFormRegister: React.FC = () => {
     const navigate = useNavigate();
@@ -87,6 +87,8 @@ const PatientFormRegister: React.FC = () => {
                     <Input type="text" name="additionalInfo" placeholder="Additional Info" value={form.additionalInfo} onChange={handleChange} />
                 </FormFieldWrapper>
             </FormCard>
+        <PageNavigation />
+
         </div>
     );
 };
