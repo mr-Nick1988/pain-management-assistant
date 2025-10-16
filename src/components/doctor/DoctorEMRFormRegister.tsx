@@ -146,7 +146,7 @@ const EMRFormRegister: React.FC = () => {
                                         name={id}
                                         type={type}
                                         placeholder={`Enter ${label.toLowerCase()}`}
-                                        value={(form as any)[id] || ""}
+                                        value={form[id as keyof EMR] as string | number || ""}
                                         onChange={handleChange}
                                         required
                                     />

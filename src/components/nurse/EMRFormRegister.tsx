@@ -138,7 +138,7 @@ const EMRFormRegister: React.FC = () => {
                                 error.data &&
                                 typeof error.data === "object" &&
                                 "message" in error.data
-                                    ? String((error.data as any).message)
+                                    ? String((error.data as { message?: string }).message)
                                     : undefined) || "Failed to save EMR"
                             }
                         />

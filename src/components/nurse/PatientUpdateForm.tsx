@@ -10,22 +10,21 @@ const PatientUpdateForm: React.FC = () => {
     const params = useParams<{ mrn: string }>();
     const patient = location.state as Patient;
     const [showSuccess, setShowSuccess] = useState(false);
-
-    if (!patient?.mrn) return <div className="p-6"><p className="text-center text-gray-500">No patient data</p></div>;
-
     const [formData, setFormData] = useState<PatientUpdate>({
-        firstName: patient.firstName,
-        lastName: patient.lastName,
-        gender: patient.gender,
-        insurancePolicyNumber: patient.insurancePolicyNumber,
-        phoneNumber: patient.phoneNumber,
-        email: patient.email,
-        address: patient.address,
-        additionalInfo: patient.additionalInfo,
-        isActive: patient.isActive,
+        firstName: patient?.firstName || "",
+        lastName: patient?.lastName || "",
+        gender: patient?.gender || "",
+        insurancePolicyNumber: patient?.insurancePolicyNumber || "",
+        phoneNumber: patient?.phoneNumber || "",
+        email: patient?.email || "",
+        address: patient?.address || "",
+        additionalInfo: patient?.additionalInfo || "",
+        isActive: patient?.isActive || false,
     });
 
     const [updatePatient, { isLoading }] = useUpdatePatientMutation();
+
+    if (!patient?.mrn) return <div className="p-6"><p className="text-center text-gray-500">No patient data</p></div>;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type } = e.target;
