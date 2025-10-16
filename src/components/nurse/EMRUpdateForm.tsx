@@ -4,7 +4,7 @@ import { useUpdateEmrMutation } from "../../api/api/apiNurseSlice";
 import type { EMR, EMRUpdate, Patient } from "../../types/nurse";
 import { validateEmr } from "../../utils/validationEmr.ts";
 import { FormCard, FormGrid, FormFieldWrapper, Input, PageNavigation } from "../ui";
-import { useToast } from "../../contexts/ToastContext";
+import {useToast} from "../../contexts/ToastContext";
 
 const EMRUpdateForm: React.FC = () => {
     const location = useLocation();
@@ -12,6 +12,7 @@ const EMRUpdateForm: React.FC = () => {
     const state = location.state as { patient: Patient; emrData: EMR } | undefined;
     
     const [updateEmr, { isLoading }] = useUpdateEmrMutation();
+    const toast = useToast();
     const [form, setForm] = useState<EMRUpdate>({
         height: state?.emrData?.height || 0,
         weight: state?.emrData?.weight || 0,
