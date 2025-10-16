@@ -9,7 +9,8 @@ import type {
     EMRUpdate,
     VAS,
     Recommendation,
-    DrugRecommendation
+    DrugRecommendation,
+    Diagnosis,
 } from './common/types';
 
 // Import enums as values
@@ -28,7 +29,8 @@ export type {
     EMRUpdate,
     VAS,
     Recommendation,
-    DrugRecommendation
+    DrugRecommendation,
+    Diagnosis
 };
 
 export {

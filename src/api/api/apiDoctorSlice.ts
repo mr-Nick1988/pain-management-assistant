@@ -85,6 +85,17 @@ export const apiDoctorSlice = createApi({
             providesTags: ["Patient"],
         }),
 
+        // Diagnosis
+        getIcdDiagnoses: builder.query<
+            { icdCode: string; description: string }[],
+            string
+        >({
+            query: (queryString) => ({
+                url: `/icd/search`,
+                params: { query: queryString },
+            }),
+        }),
+
         // EMR
         getEmrByPatientId: builder.query<EMR, string>({
             query: (mrn) => `/doctor/patients/${mrn}/emr/last`,
@@ -107,6 +118,13 @@ export const apiDoctorSlice = createApi({
                 url: `/doctor/patients/${mrn}/emr`,
                 method: "PATCH",
                 body: data,
+            }),
+            invalidatesTags: ["Emr"],
+        }),
+        deleteEmr: builder.mutation<void, string>({
+            query: (mrn) => ({
+                url: `/doctor/patients/${mrn}/emr`,
+                method: "DELETE",
             }),
             invalidatesTags: ["Emr"],
         }),
@@ -155,9 +173,11 @@ export const {
     useGetAllEmrByPatientIdQuery,
     useCreateEmrMutation,
     useUpdateEmrMutation,
+    useDeleteEmrMutation,
     useGetAllPendingRecommendationsQuery,
     useGetLastRecommendationQuery,
     useLazyGetLastRecommendationQuery,
     useApproveRecommendationMutation,
     useRejectRecommendationMutation,
+    useGetIcdDiagnosesQuery,
 } = apiDoctorSlice;

@@ -31,7 +31,7 @@ const PatientList: React.FC = () => {
                         title={`${p.firstName} ${p.lastName}`}
                         className="hover:shadow-lg transition-shadow cursor-pointer"
                     >
-                        <div onClick={() => navigate(`/nurse/patient/${p.mrn}`,{state:p})}>
+                        <div onClick={() => navigate(`/nurse/patient/${p.mrn}`, { state: { patient: p } })}>
                             <InfoGrid columns={1}>
                                 <InfoItem label="MRN" value={p.mrn} />
                                 <InfoItem label="Birth Date" value={p.dateOfBirth} />

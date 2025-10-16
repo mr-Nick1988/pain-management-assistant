@@ -1,19 +1,28 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useUpdateEmrMutation } from "../../api/api/apiDoctorSlice";
-import type { EMR, EMRUpdate, Patient } from "../../types/doctor";
-import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label, PageNavigation} from "../ui";
-import {validateEmr} from "../../utils/validationEmr";
-import {useToast} from "../../contexts/ToastContext";
+import {
+    useUpdateEmrMutation,
+    useGetIcdDiagnosesQuery,
+} from "../../api/api/apiDoctorSlice";
+import type { EMR, EMRUpdate, Patient, Diagnosis } from "../../types/doctor";
+import {
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    Input,
+    Label,
+} from "../ui";
+import { validateEmr } from "../../utils/validationEmr";
 
 const EMRUpdateForm: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const state = location.state as { patient: Patient; emrData: EMR } | undefined;
-    const toast = useToast();
 
-    // Хуки должны быть вызваны ДО любых условных return
     const [updateEmr, { isLoading }] = useUpdateEmrMutation();
+
     const [form, setForm] = useState<EMRUpdate>({
         height: state?.emrData?.height,
         weight: state?.emrData?.weight,
@@ -24,18 +33,30 @@ const EMRUpdateForm: React.FC = () => {
         sat: state?.emrData?.sat,
         sodium: state?.emrData?.sodium,
         sensitivities: state?.emrData?.sensitivities ?? [],
+        diagnoses: state?.emrData?.diagnoses ?? [],
     });
 
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedDiagnoses, setSelectedDiagnoses] = useState<Diagnosis[]>(
+        state?.emrData?.diagnoses ?? []
+    );
     const [errors, setErrors] = useState<Record<string, string>>({});
 
-    // Проверка после вызова хуков
-    if (!state || !state.patient || !state.patient?.mrn) {
+    const { data: icdResults = [], isFetching } = useGetIcdDiagnosesQuery(
+        searchTerm,
+        { skip: searchTerm.length < 2 }
+    );
+
+    // Проверка: если нет данных
+    if (!state || !state.patient || !state.patient.mrn) {
         return (
             <div className="p-6">
                 <Card>
                     <CardContent className="text-center py-8">
-                        <p className="mb-4">No EMR data. Please navigate from the patient details page.</p>
-                        <Button variant="update" onClick={() => navigate("/doctor")}>
+                        <p className="mb-4">
+                            No EMR data. Please navigate from the patient details page.
+                        </p>
+                        <Button variant="outline" onClick={() => navigate("/doctor")}>
                             Back to Dashboard
                         </Button>
                     </CardContent>
@@ -46,161 +67,115 @@ const EMRUpdateForm: React.FC = () => {
 
     const { patient } = state;
 
+    // ===============================
+    // 🔧 Обработчики
+    // ===============================
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
+        const { name, value, type } = e.target;
         setForm((prev) => ({
             ...prev,
-            [name]: ["height", "weight", "plt", "wbc", "sat", "sodium"].includes(name)
-                ? Number(value)
-                : value,
+            [name]: type === "number" ? Number(value) : value,
         }));
     };
 
     const handleSensitivitiesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const {value} = e.target;
-        const items = value
+        const items = e.target.value
             .split(",")
             .map((s) => s.trim())
             .filter(Boolean);
+        setForm((prev) => ({ ...prev, sensitivities: items }));
+    };
+
+    const handleSelectDiagnosis = (diagnosis: Diagnosis) => {
         setForm((prev) => ({
             ...prev,
-            sensitivities: items,
+            diagnoses: prev.diagnoses?.some((d) => d.icdCode === diagnosis.icdCode)
+                ? prev.diagnoses
+                : [...(prev.diagnoses || []), diagnosis],
         }));
+
+        setSelectedDiagnoses((prev) =>
+            prev.some((d) => d.icdCode === diagnosis.icdCode)
+                ? prev
+                : [...prev, diagnosis]
+        );
+
+        setSearchTerm("");
+    };
+
+    const handleRemoveDiagnosis = (icdCode: string) => {
+        setForm((prev) => ({
+            ...prev,
+            diagnoses: (prev.diagnoses || []).filter((d) => d.icdCode !== icdCode),
+        }));
+        setSelectedDiagnoses((prev) =>
+            prev.filter((d) => d.icdCode !== icdCode)
+        );
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Валидация формы
         const validationErrors = validateEmr(form as EMR);
         setErrors(validationErrors);
         if (Object.keys(validationErrors).length > 0) return;
 
         try {
             await updateEmr({ mrn: patient.mrn!, data: form }).unwrap();
-            toast.success("EMR updated successfully!");
             navigate(-1);
         } catch (err) {
             console.error("Failed to update EMR:", err);
-            toast.error("Error updating EMR");
+            alert("Error updating EMR");
         }
     };
 
+    // ===============================
+    // 🧱 JSX
+    // ===============================
     return (
         <div className="p-6 max-w-2xl mx-auto">
             <Card>
                 <CardHeader>
-                    <CardTitle>Update EMR for {patient.firstName} {patient.lastName}</CardTitle>
+                    <CardTitle>
+                        Update EMR for {patient.firstName} {patient.lastName}
+                    </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <Label htmlFor="height">Height (cm)</Label>
-                                <Input
-                                    id="height"
-                                    type="number"
-                                    name="height"
-                                    placeholder="Enter patient's height in centimeters"
-                                    value={form.height || ""}
-                                    onChange={handleChange}
-                                />
-                                {errors.height && <p className="text-sm text-red-500 mt-1">{errors.height}</p>}
-                            </div>
+                            {/* Основные поля */}
+                            {[
+                                { id: "height", label: "Height (cm)", type: "number" },
+                                { id: "weight", label: "Weight (kg)", type: "number" },
+                                { id: "gfr", label: "Glomerular Filtration Rate (GFR)", type: "text" },
+                                { id: "childPughScore", label: "Child-Pugh Score", type: "text" },
+                                { id: "plt", label: "Platelet Count (PLT)", type: "number" },
+                                { id: "wbc", label: "White Blood Cells (WBC)", type: "number" },
+                                { id: "sat", label: "Oxygen Saturation (SpO₂)", type: "number" },
+                                { id: "sodium", label: "Sodium Level (Na)", type: "number" },
+                            ].map(({ id, label, type }) => (
+                                <div key={id}>
+                                    <Label htmlFor={id}>{label}</Label>
+                                    <Input
+                                        id={id}
+                                        name={id}
+                                        type={type}
+                                        placeholder={`Enter ${label.toLowerCase()}`}
+                                        value={(form as any)[id] || ""}
+                                        onChange={handleChange}
+                                    />
+                                    {errors[id] && (
+                                        <p className="text-sm text-red-500 mt-1">{errors[id]}</p>
+                                    )}
+                                </div>
+                            ))}
 
-                            <div>
-                                <Label htmlFor="weight">Weight (kg)</Label>
-                                <Input
-                                    id="weight"
-                                    type="number"
-                                    name="weight"
-                                    placeholder="Enter patient's weight in kilograms"
-                                    value={form.weight || ""}
-                                    onChange={handleChange}
-                                />
-                                {errors.weight && <p className="text-sm text-red-500 mt-1">{errors.weight}</p>}
-                            </div>
-
-                            <div>
-                                <Label htmlFor="gfr">Glomerular Filtration Rate (GFR)</Label>
-                                <Input
-                                    id="gfr"
-                                    type="text"
-                                    name="gfr"
-                                    placeholder="Enter GFR value (kidney function)"
-                                    value={form.gfr || ""}
-                                    onChange={handleChange}
-                                />
-                                {errors.gfr && <p className="text-sm text-red-500 mt-1">{errors.gfr}</p>}
-                            </div>
-
-                            <div>
-                                <Label htmlFor="childPughScore">Child-Pugh Score</Label>
-                                <Input
-                                    id="childPughScore"
-                                    type="text"
-                                    name="childPughScore"
-                                    placeholder="Enter Child-Pugh score (liver function)"
-                                    value={form.childPughScore || ""}
-                                    onChange={handleChange}
-                                />
-                                {errors.childPughScore && <p className="text-sm text-red-500 mt-1">{errors.childPughScore}</p>}
-                            </div>
-
-                            <div>
-                                <Label htmlFor="plt">Platelet Count (PLT)</Label>
-                                <Input
-                                    id="plt"
-                                    type="number"
-                                    name="plt"
-                                    placeholder="Enter platelet count (×10⁹/L)"
-                                    value={form.plt || ""}
-                                    onChange={handleChange}
-                                />
-                                {errors.plt && <p className="text-sm text-red-500 mt-1">{errors.plt}</p>}
-                            </div>
-
-                            <div>
-                                <Label htmlFor="wbc">White Blood Cells (WBC)</Label>
-                                <Input
-                                    id="wbc"
-                                    type="number"
-                                    name="wbc"
-                                    placeholder="Enter WBC count (×10⁹/L)"
-                                    value={form.wbc || ""}
-                                    onChange={handleChange}
-                                />
-                                {errors.wbc && <p className="text-sm text-red-500 mt-1">{errors.wbc}</p>}
-                            </div>
-
-                            <div>
-                                <Label htmlFor="sat">Oxygen Saturation (SpO₂)</Label>
-                                <Input
-                                    id="sat"
-                                    type="number"
-                                    name="sat"
-                                    placeholder="Enter oxygen saturation (%)"
-                                    value={form.sat || ""}
-                                    onChange={handleChange}
-                                />
-                                {errors.sat && <p className="text-sm text-red-500 mt-1">{errors.sat}</p>}
-                            </div>
-
-                            <div>
-                                <Label htmlFor="sodium">Sodium Level (Na)</Label>
-                                <Input
-                                    id="sodium"
-                                    type="number"
-                                    name="sodium"
-                                    placeholder="Enter sodium level (mmol/L)"
-                                    value={form.sodium || ""}
-                                    onChange={handleChange}
-                                />
-                                {errors.sodium && <p className="text-sm text-red-500 mt-1">{errors.sodium}</p>}
-                            </div>
-
+                            {/* Sensitivities */}
                             <div className="md:col-span-2">
-                                <Label htmlFor="sensitivities">Drug Sensitivities / Allergies</Label>
+                                <Label htmlFor="sensitivities">
+                                    Drug Sensitivities / Allergies
+                                </Label>
                                 <Input
                                     id="sensitivities"
                                     type="text"
@@ -209,32 +184,96 @@ const EMRUpdateForm: React.FC = () => {
                                     value={form.sensitivities?.join(", ") || ""}
                                     onChange={handleSensitivitiesChange}
                                 />
-                                <p className="text-xs text-gray-500 mt-1">Separate multiple allergies with commas</p>
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Separate multiple allergies with commas
+                                </p>
+                            </div>
+
+                            {/* Diagnoses */}
+                            <div className="space-y-2 col-span-2">
+                                <Label htmlFor="diagnosis-search">Search Diagnoses</Label>
+                                <div className="relative">
+                                    <Input
+                                        id="diagnosis-search"
+                                        type="text"
+                                        placeholder="Type at least 2 characters to search..."
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                    />
+                                    {isFetching && (
+                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+                                        </div>
+                                    )}
+                                    {searchTerm.length >= 2 && icdResults.length > 0 && (
+                                        <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                                            {icdResults.map((diagnosis) => (
+                                                <div
+                                                    key={diagnosis.icdCode}
+                                                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                    onClick={() => handleSelectDiagnosis(diagnosis)}
+                                                >
+                                                    {/* 💊 Код диагноза теперь в скобках */}
+                                                    <div className="font-medium">
+                                                        {diagnosis.description}{" "}
+                                                        <span className="text-gray-500 text-sm">
+                              ({diagnosis.icdCode})
+                            </span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Selected Diagnoses */}
+                                {selectedDiagnoses.length > 0 && (
+                                    <div className="mt-2 space-y-2">
+                                        <Label>Selected Diagnoses:</Label>
+                                        <div className="space-y-2">
+                                            {selectedDiagnoses.map((diagnosis) => (
+                                                <div
+                                                    key={diagnosis.icdCode}
+                                                    className="flex items-center justify-between bg-gray-50 p-2 rounded"
+                                                >
+                                                    <div>
+                                                        {diagnosis.description}{" "}
+                                                        <span className="text-gray-500">
+                              ({diagnosis.icdCode})
+                            </span>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveDiagnosis(diagnosis.icdCode)}
+                                                        className="text-red-500 hover:text-red-700"
+                                                    >
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
-                        <div className="flex space-x-2 pt-4">
+                        {/* Кнопки */}
+                        <div className="flex justify-end space-x-2">
                             <Button
                                 type="button"
                                 variant="outline"
                                 onClick={() => navigate(-1)}
-                                className="flex-1"
+                                disabled={isLoading}
                             >
                                 Cancel
                             </Button>
-                            <Button
-                                type="submit"
-                                variant="update"
-                                disabled={isLoading}
-                                className="flex-1"
-                            >
-                                {isLoading ? "Updating EMR..." : "Update EMR"}
+                            <Button type="submit" disabled={isLoading}>
+                                {isLoading ? "Updating..." : "Update EMR"}
                             </Button>
                         </div>
                     </form>
                 </CardContent>
             </Card>
-            <PageNavigation />
         </div>
     );
 };
