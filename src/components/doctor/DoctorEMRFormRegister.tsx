@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import type { EMR, Diagnosis } from "../../types/doctor";
 import {
     useCreateEmrMutation,
     useGetIcdDiagnosesQuery,
 } from "../../api/api/apiDoctorSlice";
 import { validateEmr } from "../../utils/validationEmr";
+import type { EMR, Diagnosis } from "../../types/doctor";
 import {
     Button,
     Card,
@@ -13,8 +13,10 @@ import {
     CardHeader,
     CardTitle,
     Input,
-    Label,
- PageNavigation } from "../ui";
+    PageNavigation,
+    FormFieldWrapper,
+    FormGrid,
+} from "../ui";
 
 const EMRFormRegister: React.FC = () => {
     const navigate = useNavigate();
@@ -127,128 +129,168 @@ const EMRFormRegister: React.FC = () => {
                 <CardContent>
                     <form className="space-y-4" onSubmit={handleSubmit}>
                         {/* Основные поля */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* поля height, weight, gfr, childPughScore, plt, wbc, sat, sodium */}
-                            {[
-                                { id: "height", label: "Height (cm)", type: "number" },
-                                { id: "weight", label: "Weight (kg)", type: "number" },
-                                { id: "gfr", label: "Glomerular Filtration Rate (GFR)", type: "text" },
-                                { id: "childPughScore", label: "Child-Pugh Score", type: "text" },
-                                { id: "plt", label: "Platelet Count (PLT)", type: "number" },
-                                { id: "wbc", label: "White Blood Cells (WBC)", type: "number" },
-                                { id: "sat", label: "Oxygen Saturation (SpO₂)", type: "number" },
-                                { id: "sodium", label: "Sodium Level (Na)", type: "number" },
-                            ].map(({ id, label, type }) => (
-                                <div key={id}>
-                                    <Label htmlFor={id}>{label}</Label>
-                                    <Input
-                                        id={id}
-                                        name={id}
-                                        type={type}
-                                        placeholder={`Enter ${label.toLowerCase()}`}
-                                        value={form[id as keyof EMR] as string | number || ""}
-                                        onChange={handleChange}
-                                        required
-                                    />
-                                    {errors[id] && (
-                                        <p className="text-sm text-red-500 mt-1">{errors[id]}</p>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
+                        <FormGrid columns={2}>
+                            <FormFieldWrapper label="Height (cm)" required hint="Enter 50–250 cm" error={errors.height}>
+                                <Input
+                                    type="number"
+                                    name="height"
+                                    placeholder="Height"
+                                    value={form.height || ""}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </FormFieldWrapper>
+
+                            <FormFieldWrapper label="Weight (kg)" required hint="Enter 2–300 kg" error={errors.weight}>
+                                <Input
+                                    type="number"
+                                    name="weight"
+                                    placeholder="Weight"
+                                    value={form.weight || ""}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </FormFieldWrapper>
+
+                            <FormFieldWrapper label="GFR" required hint="Enter A–E or 0–120 ml/min" error={errors.gfr}>
+                                <Input
+                                    type="text"
+                                    name="gfr"
+                                    placeholder="Kidney function"
+                                    value={form.gfr}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </FormFieldWrapper>
+
+                            <FormFieldWrapper label="Child-Pugh Score" required hint="Enter A, B or C" error={errors.childPughScore}>
+                                <Input
+                                    type="text"
+                                    name="childPughScore"
+                                    placeholder="A/B/C"
+                                    value={form.childPughScore}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </FormFieldWrapper>
+
+                            <FormFieldWrapper label="PLT" required hint="Enter 10–600 ×10³/µL" error={errors.plt}>
+                                <Input
+                                    type="number"
+                                    name="plt"
+                                    placeholder="Platelet count"
+                                    value={form.plt || ""}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </FormFieldWrapper>
+
+                            <FormFieldWrapper label="WBC" required hint="Enter 3.5–10 ×10³/µL" error={errors.wbc}>
+                                <Input
+                                    type="number"
+                                    name="wbc"
+                                    placeholder="White blood cells"
+                                    value={form.wbc || ""}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </FormFieldWrapper>
+
+                            <FormFieldWrapper label="SAT (%)" required hint="Enter 85–100%" error={errors.sat}>
+                                <Input
+                                    type="number"
+                                    name="sat"
+                                    placeholder="Oxygen saturation"
+                                    value={form.sat || ""}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </FormFieldWrapper>
+
+                            <FormFieldWrapper label="Sodium (mmol/L)" required hint="Enter 100–160 mmol/L" error={errors.sodium}>
+                                <Input
+                                    type="number"
+                                    name="sodium"
+                                    placeholder="Sodium"
+                                    value={form.sodium || ""}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </FormFieldWrapper>
+                        </FormGrid>
 
                         {/* Sensitivities */}
-                        <div className="md:col-span-2">
-                            <Label htmlFor="sensitivities">
-                                Drug Sensitivities / Allergies
-                            </Label>
+                        <FormFieldWrapper label="Sensitivities" hint="Example: Paracetamol, Tramadol, Ibuprofen">
                             <Input
-                                id="sensitivities"
                                 type="text"
                                 name="sensitivities"
-                                placeholder="Enter drug allergies separated by commas (e.g., Paracetamol, Ibuprofen)"
-                                value={form.sensitivities?.join(", ") || ""}
+                                placeholder="Comma-separated (e.g. Paracetamol, Tramadol)"
                                 onChange={handleSensitivitiesChange}
                             />
-                            <p className="text-xs text-gray-500 mt-1">
-                                Separate multiple allergies with commas
-                            </p>
-                        </div>
+                        </FormFieldWrapper>
 
                         {/* Diagnoses */}
-                        <div className="space-y-2">
-                            <Label htmlFor="diagnosis-search">Search Diagnoses</Label>
-                            <div className="relative">
-                                <Input
-                                    id="diagnosis-search"
-                                    type="text"
-                                    placeholder="Type at least 2 characters to search..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                />
-                                {isFetching && (
-                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
-                                    </div>
-                                )}
-                                {searchTerm.length >= 2 && icdResults.length > 0 && (
-                                    <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-                                        {icdResults.map((diagnosis) => (
-                                            <div
-                                                key={diagnosis.icdCode}
-                                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                                onClick={() => handleSelectDiagnosis(diagnosis)}
-                                            >
-                                                {/* 💊 Код теперь в скобках */}
-                                                <div className="font-medium">
-                                                    {diagnosis.description}{" "}
-                                                    <span className="text-gray-500 text-sm">
-                            ({diagnosis.icdCode})
-                          </span>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
+                        <FormFieldWrapper
+                            label="Diagnoses"
+                            hint="Start typing diagnosis name (2+ letters)..."
+                        >
+                            <Input
+                                type="text"
+                                value={searchTerm}
+                                placeholder="Search diagnosis..."
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
 
-                            {/* Выбранные диагнозы */}
-                            {selectedDiagnoses.length > 0 && (
-                                <div className="mt-2 space-y-2">
-                                    <Label>Selected Diagnoses:</Label>
-                                    <div className="space-y-2">
-                                        {selectedDiagnoses.map((diagnosis) => (
-                                            <div
-                                                key={diagnosis.icdCode}
-                                                className="flex items-center justify-between bg-gray-50 p-2 rounded"
-                                            >
-                                                <div>
-                                                    {diagnosis.description}{" "}
-                                                    <span className="text-gray-500">
-                            ({diagnosis.icdCode})
-                          </span>
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleRemoveDiagnosis(diagnosis.icdCode)}
-                                                    className="text-red-500 hover:text-red-700"
-                                                >
-                                                    Remove
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
+                            {/* Индикатор загрузки */}
+                            {isFetching && (
+                                <p className="text-gray-400 text-sm mt-1">Searching...</p>
                             )}
-                        </div>
 
-                        {/* Кнопки */}
+                            {/* Выпадающий список найденных диагнозов */}
+                            {icdResults.length > 0 && searchTerm.length >= 2 && (
+                                <ul className="border rounded mt-1 bg-white shadow max-h-40 overflow-auto">
+                                    {icdResults.slice(0, 10).map((d) => (
+                                        <li
+                                            key={d.icdCode}
+                                            onClick={() => handleSelectDiagnosis(d)}
+                                            className="p-2 hover:bg-blue-100 cursor-pointer"
+                                        >
+                                            {d.description}{" "}
+                                            <span className="text-gray-500 text-sm">({d.icdCode})</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+
+                            {/* Список уже выбранных диагнозов */}
+                            {selectedDiagnoses.length > 0 && (
+                                <ul className="mt-3 text-sm">
+                                    {selectedDiagnoses.map((d) => (
+                                        <li
+                                            key={d.icdCode}
+                                            className="flex items-center justify-between border-b py-1"
+                                        >
+                                            <span>
+                                                ✅ {d.description}{" "}
+                                                <span className="text-gray-500">({d.icdCode})</span>
+                                            </span>
+                                            <button
+                                                type="button"
+                                                className="text-red-500 hover:text-red-700 ml-2"
+                                                onClick={() => handleRemoveDiagnosis(d.icdCode)}
+                                            >
+                                                ❌
+                                            </button>
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </FormFieldWrapper>
                         <div className="flex justify-end space-x-2">
                             <Button
                                 type="button"
                                 variant="outline"
                                 onClick={() => navigate(-1)}
-                                disabled={isLoading}
                             >
                                 Cancel
                             </Button>
