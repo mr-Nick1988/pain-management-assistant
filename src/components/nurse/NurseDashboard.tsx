@@ -1,10 +1,10 @@
-import React, {useState} from "react";
-import {useNavigate} from "react-router-dom";
-import {getErrorMessage} from "../../utils/getErrorMessageHelper";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { getErrorMessage } from "../../utils/getErrorMessageHelper";
 import {
     useLazyGetPatientByMrnQuery,
     useLazyGetPatientByEmailQuery,
-    useLazyGetPatientByPhoneNumberQuery
+    useLazyGetPatientByPhoneNumberQuery,
 } from "../../api/api/apiNurseSlice.ts";
 import { PageHeader, ActionCard, SearchCard, SearchField, Button, Input } from "../ui";
 
@@ -18,6 +18,7 @@ interface PatientSearchParams {
 const NurseDashboard: React.FC = () => {
     const navigate = useNavigate();
 
+    // 🔹 Состояния полей поиска
     const [mrn, setMrn] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -25,47 +26,42 @@ const NurseDashboard: React.FC = () => {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [birthDate, setBirthDate] = useState("");
 
-    // Lazy queries
-    const [fetchPatientByMrn, {isError: isMrnError, error: mrnError}] = useLazyGetPatientByMrnQuery();
-    const [fetchPatientByEmail, {isError: isEmailError, error: emailError}] = useLazyGetPatientByEmailQuery();
-    const [fetchPatientByPhone, {isError: isPhoneError, error: phoneError}] = useLazyGetPatientByPhoneNumberQuery();
+    // 🔹 Состояние показа формы поиска
+    const [showSearchForm, setShowSearchForm] = useState(false);
 
-    // Общий поиск
+    // 🔹 Lazy queries
+    const [fetchPatientByMrn, { isError: isMrnError, error: mrnError }] = useLazyGetPatientByMrnQuery();
+    const [fetchPatientByEmail, { isError: isEmailError, error: emailError }] = useLazyGetPatientByEmailQuery();
+    const [fetchPatientByPhone, { isError: isPhoneError, error: phoneError }] = useLazyGetPatientByPhoneNumberQuery();
+
+    // 🔹 Общий поиск
     const handleFindPatients = (params?: PatientSearchParams) => {
-        navigate("/nurse/patients", {state: params});
+        navigate("/nurse/patients", { state: params });
     };
 
-    // Поиск по MRN
+    // 🔹 Поиск по MRN
     const handleFindByMRN = async () => {
         const result = await fetchPatientByMrn(mrn.trim());
-        if (result.data) {
-            navigate(`/nurse/patient/${mrn.trim()}`, {state: result.data});
-        }
+        if (result.data) navigate(`/nurse/patient/${mrn.trim()}`, { state: result.data });
     };
 
-    // Поиск по Email
+    // 🔹 Поиск по Email
     const handleFindByEmail = async () => {
         const result = await fetchPatientByEmail(email.trim());
-        if (result.data) {
-            navigate(`/nurse/patient/${email.trim()}`, {state: result.data});
-        }
+        if (result.data) navigate(`/nurse/patient/${result.data.mrn}`, { state: result.data });
     };
 
-    // Поиск по Phone Number
+    // 🔹 Поиск по Phone Number
     const handleFindByPhoneNumber = async () => {
         const result = await fetchPatientByPhone(phoneNumber.trim());
-        if (result.data) {
-            navigate(`/nurse/patient/${phoneNumber.trim()}`, {state: result.data});
-        }
+        if (result.data) navigate(`/nurse/patient/${result.data.mrn}`, { state: result.data });
     };
 
     return (
         <div className="p-6 space-y-6">
-            <PageHeader
-                title="Nurse Dashboard"
-                description="Search for patients or register new ones"
-            />
+            <PageHeader title="Nurse Dashboard" description="Search for patients or register new ones" />
 
+            {/* 🔹 Верхние карточки действий */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <ActionCard
                     title="Register Patient"
@@ -75,6 +71,7 @@ const NurseDashboard: React.FC = () => {
                     buttonText="Register New Patient"
                     buttonVariant="approve"
                 />
+
                 <ActionCard
                     title="All Patients"
                     description="View complete patient list"
@@ -83,60 +80,106 @@ const NurseDashboard: React.FC = () => {
                     buttonText="Get All Patients"
                     buttonVariant="default"
                 />
+
+                {/* 🔹 Quick Search теперь кликабельная */}
                 <ActionCard
                     title="Quick Search"
                     description="Find patients by various criteria"
                     icon="🔍"
+                    onClick={() => setShowSearchForm((prev) => !prev)}
+                    buttonText={showSearchForm ? "Hide Search" : "Open Search"}
+                    buttonVariant={showSearchForm ? "reject" : "default"}
                 />
             </div>
 
-            <SearchCard title="Search Patients" description="Use any of the search methods below">
-                <SearchField label="Search by MRN"
-                             error={isMrnError ? getErrorMessage(mrnError) || "Patient not found" : undefined}>
-                    <Input type="text" placeholder="Enter MRN" value={mrn} onChange={(e) => setMrn(e.target.value)}/>
-                    <Button variant="approve" onClick={handleFindByMRN} disabled={!mrn}>Find</Button>
-                </SearchField>
+            {/* 🔹 Вся форма поиска появляется только после клика */}
+            {showSearchForm && (
+                <>
+                    <SearchCard title="Search Patients" description="Use any of the search methods below">
+                        <SearchField
+                            label="Search by MRN"
+                            error={isMrnError ? getErrorMessage(mrnError) || "Patient not found" : undefined}
+                        >
+                            <Input type="text" placeholder="Enter MRN" value={mrn} onChange={(e) => setMrn(e.target.value)} />
+                            <Button variant="approve" onClick={handleFindByMRN} disabled={!mrn}>
+                                Find
+                            </Button>
+                        </SearchField>
 
-                <SearchField label="Search by Email"
-                             error={isEmailError ? getErrorMessage(emailError) || "Patient not found" : undefined}>
-                    <Input type="email" placeholder="Enter Email" value={email}
-                           onChange={(e) => setEmail(e.target.value)}/>
-                    <Button variant="update" onClick={handleFindByEmail} disabled={!email}>Find</Button>
-                </SearchField>
+                        <SearchField
+                            label="Search by Email"
+                            error={isEmailError ? getErrorMessage(emailError) || "Patient not found" : undefined}
+                        >
+                            <Input type="email" placeholder="Enter Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                            <Button variant="update" onClick={handleFindByEmail} disabled={!email}>
+                                Find
+                            </Button>
+                        </SearchField>
 
-                <SearchField label="Search by Phone Number"
-                             error={isPhoneError ? getErrorMessage(phoneError) || "Patient not found" : undefined}>
-                    <Input type="text" placeholder="Enter Phone Number" value={phoneNumber}
-                           onChange={(e) => setPhoneNumber(e.target.value)}/>
-                    <Button variant="default" onClick={handleFindByPhoneNumber} disabled={!phoneNumber}>Find</Button>
-                </SearchField>
+                        <SearchField
+                            label="Search by Phone Number"
+                            error={isPhoneError ? getErrorMessage(phoneError) || "Patient not found" : undefined}
+                        >
+                            <Input
+                                type="text"
+                                placeholder="Enter Phone Number"
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                            />
+                            <Button variant="default" onClick={handleFindByPhoneNumber} disabled={!phoneNumber}>
+                                Find
+                            </Button>
+                        </SearchField>
 
-                <SearchField label="Search by Full Name">
-                    <Input type="text" placeholder="First Name" value={firstName}
-                           onChange={(e) => setFirstName(e.target.value)}/>
-                    <Input type="text" placeholder="Last Name" value={lastName}
-                           onChange={(e) => setLastName(e.target.value)}/>
-                    <Button variant="default" onClick={() => handleFindPatients({firstName, lastName})}
-                            disabled={!firstName || !lastName}>Find</Button>
-                </SearchField>
+                        <SearchField label="Search by Full Name">
+                            <Input
+                                type="text"
+                                placeholder="First Name"
+                                value={firstName}
+                                onChange={(e) => setFirstName(e.target.value)}
+                            />
+                            <Input
+                                type="text"
+                                placeholder="Last Name"
+                                value={lastName}
+                                onChange={(e) => setLastName(e.target.value)}
+                            />
+                            <Button
+                                variant="default"
+                                onClick={() => handleFindPatients({ firstName, lastName })}
+                                disabled={!firstName || !lastName}
+                            >
+                                Find
+                            </Button>
+                        </SearchField>
 
-                <SearchField label="Search by Birthday">
-                    <Input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)}/>
-                    <Button variant="default" onClick={() => handleFindPatients({birthDate})}
-                            disabled={!birthDate}>Find</Button>
-                </SearchField>
-            </SearchCard>
+                        <SearchField label="Search by Birthday">
+                            <Input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} />
+                            <Button
+                                variant="default"
+                                onClick={() => handleFindPatients({ birthDate })}
+                                disabled={!birthDate}
+                            >
+                                Find
+                            </Button>
+                        </SearchField>
+                    </SearchCard>
 
-            <SearchCard title="Filter by Treatment Status" description="View patients by their treatment status">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Button variant="approve" onClick={() => handleFindPatients({isActive: true})}>Active
-                        Patients</Button>
-                    <Button variant="reject" onClick={() => handleFindPatients({isActive: false})}>Passive
-                        Patients</Button>
-                </div>
-            </SearchCard>
+                    {/* 🔹 Фильтр по статусу лечения */}
+                    <SearchCard title="Filter by Treatment Status" description="View patients by their treatment status">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Button variant="approve" onClick={() => handleFindPatients({ isActive: true })}>
+                                Active Patients
+                            </Button>
+                            <Button variant="reject" onClick={() => handleFindPatients({ isActive: false })}>
+                                Passive Patients
+                            </Button>
+                        </div>
+                    </SearchCard>
+                </>
+            )}
         </div>
-    )
+    );
 };
 
-export default  NurseDashboard;
+export default NurseDashboard;

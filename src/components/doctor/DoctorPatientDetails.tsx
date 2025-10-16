@@ -197,6 +197,18 @@ const PatientDetails: React.FC = () => {
                                         <p className="text-sm text-gray-500">SpO₂</p>
                                         <p className="font-semibold">{emrData.sat}%</p>
                                     </div>
+                                    {emrData.diagnoses && (
+                                        <div className="md:col-span-2 bg-gray-50 p-3 rounded">
+                                            <p className="text-sm text-gray-500">Diagnoses</p>
+                                            <ul className="list-disc list-inside text-sm font-semibold text-gray-800 space-y-1">
+                                                {emrData.diagnoses.map((diag, index) => (
+                                                    <li key={index}>
+                                                        {diag.icdCode ? `${diag.icdCode} — ${diag.description}` : diag.description}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
                                     <div className="bg-gray-50 p-3 rounded">
                                         <p className="text-sm text-gray-500">Sodium</p>
                                         <p className="font-semibold">{emrData.sodium} mmol/L</p>

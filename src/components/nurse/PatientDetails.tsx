@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
     useGetEmrByPatientIdQuery,
-    useGetRecommendationByPatientIdQuery,
     useDeletePatientMutation,
+    useGetPatientByMrnQuery,
 } from "../../api/api/apiNurseSlice";
-import type { Patient } from "../../types/nurse";
+
+import { XCircleIcon } from "@heroicons/react/24/outline";
 import {
     PageHeader,
     DataCard,
@@ -16,47 +17,78 @@ import {
     Modal,
     ModalHeader,
     ModalBody,
-    ModalFooter
+    ModalFooter,
 } from "../ui";
+import type {Diagnosis} from "../../types/common/types.ts";
 
 const PatientDetails: React.FC = () => {
-    const navigate = useNavigate();
+    const { mrn } = useParams<{ mrn: string }>();
     const location = useLocation();
-    const patient = location.state as Patient;
+    const navigate = useNavigate();
 
-    // ✅ все хуки наверху
+    // 🔹 Поддерживаем устойчивость: берем либо из state, либо загружаем по MRN
+    const cachedPatient = location.state?.patient || null;
+
+    const {
+        data: patientData,
+        isLoading: isLoadingPatient,
+        isError: isErrorPatient,
+    } = useGetPatientByMrnQuery(mrn || "", { skip: !mrn });
+
+    const patient = patientData || cachedPatient;
+
+    // 🔹 Дополнительные состояния
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [loadEmr, setLoadEmr] = useState(false);
-    const [loadRecommendation, setLoadRecommendation] = useState(false);
-
-    const { data: emrData, isFetching: emrLoading } = useGetEmrByPatientIdQuery(patient?.mrn || "", {
-        skip: !loadEmr || !patient?.mrn,
-    });
-
-    const { data: recommendation, isFetching: recLoading, isError: recError } =
-        useGetRecommendationByPatientIdQuery(patient?.mrn || "", {
-            skip: !loadRecommendation || !patient?.mrn,
-        });
-
     const [deletePatient] = useDeletePatientMutation();
 
-    if (!patient?.mrn) {
-        return (
-            <div className="p-6">
-                <p className="text-center text-gray-500">No patient data.</p>
-                <Button variant="default" onClick={() => navigate("/nurse")}>
-                    Back to Dashboard
-                </Button>
-            </div>
-        );
-    }
+    // 🔹 EMR загрузка (по кнопке)
+    const { data: emrData, isFetching: emrLoading } = useGetEmrByPatientIdQuery(
+        patient?.mrn || "",
+        { skip: !loadEmr || !patient?.mrn }
+    );
 
+    // 🔹 Обработка удаления
     const confirmDelete = async () => {
-        await deletePatient(patient.mrn!);
+        await deletePatient(patient!.mrn!);
         setIsDeleteModalOpen(false);
         navigate("/nurse");
     };
 
+    // 🔹 Состояния загрузки и ошибок
+    if (isLoadingPatient && !patient)
+        return (
+            <div className="p-6">
+                <div className="flex justify-center items-center h-64">
+                    <LoadingSpinner message="Loading patient data..." />
+                </div>
+            </div>
+        );
+
+    if (isErrorPatient || !patient)
+        return (
+            <div className="p-6">
+                <div className="bg-red-50 border-l-4 border-red-400 p-4">
+                    <div className="flex">
+                        <div className="flex-shrink-0">
+                            <XCircleIcon className="h-5 w-5 text-red-400" aria-hidden="true" />
+                        </div>
+                        <div className="ml-3">
+                            <p className="text-sm text-red-700">
+                                No patient data available. Please return to the Dashboard.
+                            </p>
+                            <div className="mt-4">
+                                <Button variant="default" onClick={() => navigate("/nurse")}>
+                                    Back to Dashboard
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+
+    // ✅ Основной рендер
     return (
         <div className="p-6 space-y-6">
             <PageHeader title="Patient Details" />
@@ -66,8 +98,13 @@ const PatientDetails: React.FC = () => {
                 <InfoGrid columns={2}>
                     <InfoItem label="MRN" value={patient.mrn} />
                     <InfoItem label="Name" value={`${patient.firstName} ${patient.lastName}`} />
-                    <InfoItem label="Date of Birth" value={patient.dateOfBirth} />
-                    <InfoItem label="Gender" value={patient.gender} />
+                    <InfoItem label="Gender" value={patient.gender || "N/A"} />
+                    <InfoItem label="Date of Birth" value={patient.dateOfBirth || "N/A"} />
+                    <InfoItem label="Phone" value={patient.phoneNumber || "N/A"} />
+                    <InfoItem label="Email" value={patient.email || "N/A"} />
+                    <InfoItem label="Address" value={patient.address || "N/A"} />
+                    <InfoItem label="Insurance Number" value={patient.insurancePolicyNumber || "N/A"} />
+
                     <InfoItem
                         label="Status"
                         value={patient.isActive ? "In treatment" : "Not in treatment"}
@@ -106,6 +143,19 @@ const PatientDetails: React.FC = () => {
                                 <InfoItem label="SAT" value={`${emrData.sat ?? "N/A"}%`} />
                                 <InfoItem label="Sodium" value={emrData.sodium ?? "N/A"} />
                             </InfoGrid>
+                            {emrData.diagnoses?.length ? (
+                                <div className="bg-yellow-50 p-4 rounded-lg">
+                                    <p className="font-semibold text-gray-800 mb-2">Diagnoses:</p>
+                                    <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                                        {emrData.diagnoses.map((d: Diagnosis, i: number) => (
+                                            <li key={i}>{d.description} -  {d.icdCode}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <p className="text-sm text-gray-500 italic">No diagnoses recorded.</p>
+                            )}
+
                             {emrData.sensitivities?.length ? (
                                 <div className="bg-yellow-50 p-4 rounded-lg">
                                     <p className="font-semibold text-gray-800 mb-2">Sensitivities:</p>
@@ -116,10 +166,9 @@ const PatientDetails: React.FC = () => {
                                     </ul>
                                 </div>
                             ) : (
-                                <p className="text-sm text-gray-500 italic">
-                                    No sensitivities recorded.
-                                </p>
+                                <p className="text-sm text-gray-500 italic">No sensitivities recorded.</p>
                             )}
+
                             <Button
                                 variant="update"
                                 onClick={() =>
@@ -144,110 +193,17 @@ const PatientDetails: React.FC = () => {
             </DataCard>
 
             {/* 💊 Recommendation */}
-            <DataCard
-                title="Pain Management Recommendation"
-                actions={
-                    !loadRecommendation && (
-                        <Button variant="default" onClick={() => setLoadRecommendation(true)}>
-                            Get Last Recommendation
-                        </Button>
-                    )
-                }
-            >
-                {loadRecommendation &&
-                    (recLoading ? (
-                        <LoadingSpinner message="Loading recommendation..." />
-                    ) : recError ? (
-                        <p className="text-red-600">No recommendation found.</p>
-                    ) : recommendation ? (
-                        <div className="space-y-4">
-                            <InfoGrid columns={2}>
-                                <InfoItem label="Status" value={recommendation.status} />
-                                <InfoItem
-                                    label="Regimen"
-                                    value={recommendation.regimenHierarchy}
-                                />
-                                <InfoItem
-                                    label="Created At"
-                                    value={recommendation.createdAt ?? "N/A"}
-                                />
-                                <InfoItem
-                                    label="Created By"
-                                    value={recommendation.createdBy ?? "N/A"}
-                                />
-                            </InfoGrid>
-
-                            {recommendation.comments?.length ? (
-                                <div className="bg-blue-50 p-4 rounded-lg">
-                                    <p className="font-semibold text-gray-800 mb-2">Comments:</p>
-                                    <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-                                        {recommendation.comments.map((c, i) => (
-                                            <li key={i}>{c}</li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            ) : null}
-
-                            {recommendation.contraindications?.length ? (
-                                <div className="bg-red-50 p-4 rounded-lg">
-                                    <p className="font-semibold text-gray-800 mb-2">
-                                        Contraindications:
-                                    </p>
-                                    <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-                                        {recommendation.contraindications.map((c, i) => (
-                                            <li key={i}>{c}</li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            ) : null}
-
-                            {recommendation.drugs?.length ? (
-                                <div>
-                                    <p className="font-semibold text-gray-800 mb-3">
-                                        Drug Recommendations:
-                                    </p>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {recommendation.drugs.map((drug, i) => (
-                                            <div
-                                                key={i}
-                                                className="border rounded-lg p-4 bg-gray-50"
-                                            >
-                                                <p className="text-sm">
-                                                    <strong>Role:</strong> {drug.role}
-                                                </p>
-                                                <p className="text-sm">
-                                                    <strong>Drug:</strong> {drug.drugName}
-                                                </p>
-                                                <p className="text-sm">
-                                                    <strong>Active Moiety:</strong>{" "}
-                                                    {drug.activeMoiety}
-                                                </p>
-                                                <p className="text-sm">
-                                                    <strong>Dosing:</strong> {drug.dosing}
-                                                </p>
-                                                <p className="text-sm">
-                                                    <strong>Interval:</strong> {drug.interval}
-                                                </p>
-                                                <p className="text-sm">
-                                                    <strong>Route:</strong> {drug.route}
-                                                </p>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            ) : null}
-
-                            {/* ✅ кнопка перехода на полные детали рекомендации */}
-                            <Button
-                                variant="default"
-                                onClick={() =>
-                                    navigate(`/nurse/recommendation-details/${patient.mrn}`)
-                                }
-                            >
-                                View Full Recommendation
-                            </Button>
-                        </div>
-                    ) : null)}
+            <DataCard title="Pain Management Recommendation">
+                <Button
+                    variant="default"
+                    onClick={() =>
+                        navigate(`/nurse/recommendation-details/${patient.mrn}`, {
+                            state: { patient },
+                        })
+                    }
+                >
+                    View Last Recommendation
+                </Button>
             </DataCard>
 
             {/* ⚙️ Кнопки действий */}
@@ -280,8 +236,8 @@ const PatientDetails: React.FC = () => {
                 <ModalHeader>Confirm Delete</ModalHeader>
                 <ModalBody>
                     <p>
-                        Are you sure you want to delete {patient.firstName} {patient.lastName}?{" "}
-                        This action cannot be undone.
+                        Are you sure you want to delete {patient.firstName} {patient.lastName}? This
+                        action cannot be undone.
                     </p>
                 </ModalBody>
                 <ModalFooter>
@@ -298,3 +254,5 @@ const PatientDetails: React.FC = () => {
 };
 
 export default PatientDetails;
+
+//Добавить кнопку back to main board - NurseDashboard

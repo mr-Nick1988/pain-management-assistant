@@ -167,17 +167,17 @@ const RecommendationDetails: React.FC = () => {
                         </div>
                     )}
 
-                    {/* Contraindications */}
-                    {recommendation.contraindications && recommendation.contraindications.length > 0 && (
-                        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                            <h3 className="font-semibold text-lg mb-2 text-red-800">⚠️ Contraindications</h3>
-                            <ul className="list-disc list-inside space-y-1">
-                                {recommendation.contraindications.map((item: string, index: number) => (
-                                    <li key={index} className="text-red-700">{item}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
+                    {/*/!* Contraindications *!/*/}
+                    {/*{recommendation.contraindications && recommendation.contraindications.length > 0 && (*/}
+                    {/*    <div className="p-4 bg-red-50 border border-red-200 rounded-lg">*/}
+                    {/*        <h3 className="font-semibold text-lg mb-2 text-red-800">⚠️ Contraindications</h3>*/}
+                    {/*        <ul className="list-disc list-inside space-y-1">*/}
+                    {/*            {recommendation.contraindications.map((item: string, index: number) => (*/}
+                    {/*                <li key={index} className="text-red-700">{item}</li>*/}
+                    {/*            ))}*/}
+                    {/*        </ul>*/}
+                    {/*    </div>*/}
+                    {/*)}*/}
 
 
                     {/* Comments */}

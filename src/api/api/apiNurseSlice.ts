@@ -23,7 +23,12 @@ export const apiNurseSlice = createApi({
     }),
     endpoints: (builder) => ({
         // PATIENT
-        getPatients: builder.query<Patient[], { firstName?: string; lastName?: string; isActive?: boolean; birthDate?: string } | void>({
+        getPatients: builder.query<Patient[], {
+            firstName?: string;
+            lastName?: string;
+            isActive?: boolean;
+            birthDate?: string
+        } | void>({
             query: (params) => {
                 if (!params) return "/nurse/patients";
                 const query = new URLSearchParams();
@@ -77,7 +82,7 @@ export const apiNurseSlice = createApi({
             providesTags: ["Emr"],
         }),
         createEmr: builder.mutation<EMR, { mrn: string; data: EMR }>({
-            query: ({ mrn, data}) => ({
+            query: ({mrn, data}) => ({
                 url: `/nurse/patients/${mrn}/emr`,
                 method: "POST",
                 body: data,
@@ -85,7 +90,7 @@ export const apiNurseSlice = createApi({
             invalidatesTags: ["Emr"],
         }),
         updateEmr: builder.mutation<EMR, { mrn: string; data: Partial<EMR> }>({
-            query: ({ mrn, data}) => ({
+            query: ({mrn, data}) => ({
                 url: `/nurse/patients/${mrn}/emr`,
                 method: "PATCH",
                 body: data,
@@ -93,9 +98,20 @@ export const apiNurseSlice = createApi({
             invalidatesTags: ["Emr"],
         }),
 
+        // Diagnosis
+        getIcdDiagnoses: builder.query<
+            { icdCode: string; description: string }[],
+            string
+        >({
+            query: (queryString) => ({
+                url: `/icd/search`,
+                params: { query: queryString },
+            }),
+        }),
+
         // VAS
         createVas: builder.mutation<VAS, { mrn: string; data: VAS }>({
-            query: ({ mrn, data}) => ({
+            query: ({mrn, data}) => ({
                 url: `/nurse/patients/${mrn}/vas`,
                 method: "POST",
                 body: data,
@@ -103,7 +119,7 @@ export const apiNurseSlice = createApi({
             invalidatesTags: ["Vas"],
         }),
         updateVas: builder.mutation<VAS, { mrn: string; data: Partial<VAS> }>({
-            query: ({ mrn, data}) => ({
+            query: ({mrn, data}) => ({
                 url: `/nurse/patients/${mrn}/vas`,
                 method: "PATCH",
                 body: data,
@@ -120,7 +136,7 @@ export const apiNurseSlice = createApi({
 
         // Recommendation
         createRecommendation: builder.mutation<Recommendation, { mrn: string; }>({
-            query: ({ mrn}) => ({
+            query: ({mrn}) => ({
                 url: `/nurse/patients/${mrn}/recommendation`,
                 method: "POST",
             }),
@@ -152,4 +168,5 @@ export const {
     useDeleteVasMutation,
     useCreateRecommendationMutation,
     useGetRecommendationByPatientIdQuery,
+    useGetIcdDiagnosesQuery,
 } = apiNurseSlice;

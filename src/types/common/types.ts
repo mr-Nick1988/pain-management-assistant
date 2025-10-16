@@ -85,6 +85,7 @@ export interface EMR {
     sat: number; // сатурация
     sodium: number; // натрий
     sensitivities?: string[]; // чувствительность
+    diagnoses?: Diagnosis[]; // хронические болезни
     
     createdAt?: string;
     createdBy?: string;
@@ -103,9 +104,15 @@ export interface EMRUpdate {
     wbc?: number;
     sat?: number;
     sensitivities?: string[];
+    diagnoses?: Diagnosis[];
     sodium?: number;
     updatedAt?: string;
     updatedBy?: string;
+}
+
+export interface Diagnosis {
+    icdCode: string;
+    description: string;
 }
 
 // ============================================
