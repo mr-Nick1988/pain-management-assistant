@@ -81,7 +81,6 @@ const NurseDashboard: React.FC = () => {
                     buttonVariant="default"
                 />
 
-                {/* 🔹 Quick Search теперь кликабельная */}
                 <ActionCard
                     title="Quick Search"
                     description="Find patients by various criteria"
@@ -90,6 +89,20 @@ const NurseDashboard: React.FC = () => {
                     buttonText={showSearchForm ? "Hide Search" : "Open Search"}
                     buttonVariant={showSearchForm ? "reject" : "default"}
                 />
+            </div>
+
+            {/* Centered Approved Recommendations Card */}
+            <div className="mt-8 flex justify-center">
+                <div className="w-full md:w-1/2 lg:w-1/3">
+                    <ActionCard
+                        title="Approved Recommendations"
+                        description="View all approved recommendations"
+                        icon="✅"
+                        onClick={() => navigate('/nurse/recommendations')}
+                        buttonText="View All"
+                        buttonVariant="approve"
+                    />
+                </div>
             </div>
 
             {/* 🔹 Вся форма поиска появляется только после клика */}

@@ -135,6 +135,11 @@ export const apiNurseSlice = createApi({
         }),
 
         // Recommendation
+        // Get all approved recommendations
+        getAllApprovedRecommendations: builder.query<Recommendation[], void>({
+            query: () => `/nurse/recommendations/approved`,
+            providesTags: ["Recommendation"],
+        }),
         createRecommendation: builder.mutation<Recommendation, { mrn: string; }>({
             query: ({mrn}) => ({
                 url: `/nurse/patients/${mrn}/recommendation`,
@@ -169,4 +174,5 @@ export const {
     useCreateRecommendationMutation,
     useGetRecommendationByPatientIdQuery,
     useGetIcdDiagnosesQuery,
+    useGetAllApprovedRecommendationsQuery,
 } = apiNurseSlice;

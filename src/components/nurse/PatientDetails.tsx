@@ -19,14 +19,13 @@ import {
     ModalBody,
     ModalFooter,
 } from "../ui";
-import type {Diagnosis} from "../../types/common/types.ts";
+import type { Diagnosis } from "../../types/common/types.ts";
 
 const PatientDetails: React.FC = () => {
     const { mrn } = useParams<{ mrn: string }>();
     const location = useLocation();
     const navigate = useNavigate();
 
-    // 🔹 Поддерживаем устойчивость: берем либо из state, либо загружаем по MRN
     const cachedPatient = location.state?.patient || null;
 
     const {
@@ -37,25 +36,21 @@ const PatientDetails: React.FC = () => {
 
     const patient = patientData || cachedPatient;
 
-    // 🔹 Дополнительные состояния
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [loadEmr, setLoadEmr] = useState(false);
     const [deletePatient] = useDeletePatientMutation();
 
-    // 🔹 EMR загрузка (по кнопке)
     const { data: emrData, isFetching: emrLoading } = useGetEmrByPatientIdQuery(
         patient?.mrn || "",
         { skip: !loadEmr || !patient?.mrn }
     );
 
-    // 🔹 Обработка удаления
     const confirmDelete = async () => {
         await deletePatient(patient!.mrn!);
         setIsDeleteModalOpen(false);
         navigate("/nurse");
     };
 
-    // 🔹 Состояния загрузки и ошибок
     if (isLoadingPatient && !patient)
         return (
             <div className="p-6">
@@ -88,7 +83,6 @@ const PatientDetails: React.FC = () => {
             </div>
         );
 
-    // ✅ Основной рендер
     return (
         <div className="p-6 space-y-6">
             <PageHeader title="Patient Details" />
@@ -148,7 +142,7 @@ const PatientDetails: React.FC = () => {
                                     <p className="font-semibold text-gray-800 mb-2">Diagnoses:</p>
                                     <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
                                         {emrData.diagnoses.map((d: Diagnosis, i: number) => (
-                                            <li key={i}>{d.description} -  {d.icdCode}</li>
+                                            <li key={i}>{d.description} - {d.icdCode}</li>
                                         ))}
                                     </ul>
                                 </div>
@@ -208,7 +202,7 @@ const PatientDetails: React.FC = () => {
 
             {/* ⚙️ Кнопки действий */}
             <DataCard title="Patient Actions">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <Button
                         variant="approve"
                         onClick={() =>
@@ -227,6 +221,11 @@ const PatientDetails: React.FC = () => {
                     </Button>
                     <Button variant="delete" onClick={() => setIsDeleteModalOpen(true)}>
                         Delete Patient
+                    </Button>
+
+                    {/* 🧭 Новый элемент — возврат на главную доску */}
+                    <Button variant="default" onClick={() => navigate("/nurse")}>
+                        Back to Dashboard
                     </Button>
                 </div>
             </DataCard>
@@ -254,5 +253,3 @@ const PatientDetails: React.FC = () => {
 };
 
 export default PatientDetails;
-
-//Добавить кнопку back to main board - NurseDashboard
