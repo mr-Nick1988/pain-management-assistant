@@ -8,7 +8,7 @@ import {
     useGetProtocolsByEscalationQuery,
     useRejectProtocolMutation
 } from "../../api/api/apiAnesthesiologistSlice.ts";
-import {Button, Card, CardContent, CardHeader, CardTitle} from "../ui";
+import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Textarea} from "../ui";
 
 
 interface ProtocolEditorProps {
@@ -231,42 +231,50 @@ const ProtocolEditor: React.FC<ProtocolEditorProps> = ({selectedEscalationId}) =
                         {/* Main Content */}
                         <div className="lg:col-span-3">
                             {isEditing ? (
-                                <div className="protocol-form">
-                                    <h3 className="section-title">{activeProtocol ? "Edit Protocol" : "Create New Protocol"}</h3>
-                                    <div className="form-group">
-                                        <label htmlFor="protocol-title">Title</label>
-                                        <input
-                                            id="protocol-title"
-                                            type="text"
-                                            value={protocolTitle}
-                                            onChange={(e) => setProtocolTitle(e.target.value)}
-                                            placeholder="Enter protocol title"
-                                        />
-                                    </div>
-                                    <div className="form-group">
-                                        <label htmlFor="protocol-content">Content</label>
-                                        <textarea
-                                            id="protocol-content"
-                                            value={protocolContent}
-                                            onChange={(e) => setProtocolContent(e.target.value)}
-                                            placeholder="Enter protocol content in markdown..."
-                                            rows={15}
-                                            className="protocol-textarea"
-                                        />
-                                    </div>
-                                    <div className="form-actions">
-                                        <Button onClick={cancelEditing} variant="cancel">
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            onClick={handleCreateProtocol}
-                                            disabled={!protocolTitle.trim() || !protocolContent.trim() || isCreating}
-                                            variant="submit"
-                                        >
-                                            {isCreating ? "Saving..." : "Save Protocol"}
-                                        </Button>
-                                    </div>
-                                </div>
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle>{activeProtocol ? "Edit Protocol" : "Create New Protocol"}</CardTitle>
+                                    </CardHeader>
+                                    <CardContent className="space-y-6">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="protocol-title">Protocol Title</Label>
+                                            <Input
+                                                id="protocol-title"
+                                                type="text"
+                                                value={protocolTitle}
+                                                onChange={(e) => setProtocolTitle(e.target.value)}
+                                                placeholder="e.g., Pain Management Protocol v1.0"
+                                                className="w-full"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="protocol-content">Protocol Content</Label>
+                                            <Textarea
+                                                id="protocol-content"
+                                                value={protocolContent}
+                                                onChange={(e) => setProtocolContent(e.target.value)}
+                                                placeholder="Enter detailed protocol content, guidelines, procedures, medications, dosages, and special considerations..."
+                                                rows={15}
+                                                className="w-full font-mono"
+                                            />
+                                            <p className="text-sm text-gray-500 mt-1">
+                                                Describe the protocol steps, medications, dosages, and any special considerations.
+                                            </p>
+                                        </div>
+                                        <div className="flex justify-between items-center pt-4 border-t">
+                                            <Button onClick={cancelEditing} variant="cancel">
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                onClick={handleCreateProtocol}
+                                                disabled={!protocolTitle.trim() || !protocolContent.trim() || isCreating}
+                                                variant="approve"
+                                            >
+                                                {isCreating ? "Saving..." : "Save Protocol"}
+                                            </Button>
+                                        </div>
+                                    </CardContent>
+                                </Card>
                             ) : activeProtocol ? (
                                 <div className="protocol-view">
                                     <div className="protocol-view-header">

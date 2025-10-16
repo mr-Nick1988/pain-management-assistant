@@ -2,24 +2,17 @@ import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
 import {base_url} from "../../utils/constants.ts";
 import type {EMR, Patient, VAS, Recommendation} from "../../types/nurse.ts";
 
-interface RootState {
-    auth?: {
-        token?: string;
-    }
-}
-
-
 export const apiNurseSlice = createApi({
     reducerPath: "apiNurse",
     tagTypes: ["Patient", "Emr", "Vas", "Recommendation"],
     baseQuery: fetchBaseQuery({
         baseUrl: base_url,
-        prepareHeaders: (headers, {getState}) => {
-            const state = getState() as RootState;
-            const token = state.auth?.token;
-            if (token) headers.set('authorization', `Bearer ${token}`);
+        prepareHeaders: (headers) => {
+            // Authentication is handled via session/cookies on the backend
+            // No need to add Bearer token headers
             return headers;
         },
+        credentials: 'include', // Important: include cookies in requests
     }),
     endpoints: (builder) => ({
         // PATIENT

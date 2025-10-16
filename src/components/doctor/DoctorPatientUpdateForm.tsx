@@ -2,14 +2,16 @@ import React, { useState } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { useUpdatePatientMutation } from "../../api/api/apiDoctorSlice";
 import type { Patient, PatientUpdate } from "../../types/doctor";
-import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Select} from "../ui";
+import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Select, PageNavigation} from "../ui";
 import {validatePatient} from "../../utils/validationPatient";
+import {useToast} from "../../contexts/ToastContext";
 
 const PatientUpdateForm: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const params = useParams<{ mrn: string }>();
     const patient = location.state as Patient;
+    const toast = useToast();
 
     // Все хуки должны быть вызваны ДО любых условных return
     const [formData, setFormData] = useState<PatientUpdate>({
@@ -61,11 +63,11 @@ const PatientUpdateForm: React.FC = () => {
 
         try {
             await updatePatient({ mrn: params.mrn!, data: formData }).unwrap();
-            alert("Patient updated successfully!");
+            toast.success("Patient updated successfully!");
             navigate(`/doctor/patient/${params.mrn}`, { state: { ...patient, ...formData } });
         } catch (error) {
             console.error("Failed to update patient:", error);
-            alert("Error updating patient");
+            toast.error("Error updating patient");
         }
     };
 
@@ -207,6 +209,7 @@ const PatientUpdateForm: React.FC = () => {
                     </form>
                 </CardContent>
             </Card>
+            <PageNavigation />
         </div>
     );
 };

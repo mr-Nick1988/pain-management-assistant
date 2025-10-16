@@ -2,13 +2,15 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useUpdateEmrMutation } from "../../api/api/apiDoctorSlice";
 import type { EMR, EMRUpdate, Patient } from "../../types/doctor";
-import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label} from "../ui";
+import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label, PageNavigation} from "../ui";
 import {validateEmr} from "../../utils/validationEmr";
+import {useToast} from "../../contexts/ToastContext";
 
 const EMRUpdateForm: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const state = location.state as { patient: Patient; emrData: EMR } | undefined;
+    const toast = useToast();
 
     // Хуки должны быть вызваны ДО любых условных return
     const [updateEmr, { isLoading }] = useUpdateEmrMutation();
@@ -76,10 +78,11 @@ const EMRUpdateForm: React.FC = () => {
 
         try {
             await updateEmr({ mrn: patient.mrn!, data: form }).unwrap();
+            toast.success("EMR updated successfully!");
             navigate(-1);
         } catch (err) {
             console.error("Failed to update EMR:", err);
-            alert("Error updating EMR");
+            toast.error("Error updating EMR");
         }
     };
 
@@ -231,6 +234,7 @@ const EMRUpdateForm: React.FC = () => {
                     </form>
                 </CardContent>
             </Card>
+            <PageNavigation />
         </div>
     );
 };

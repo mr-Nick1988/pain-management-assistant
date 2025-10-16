@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useUpdateEmrMutation } from "../../api/api/apiNurseSlice";
 import type { EMR, EMRUpdate, Patient } from "../../types/nurse";
 import { validateEmr } from "../../utils/validationEmr.ts";
-import { FormCard, FormGrid, FormFieldWrapper, Input } from "../ui";
+import { FormCard, FormGrid, FormFieldWrapper, Input, PageNavigation } from "../ui";
+import { useToast } from "../../contexts/ToastContext";
 
 const EMRUpdateForm: React.FC = () => {
     const location = useLocation();
@@ -15,12 +16,6 @@ const EMRUpdateForm: React.FC = () => {
         height: state?.emrData?.height || 0,
         weight: state?.emrData?.weight || 0,
         gfr: state?.emrData?.gfr || "",
-        childPughScore: state?.emrData?.childPughScore || "",
-        plt: state?.emrData?.plt || 0,
-        wbc: state?.emrData?.wbc || 0,
-        sat: state?.emrData?.sat || 0,
-        sodium: state?.emrData?.sodium || 0,
-        sensitivities: state?.emrData?.sensitivities || [],
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -57,10 +52,11 @@ const EMRUpdateForm: React.FC = () => {
 
         try {
             await updateEmr({ mrn: patient.mrn!, data: form }).unwrap();
+            toast.success("EMR updated successfully!");
             navigate(-1);
         } catch (error: unknown) {
             console.error("Failed to update EMR:", error);
-            alert("Error updating EMR");
+            toast.error("Error updating EMR");
         }
     };
 
@@ -103,6 +99,7 @@ const EMRUpdateForm: React.FC = () => {
                     <Input type="text" name="sensitivities" placeholder="e.g. PARACETAMOL, IBUPROFEN" value={form.sensitivities?.join(", ") || ""} onChange={handleSensitivitiesChange} />
                 </FormFieldWrapper>
             </FormCard>
+            <PageNavigation />
         </div>
     );
 };

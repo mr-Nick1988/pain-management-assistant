@@ -13,6 +13,7 @@ export const apiPersonSlice = createApi({
             // No need to add Bearer token headers
             return headers;
         },
+        credentials: 'include', // Important: include cookies in requests
     }),
     endpoints: (builder) => ({
         login: builder.mutation<PersonLoginResponse, PersonLogin>({

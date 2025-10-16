@@ -6,12 +6,15 @@ import {
     useDeleteVasMutation
 } from "../../api/api/apiNurseSlice";
 import type { Patient, VAS } from "../../types/nurse";
-import { DataCard, FormFieldWrapper, Button, Input } from "../ui";
+import { DataCard, FormFieldWrapper, Button, Input, PageNavigation } from "../ui";
+import { useToast } from "../../contexts/ToastContext";
 
 const GenerateRecommendationForm: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const state = location.state as { patient?: Patient; vasData?: VAS };
+    const toast = useToast();
+    
     const { patient, vasData } = state || {};
 
     // All hooks must be called before any conditional returns
@@ -39,15 +42,15 @@ const GenerateRecommendationForm: React.FC = () => {
     // 🔄 Обновление VAS
     const handleUpdateVAS = async () => {
         if (formData.painLevel < 0 || formData.painLevel > 10) {
-            alert("Pain level must be between 0 and 10");
+            toast.warning("Pain level must be between 0 and 10");
             return;
         }
         try {
             await updateVAS({ mrn: patient.mrn!, data: formData }).unwrap();
-            alert("VAS updated successfully!");
+            toast.success("VAS updated successfully!");
         } catch (error) {
             console.error(error);
-            alert("Failed to update VAS");
+            toast.error("Failed to update VAS");
         }
     };
 
@@ -55,11 +58,11 @@ const GenerateRecommendationForm: React.FC = () => {
     const handleCreateRecommendation = async () => {
         try {
             await createRecommendation({ mrn: patient.mrn! }).unwrap();
-            alert("Recommendation generated successfully!");
+            toast.success("Recommendation generated successfully!");
             navigate(`/nurse/recommendation-details/${patient.mrn}`);
         } catch (error) {
             console.error("Failed to create recommendation:", error);
-            alert("Failed to generate recommendation");
+            toast.error("Failed to generate recommendation");
         }
     };
 
@@ -68,11 +71,11 @@ const GenerateRecommendationForm: React.FC = () => {
         if (!window.confirm("Are you sure you want to delete this VAS record?")) return;
         try {
             await deleteVAS(patient.mrn!).unwrap();
-            alert("VAS deleted successfully!");
+            toast.success("VAS deleted successfully!");
             navigate(`/nurse/patient/${patient.mrn}`);
         } catch (error) {
             console.error(error);
-            alert("Failed to delete VAS");
+            toast.error("Failed to delete VAS");
         }
     };
 
@@ -105,6 +108,7 @@ const GenerateRecommendationForm: React.FC = () => {
                     {isDeleting ? "Deleting..." : "Delete VAS Record"}
                 </Button>
             </DataCard>
+            <PageNavigation />
         </div>
     );
 };

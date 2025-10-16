@@ -7,12 +7,14 @@ import {
     useLazyGetLastRecommendationQuery
 } from "../../api/api/apiDoctorSlice";
 import type {Patient, EMR} from "../../types/doctor";
-import {Button, Card, CardContent, CardHeader, CardTitle} from "../ui";
+import {Button, Card, CardContent, CardHeader, CardTitle, PageNavigation} from "../ui";
+import {useToast} from "../../contexts/ToastContext";
 
 const PatientDetails: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const patient = location.state as Patient;
+    const toast = useToast();
 
     // Все хуки должны быть вызваны ДО любых условных return
     const [loadEmr, setLoadEmr] = useState(false);
@@ -64,7 +66,7 @@ const PatientDetails: React.FC = () => {
         if (result.data) {
             navigate(`/doctor/recommendation/${patient.mrn}`, {state: result.data});
         } else {
-            alert("No recommendation found for this patient");
+            toast.warning("No recommendation found for this patient");
         }
     };
 
@@ -359,6 +361,7 @@ const PatientDetails: React.FC = () => {
                     </div>
                 </CardContent>
             </Card>
+            <PageNavigation />
         </div>
     );
 };

@@ -2,18 +2,23 @@ import React, {useState} from "react";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useApproveRecommendationMutation, useRejectRecommendationMutation} from "../../api/api/apiDoctorSlice";
 import type {RecommendationWithVas, RecommendationApprovalRejection, DrugRecommendation, RecommendationStatus} from "../../types/doctor";
-import {Button, Card, CardContent, CardHeader, CardTitle, Label, Textarea} from "../ui";
+import {Button, Card, CardContent, CardHeader, CardTitle, Label, Textarea, PageNavigation} from "../ui";
+import {useToast} from "../../contexts/ToastContext";
 
 const RecommendationDetails: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const recWithVas = location.state as RecommendationWithVas;
+    const toast = useToast();
 
     const [comment, setComment] = useState("");
     const [rejectedReason, setRejectedReason] = useState("");
 
     const [approveRecommendation, {isLoading: isApproving}] = useApproveRecommendationMutation();
     const [rejectRecommendation, {isLoading: isRejecting}] = useRejectRecommendationMutation();
+
+    // Debug: log received data
+    console.log("RecommendationDetails - received data:", recWithVas);
 
     if (!recWithVas) {
         return (
@@ -31,27 +36,43 @@ const RecommendationDetails: React.FC = () => {
     }
 
     const {recommendation, vas, patientMrn} = recWithVas;
+    // Backend sends patientMrn inside recommendation object, not at top level
+    const mrn = patientMrn || recommendation.patientMrn;
     const isPending = recommendation.status === "PENDING";
 
     const handleApprove = async () => {
-        if (!patientMrn) return;
+        if (!recommendation.id) {
+            toast.error("Recommendation ID is missing!");
+            console.error("Recommendation ID not found. recommendation:", recommendation);
+            return;
+        }
         try {
             const data: RecommendationApprovalRejection = {
                 status: "APPROVED" as RecommendationStatus,
                 comment: comment || undefined,
             };
-            await approveRecommendation({mrn: patientMrn, data}).unwrap();
-            alert("Recommendation approved!");
+            console.log("Approving recommendation with ID:", recommendation.id, "with data:", data);
+            const result = await approveRecommendation({recommendationId: recommendation.id, data}).unwrap();
+            console.log("Approval result:", result);
+            toast.success("Recommendation approved successfully!");
             navigate("/doctor/recommendations");
         } catch (error) {
-            console.error("Failed to approve:", error);
-            alert("Error approving recommendation");
+            console.error("Failed to approve recommendation:", error);
+            const errorMessage = (error as { data?: { message?: string }; message?: string })?.data?.message 
+                || (error as { message?: string })?.message 
+                || "Unknown error occurred";
+            toast.error(`Error approving recommendation: ${errorMessage}`);
         }
     };
 
     const handleReject = async () => {
-        if (!patientMrn || !rejectedReason.trim()) {
-            alert("Rejected reason is required!");
+        if (!recommendation.id) {
+            toast.error("Recommendation ID is missing!");
+            console.error("Recommendation ID not found. recommendation:", recommendation);
+            return;
+        }
+        if (!rejectedReason.trim()) {
+            toast.warning("Rejected reason is required!");
             return;
         }
         try {
@@ -60,12 +81,17 @@ const RecommendationDetails: React.FC = () => {
                 rejectedReason,
                 comment: comment || undefined,
             };
-            await rejectRecommendation({mrn: patientMrn, data}).unwrap();
-            alert("Recommendation rejected!");
+            console.log("Rejecting recommendation with ID:", recommendation.id, "with data:", data);
+            const result = await rejectRecommendation({recommendationId: recommendation.id, data}).unwrap();
+            console.log("Rejection result:", result);
+            toast.success("Recommendation rejected successfully!");
             navigate("/doctor/recommendations");
         } catch (error) {
-            console.error("Failed to reject:", error);
-            alert("Error rejecting recommendation");
+            console.error("Failed to reject recommendation:", error);
+            const errorMessage = (error as { data?: { message?: string }; message?: string })?.data?.message 
+                || (error as { message?: string })?.message 
+                || "Unknown error occurred";
+            toast.error(`Error rejecting recommendation: ${errorMessage}`);
         }
     };
 
@@ -74,7 +100,7 @@ const RecommendationDetails: React.FC = () => {
             <div className="flex justify-between items-center">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">Recommendation Details</h1>
-                    <p className="text-gray-600 mt-1">Patient MRN: {patientMrn}</p>
+                    <p className="text-gray-600 mt-1">Patient MRN: {mrn}</p>
                 </div>
                 <Button variant="outline" onClick={() => navigate("/doctor/recommendations")}>
                     Back to Recommendations
@@ -251,6 +277,7 @@ const RecommendationDetails: React.FC = () => {
                     </CardContent>
                 </Card>
             )}
+            <PageNavigation />
         </div>
     );
 };

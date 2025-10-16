@@ -1,7 +1,15 @@
 import React from "react";
 import {Navigate, Route, Routes} from "react-router-dom";
 import {
-    AdminPanel,
+    UsersManagement,
+    AdminLayout,
+    AdminDashboard,
+    AnalyticsOverview,
+    UserActivityMonitor,
+    PerformanceMetrics,
+    PatientStatistics,
+    TechnicalLogs,
+    EventsTimeline,
     ChangeCredentials,
     AnesthesiologistDashboard,
     CreatePerson,
@@ -29,23 +37,27 @@ import {
 } from "../exports/exports.ts";
 import ProtectedRoute from "./ProtectedRoute.tsx";
 
-
 const AppRoutes: React.FC = () => {
-
     return (
         <Routes>
             <Route path="/login" element={<Login/>}/>
+            
+            {/* ADMIN ROUTES */}
             <Route path="/admin" element={
                 <ProtectedRoute>
-                    <AdminPanel/>
+                    <AdminLayout/>
                 </ProtectedRoute>
-            }/>
-
-            <Route path="/admin/create-person" element={
-                <ProtectedRoute>
-                    <CreatePerson/>
-                </ProtectedRoute>
-            }/>
+            }>
+                <Route index element={<AdminDashboard/>}/>
+                <Route path="analytics" element={<AnalyticsOverview/>}/>
+                <Route path="users" element={<UsersManagement/>}/>
+                <Route path="activity" element={<UserActivityMonitor/>}/>
+                <Route path="performance" element={<PerformanceMetrics/>}/>
+                <Route path="patients-stats" element={<PatientStatistics/>}/>
+                <Route path="logs" element={<TechnicalLogs/>}/>
+                <Route path="events" element={<EventsTimeline/>}/>
+                <Route path="create-person" element={<CreatePerson/>}/>
+            </Route>
 
             {/* NURSE ROUTES */}
             <Route path="/nurse" element={

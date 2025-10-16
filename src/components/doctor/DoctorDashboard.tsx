@@ -1,6 +1,6 @@
 import React from "react";
 import {useNavigate} from "react-router-dom";
-import {Button, Card, CardContent, CardDescription, CardHeader, CardTitle} from "../ui";
+import {Button, Card, CardContent, CardDescription, CardHeader, CardTitle, PageNavigation} from "../ui";
 
 const DoctorDashboard: React.FC = () => {
     const navigate = useNavigate();
@@ -63,6 +63,7 @@ const DoctorDashboard: React.FC = () => {
                     </Card>
                 ))}
             </div>
+            <PageNavigation />
         </div>
     );
 };

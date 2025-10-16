@@ -3,7 +3,7 @@ import {useNavigate} from "react-router-dom";
 import {type Patient, PatientsGenders} from "../../types/doctor";
 import {useCreatePatientMutation} from "../../api/api/apiDoctorSlice.ts";
 import {getErrorMessage} from "../../utils/getErrorMessageHelper.ts";
-import {Button, Card, CardContent, CardHeader,  Input, Label, Select} from "../ui";
+import {Button, Card, CardContent, CardHeader,  Input, Label, Select, PageNavigation} from "../ui";
 import {validatePatient} from "../../utils/validationPatient";
 
 
@@ -219,6 +219,7 @@ const PatientFormRegister: React.FC = () => {
                     </form>
                 </CardContent>
             </Card>
+            <PageNavigation />
         </div>
     );
 };

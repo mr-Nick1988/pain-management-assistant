@@ -6,7 +6,7 @@ import {
     useLazyGetPatientByEmailQuery,
     useLazyGetPatientByPhoneNumberQuery
 } from "../../api/api/apiNurseSlice.ts";
-import { PageHeader, ActionCard, SearchCard, SearchField, Button, Input } from "../ui";
+import { PageHeader, ActionCard, SearchCard, SearchField, Button, Input, PageNavigation } from "../ui";
 
 interface PatientSearchParams {
     firstName?: string;
@@ -66,7 +66,7 @@ const NurseDashboard: React.FC = () => {
                 description="Search for patients or register new ones"
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <ActionCard
                     title="Register Patient"
                     description="Add a new patient to the system"
@@ -82,11 +82,6 @@ const NurseDashboard: React.FC = () => {
                     onClick={() => handleFindPatients()}
                     buttonText="Get All Patients"
                     buttonVariant="default"
-                />
-                <ActionCard
-                    title="Quick Search"
-                    description="Find patients by various criteria"
-                    icon="🔍"
                 />
             </div>
 
@@ -135,6 +130,7 @@ const NurseDashboard: React.FC = () => {
                         Patients</Button>
                 </div>
             </SearchCard>
+            <PageNavigation />
         </div>
     )
 };

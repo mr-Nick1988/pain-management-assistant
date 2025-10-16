@@ -6,7 +6,7 @@ import {
     useLazyGetPatientByPhoneNumberQuery,
     useLazySearchPatientsQuery
 } from "../../api/api/apiDoctorSlice";
-import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Select} from "../ui";
+import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Select, PageNavigation} from "../ui";
 import type {Patient} from "../../types/doctor";
 
 const PatientList: React.FC = () => {
@@ -343,6 +343,7 @@ const PatientList: React.FC = () => {
                     </CardContent>
                 </Card>
             )}
+            <PageNavigation />
         </div>
     );
 };

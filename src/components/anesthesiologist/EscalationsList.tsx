@@ -1,4 +1,4 @@
-﻿import React, {useMemo, useState} from "react";
+import React, {useMemo, useState} from "react";
 import {type EscalationResponse, EscalationStatus, EscalationPriority} from "../../types/anesthesiologist.ts";
 import {useApproveEscalationMutation, useRejectEscalationMutation} from "../../api/api/apiAnesthesiologistSlice.ts";
 import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label} from "../ui";
@@ -290,7 +290,7 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
             </Card>
 
             {showApproveModal && selectedEscalation && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div className="fixed inset-0 bg-gray-900 bg-opacity-20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
                     <Card className="w-full max-w-lg">
                         <CardHeader>
                             <CardTitle>Approve Escalation</CardTitle>
@@ -350,7 +350,7 @@ const EscalationsList: React.FC<EscalationListProps> = ({escalations, onEscalati
             )}
 
             {showRejectModal && selectedEscalation && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div className="fixed inset-0 bg-gray-900 bg-opacity-20 backdrop-blur-sm flex items-center justify-center p-4 z-50">
                     <Card className="w-full max-w-lg">
                         <CardHeader>
                             <CardTitle>Reject Escalation</CardTitle>

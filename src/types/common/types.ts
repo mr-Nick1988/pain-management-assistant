@@ -144,6 +144,7 @@ export interface DrugRecommendation {
 // ============================================
 
 export interface Recommendation {
+    id?: number; // backend identifier
     regimenHierarchy: number; // первая линия, вторая и т.д.
     status: RecommendationStatus;
     rejectedReason?: string;

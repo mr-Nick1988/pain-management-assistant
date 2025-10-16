@@ -17,6 +17,7 @@ export const apiAnesthesiologistSlice = createApi({
     reducerPath: "apiAnesthesiologist",
     baseQuery: fetchBaseQuery({
         baseUrl: base_url,
+        credentials: 'include', // Important: include cookies in requests
     }),
     tagTypes: ["Escalation", "Protocol", "Comment", "Stats"],
     endpoints: (builder) => ({

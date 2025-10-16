@@ -9,23 +9,17 @@ import type {
     RecommendationApprovalRejection
 } from "../../types/doctor.ts";
 
-interface RootState {
-    auth?: {
-        token?: string;
-    }
-}
-
 export const apiDoctorSlice = createApi({
     reducerPath: "apiDoctor",
     tagTypes: ["Patient", "Emr", "Recommendation"],
     baseQuery: fetchBaseQuery({
         baseUrl: base_url,
-        prepareHeaders: (headers, {getState}) => {
-            const state = getState() as RootState;
-            const token = state.auth?.token;
-            if (token) headers.set('authorization', `Bearer ${token}`);
+        prepareHeaders: (headers) => {
+            // Authentication is handled via session/cookies on the backend
+            // No need to add Bearer token headers
             return headers;
         },
+        credentials: 'include', // Important: include cookies in requests
     }),
     endpoints: (builder) => ({
         // PATIENT
@@ -126,17 +120,17 @@ export const apiDoctorSlice = createApi({
             query: (mrn) => `/doctor/patients/${mrn}/recommendations/last`,
             providesTags: ["Recommendation"],
         }),
-        approveRecommendation: builder.mutation<void, { mrn: string; data: RecommendationApprovalRejection }>({
-            query: ({mrn, data}) => ({
-                url: `/doctor/patients/${mrn}/recommendations/approve`,
+        approveRecommendation: builder.mutation<void, { recommendationId: number; data: RecommendationApprovalRejection }>({
+            query: ({ recommendationId, data }) => ({
+                url: `/doctor/recommendations/${recommendationId}/approve`,
                 method: "POST",
                 body: data,
             }),
             invalidatesTags: ["Recommendation"],
         }),
-        rejectRecommendation: builder.mutation<void, { mrn: string; data: RecommendationApprovalRejection }>({
-            query: ({mrn, data}) => ({
-                url: `/doctor/patients/${mrn}/recommendations/reject`,
+        rejectRecommendation: builder.mutation<void, { recommendationId: number; data: RecommendationApprovalRejection }>({
+            query: ({ recommendationId, data }) => ({
+                url: `/doctor/recommendations/${recommendationId}/reject`,
                 method: "POST",
                 body: data,
             }),

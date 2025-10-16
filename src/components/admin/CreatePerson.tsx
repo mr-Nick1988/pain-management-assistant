@@ -16,7 +16,7 @@ const CreatePerson: React.FC = () => {
         login: "",
         password: "",
         role: UserRole.DOCTOR,
-        mrn: ""
+        personId: ""
     });
 
     const [error, setError] = useState<string | null>(null);
@@ -41,7 +41,7 @@ const CreatePerson: React.FC = () => {
                 login: personToEdit.login,
                 password: "", // Don't populate password for security
                 role: personToEdit.role,
-                mrn: personToEdit.personId
+                personId: personToEdit.personId
             });
         }
     }, [personToEdit, isEditMode]);
@@ -58,12 +58,12 @@ const CreatePerson: React.FC = () => {
         try {
             if (isEditMode) {
                 await updatePerson(formData).unwrap();
-                setSuccessMessage('User updated successfully');
+                setSuccessMessage('Employee updated successfully');
                 // Redirect back to admin panel after a short delay
                 setTimeout(() => navigate('/admin'), 1500);
             } else {
                 await createPerson(formData).unwrap();
-                setSuccessMessage('User created successfully');
+                setSuccessMessage('Employee created successfully');
                 // Reset form for creating another user
                 setFormData({
                     firstName: "",
@@ -71,7 +71,7 @@ const CreatePerson: React.FC = () => {
                     login: "",
                     password: "",
                     role: UserRole.DOCTOR,
-                    mrn: ""
+                    personId: ""
                 });
             }
         } catch (error: unknown) {
@@ -82,15 +82,14 @@ const CreatePerson: React.FC = () => {
 
     const clearMessages = () => {
         setError(null);
-        setSuccessMessage(null);
     };
 
     if (isEditMode && isLoadingPersons) {
         return (
             <div className="container mx-auto px-4 py-8 max-w-2xl">
-                <div className="flex justify-center items-center py-8">
+                <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-                    <span className="ml-2">Loading person data...</span>
+                    <span className="ml-2">Loading employee data...</span>
                 </div>
             </div>
         );
@@ -100,7 +99,7 @@ const CreatePerson: React.FC = () => {
         <div className="container mx-auto px-4 py-8 max-w-2xl">
             <Card>
                 <CardHeader>
-                    <CardTitle>{isEditMode ? "Edit Person" : "Create New Person"}</CardTitle>
+                    <CardTitle>{isEditMode ? "Edit Employee" : "Create New Employee"}</CardTitle>
                     <Button
                         onClick={() => navigate('/admin')}
                         variant="cancel"
@@ -237,7 +236,7 @@ const CreatePerson: React.FC = () => {
                                 variant="submit"
                                 className="flex-1"
                             >
-                                {isLoading ? "Processing..." : isEditMode ? "Update User" : "Create Person"}
+                                {isLoading ? "Processing..." : isEditMode ? "Update Employee" : "Create Employee"}
                             </Button>
                         </div>
                     </form>

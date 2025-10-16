@@ -1,7 +1,7 @@
 import React from "react";
 import {useNavigate} from "react-router-dom";
 import {useGetAllPendingRecommendationsQuery} from "../../api/api/apiDoctorSlice";
-import {Button, Card, CardContent} from "../ui";
+import {Button, Card, CardContent, CardHeader, CardTitle, LoadingSpinner, PageNavigation} from "../ui";
 
 const RecommendationList: React.FC = () => {
     const navigate = useNavigate();
@@ -12,7 +12,7 @@ const RecommendationList: React.FC = () => {
             <div className="p-6">
                 <Card>
                     <CardContent className="text-center py-8">
-                        <p>Loading pending recommendations...</p>
+                        <LoadingSpinner />
                     </CardContent>
                 </Card>
             </div>
@@ -68,15 +68,12 @@ const RecommendationList: React.FC = () => {
                         className="hover:shadow-lg transition-shadow cursor-pointer"
                         onClick={() => navigate(`/doctor/recommendation/${recWithVas.patientMrn}`, {state: recWithVas})}
                     >
+                        <CardHeader>
+                            <CardTitle>{recWithVas.patientMrn}</CardTitle>
+                        </CardHeader>
                         <CardContent className="p-6">
                             <div className="flex justify-between items-start">
                                 <div className="space-y-2 flex-1">
-                                    <div className="flex items-center space-x-2">
-                                        <p className="font-bold text-lg">Patient MRN: {recWithVas.patientMrn}</p>
-                                        <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-semibold">
-                                            PENDING
-                                        </span>
-                                    </div>
                                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
                                         <div>
                                             <p className="text-gray-500">Status</p>
@@ -111,6 +108,7 @@ const RecommendationList: React.FC = () => {
                     </Card>
                 ))}
             </div>
+            <PageNavigation />
         </div>
     );
 };
