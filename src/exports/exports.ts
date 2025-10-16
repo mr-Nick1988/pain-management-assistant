@@ -18,6 +18,7 @@ export {default as VASFormRegister} from "../components/nurse/VASFormRegister.ts
 export {default as GenerateRecommendationForm} from "../components/nurse/GenerateRecommendationForm.tsx"
 export {default as PatientUpdateForm} from "../components/nurse/PatientUpdateForm.tsx"
 export {default as RecommendationDetails} from "../components/nurse/RecommendationDetails.tsx"
+export {default as NurseRecommendationsList} from "../components/nurse/NurseRecommendationsList.tsx"
 
 // DOCTOR
 export {default as DoctorLayout} from "../components/doctor/DoctorLayout.tsx"

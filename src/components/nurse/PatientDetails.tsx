@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import {
     useGetEmrByPatientIdQuery,
     useGetRecommendationByPatientIdQuery,
     useDeletePatientMutation,
+    useGetPatientByMrnQuery,
 } from "../../api/api/apiNurseSlice";
 import type { Patient } from "../../types/nurse";
+import type { Diagnosis } from "../../types/common/types.ts";
 import {
     PageHeader,
     DataCard,
@@ -16,22 +18,32 @@ import {
     Modal,
     ModalHeader,
     ModalBody,
-    ModalFooter
-, PageNavigation } from "../ui";
+    ModalFooter,
+    PageNavigation,
+} from "../ui";
 
 const PatientDetails: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const patient = location.state as Patient;
+    const { mrn } = useParams<{ mrn: string }>();
 
-    // ✅ все хуки наверху
+    const cachedPatient = location.state?.patient || null;
+
+    const {
+        data: patientData,
+        isLoading: isLoadingPatient,
+        isError: isErrorPatient,
+    } = useGetPatientByMrnQuery(mrn || "", { skip: !mrn });
+
+    const patient: Patient = patientData || cachedPatient;
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [loadEmr, setLoadEmr] = useState(false);
     const [loadRecommendation, setLoadRecommendation] = useState(false);
 
-    const { data: emrData, isFetching: emrLoading } = useGetEmrByPatientIdQuery(patient?.mrn || "", {
-        skip: !loadEmr || !patient?.mrn,
-    });
+    const { data: emrData, isFetching: emrLoading } = useGetEmrByPatientIdQuery(
+        patient?.mrn || "",
+        { skip: !loadEmr || !patient?.mrn }
+    );
 
     const { data: recommendation, isFetching: recLoading, isError: recError } =
         useGetRecommendationByPatientIdQuery(patient?.mrn || "", {
@@ -40,28 +52,42 @@ const PatientDetails: React.FC = () => {
 
     const [deletePatient] = useDeletePatientMutation();
 
-    if (!patient?.mrn) {
-        return (
-            <div className="p-6">
-                <p className="text-center text-gray-500">No patient data.</p>
-                <Button variant="default" onClick={() => navigate("/nurse")}>
-                    Back to Dashboard
-                </Button>
-            </div>
-        );
-    }
-
     const confirmDelete = async () => {
         await deletePatient(patient.mrn!);
         setIsDeleteModalOpen(false);
         navigate("/nurse");
     };
 
+    if (isLoadingPatient && !patient)
+        return (
+            <div className="p-6">
+                <div className="flex justify-center items-center h-64">
+                    <LoadingSpinner message="Loading patient data..." />
+                </div>
+            </div>
+        );
+
+    if (isErrorPatient || !patient)
+        return (
+            <div className="p-6">
+                <div className="bg-red-50 border-l-4 border-red-400 p-4">
+                    <p className="text-sm text-red-700">
+                        No patient data available. Please return to the Dashboard.
+                    </p>
+                    <div className="mt-4">
+                        <Button variant="default" onClick={() => navigate("/nurse")}>
+                            Back to Dashboard
+                        </Button>
+                    </div>
+                </div>
+            </div>
+        );
+
     return (
         <div className="p-6 space-y-6">
             <PageHeader title="Patient Details" />
 
-            {/* 👤 Основная информация */}
+            {/*  Patient Info */}
             <DataCard title="Patient Information">
                 <InfoGrid columns={2}>
                     <InfoItem label="MRN" value={patient.mrn} />
@@ -80,7 +106,7 @@ const PatientDetails: React.FC = () => {
                 </InfoGrid>
             </DataCard>
 
-            {/* 🧬 EMR */}
+            {/*  EMR */}
             <DataCard
                 title="Electronic Medical Record (EMR)"
                 actions={
@@ -106,6 +132,20 @@ const PatientDetails: React.FC = () => {
                                 <InfoItem label="SAT" value={`${emrData.sat ?? "N/A"}%`} />
                                 <InfoItem label="Sodium" value={emrData.sodium ?? "N/A"} />
                             </InfoGrid>
+
+                            {emrData.diagnoses?.length ? (
+                                <div className="bg-yellow-50 p-4 rounded-lg">
+                                    <p className="font-semibold text-gray-800 mb-2">Diagnoses:</p>
+                                    <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
+                                        {emrData.diagnoses.map((d: Diagnosis, i: number) => (
+                                            <li key={i}>{d.description} - {d.icdCode}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <p className="text-sm text-gray-500 italic">No diagnoses recorded.</p>
+                            )}
+
                             {emrData.sensitivities?.length ? (
                                 <div className="bg-yellow-50 p-4 rounded-lg">
                                     <p className="font-semibold text-gray-800 mb-2">Sensitivities:</p>
@@ -116,10 +156,9 @@ const PatientDetails: React.FC = () => {
                                     </ul>
                                 </div>
                             ) : (
-                                <p className="text-sm text-gray-500 italic">
-                                    No sensitivities recorded.
-                                </p>
+                                <p className="text-sm text-gray-500 italic">No sensitivities recorded.</p>
                             )}
+
                             <Button
                                 variant="update"
                                 onClick={() =>
@@ -134,16 +173,14 @@ const PatientDetails: React.FC = () => {
                     ) : (
                         <Button
                             variant="approve"
-                            onClick={() =>
-                                navigate(`/nurse/emr-form/${patient.mrn}`, { state: patient })
-                            }
+                            onClick={() => navigate(`/nurse/emr-form/${patient.mrn}`, { state: patient })}
                         >
                             Create EMR
                         </Button>
                     ))}
             </DataCard>
 
-            {/* 💊 Recommendation */}
+            {/* Recommendation */}
             <DataCard
                 title="Pain Management Recommendation"
                 actions={
@@ -163,18 +200,9 @@ const PatientDetails: React.FC = () => {
                         <div className="space-y-4">
                             <InfoGrid columns={2}>
                                 <InfoItem label="Status" value={recommendation.status} />
-                                <InfoItem
-                                    label="Regimen"
-                                    value={recommendation.regimenHierarchy}
-                                />
-                                <InfoItem
-                                    label="Created At"
-                                    value={recommendation.createdAt ?? "N/A"}
-                                />
-                                <InfoItem
-                                    label="Created By"
-                                    value={recommendation.createdBy ?? "N/A"}
-                                />
+                                <InfoItem label="Regimen" value={recommendation.regimenHierarchy} />
+                                <InfoItem label="Created At" value={recommendation.createdAt ?? "N/A"} />
+                                <InfoItem label="Created By" value={recommendation.createdBy ?? "N/A"} />
                             </InfoGrid>
 
                             {recommendation.comments?.length ? (
@@ -188,61 +216,27 @@ const PatientDetails: React.FC = () => {
                                 </div>
                             ) : null}
 
-                            {recommendation.contraindications?.length ? (
-                                <div className="bg-red-50 p-4 rounded-lg">
-                                    <p className="font-semibold text-gray-800 mb-2">
-                                        Contraindications:
-                                    </p>
-                                    <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-                                        {recommendation.contraindications.map((c, i) => (
-                                            <li key={i}>{c}</li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            ) : null}
-
                             {recommendation.drugs?.length ? (
                                 <div>
-                                    <p className="font-semibold text-gray-800 mb-3">
-                                        Drug Recommendations:
-                                    </p>
+                                    <p className="font-semibold text-gray-800 mb-3">Drug Recommendations:</p>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {recommendation.drugs.map((drug, i) => (
-                                            <div
-                                                key={i}
-                                                className="border rounded-lg p-4 bg-gray-50"
-                                            >
-                                                <p className="text-sm">
-                                                    <strong>Role:</strong> {drug.role}
-                                                </p>
-                                                <p className="text-sm">
-                                                    <strong>Drug:</strong> {drug.drugName}
-                                                </p>
-                                                <p className="text-sm">
-                                                    <strong>Active Moiety:</strong>{" "}
-                                                    {drug.activeMoiety}
-                                                </p>
-                                                <p className="text-sm">
-                                                    <strong>Dosing:</strong> {drug.dosing}
-                                                </p>
-                                                <p className="text-sm">
-                                                    <strong>Interval:</strong> {drug.interval}
-                                                </p>
-                                                <p className="text-sm">
-                                                    <strong>Route:</strong> {drug.route}
-                                                </p>
+                                            <div key={i} className="border rounded-lg p-4 bg-gray-50">
+                                                <p className="text-sm"><strong>Role:</strong> {drug.role}</p>
+                                                <p className="text-sm"><strong>Drug:</strong> {drug.drugName}</p>
+                                                <p className="text-sm"><strong>Active Moiety:</strong> {drug.activeMoiety}</p>
+                                                <p className="text-sm"><strong>Dosing:</strong> {drug.dosing}</p>
+                                                <p className="text-sm"><strong>Interval:</strong> {drug.interval}</p>
+                                                <p className="text-sm"><strong>Route:</strong> {drug.route}</p>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                             ) : null}
 
-                            {/* ✅ кнопка перехода на полные детали рекомендации */}
                             <Button
                                 variant="default"
-                                onClick={() =>
-                                    navigate(`/nurse/recommendation-details/${patient.mrn}`)
-                                }
+                                onClick={() => navigate(`/nurse/recommendation-details/${patient.mrn}`)}
                             >
                                 View Full Recommendation
                             </Button>
@@ -250,38 +244,37 @@ const PatientDetails: React.FC = () => {
                     ) : null)}
             </DataCard>
 
-            {/* ⚙️ Кнопки действий */}
+            {/*  Patient Actions */}
             <DataCard title="Patient Actions">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <Button
                         variant="approve"
-                        onClick={() =>
-                            navigate(`/nurse/vas-form/${patient.mrn}`, { state: patient })
-                        }
+                        onClick={() => navigate(`/nurse/vas-form/${patient.mrn}`, { state: patient })}
                     >
                         Register Pain Complaint
                     </Button>
                     <Button
                         variant="update"
-                        onClick={() =>
-                            navigate(`/nurse/update-patient/${patient.mrn}`, { state: patient })
-                        }
+                        onClick={() => navigate(`/nurse/update-patient/${patient.mrn}`, { state: patient })}
                     >
                         Update Patient Data
                     </Button>
                     <Button variant="delete" onClick={() => setIsDeleteModalOpen(true)}>
                         Delete Patient
                     </Button>
+                    <Button variant="default" onClick={() => navigate("/nurse")}>
+                        Back to Dashboard
+                    </Button>
                 </div>
             </DataCard>
 
-            {/* 🗑️ Модалка удаления */}
+            {/*  Delete Modal */}
             <Modal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)}>
                 <ModalHeader>Confirm Delete</ModalHeader>
                 <ModalBody>
                     <p>
-                        Are you sure you want to delete {patient.firstName} {patient.lastName}?{" "}
-                        This action cannot be undone.
+                        Are you sure you want to delete {patient.firstName} {patient.lastName}? This action
+                        cannot be undone.
                     </p>
                 </ModalBody>
                 <ModalFooter>
@@ -293,8 +286,9 @@ const PatientDetails: React.FC = () => {
                     </Button>
                 </ModalFooter>
             </Modal>
-        <PageNavigation />
 
+            {/*  Навигация снизу */}
+            <PageNavigation />
         </div>
     );
 };

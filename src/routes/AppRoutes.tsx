@@ -33,7 +33,7 @@ import {
     PatientFormRegister,
     PatientList,
     PatientUpdateForm,
-    VASFormRegister, RecommendationDetails
+    VASFormRegister, RecommendationDetails, NurseRecommendationsList
 } from "../exports/exports.ts";
 import ProtectedRoute from "./ProtectedRoute.tsx";
 
@@ -67,6 +67,7 @@ const AppRoutes: React.FC = () => {
             }>
                 <Route index element={<NurseDashboard/>}/> {/* стартовая страница */}
                 <Route path="register-patient" element={<PatientFormRegister/>}/>
+                <Route path="/nurse/recommendations" element={<NurseRecommendationsList />}/>
                 <Route path="emr-form/:mrn" element={<EMRFormRegister/>}/>
                 <Route path="emr-update/:mrn" element={<EMRUpdateForm/>}/>
                 <Route path="patients" element={<PatientList/>}/>
