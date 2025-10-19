@@ -1,15 +1,16 @@
 import React from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-import { useGetRecommendationByPatientIdQuery } from "../../api/api/apiNurseSlice";
+import { useGetRecommendationByPatientIdQuery, useGetPatientByMrnQuery } from "../../api/api/apiNurseSlice";
 import {
     PageHeader,
     DataCard,
     InfoGrid,
     InfoItem,
     LoadingSpinner,
-    Button, PageNavigation } from "../ui";
+    Button,
+    PageNavigation,
+} from "../ui";
 
-// 📅 Утилита для форматирования даты
 const formatDate = (dateString?: string): string => {
     if (!dateString) return "N/A";
     const date = new Date(dateString);
@@ -26,15 +27,26 @@ const RecommendationDetails: React.FC = () => {
     const { mrn } = useParams<{ mrn: string }>();
     const navigate = useNavigate();
     const location = useLocation();
-    const { patient } = location.state || {};
 
+    // 1 Берём из state, если переход был из PatientDetails
+    const cachedPatient = location.state?.patient || null;
+
+    // 2 Если нет — грузим пациента по MRN (для F5 или прямого URL)
+    const { data: fetchedPatient, isLoading: isPatientLoading } = useGetPatientByMrnQuery(mrn ?? "", {
+        skip: !mrn || !!cachedPatient,
+        refetchOnMountOrArgChange: true,
+    });
+
+    const patient = cachedPatient || fetchedPatient;
+
+    // 3 Загружаем рекомендацию
     const {
         data: recommendation,
         isLoading,
         isError,
     } = useGetRecommendationByPatientIdQuery(mrn!, { skip: !mrn });
 
-    if (isLoading)
+    if (isLoading || isPatientLoading)
         return (
             <div className="p-6">
                 <LoadingSpinner message="Loading recommendation..." />
@@ -53,7 +65,6 @@ const RecommendationDetails: React.FC = () => {
             </div>
         );
 
-    // 🩺 Читаемые названия статусов
     const statusLabels: Record<string, string> = {
         PENDING: "Pending",
         APPROVED_BY_DOCTOR: "Approved by Doctor",
@@ -68,45 +79,44 @@ const RecommendationDetails: React.FC = () => {
     return (
         <div className="p-6 space-y-6">
             <PageHeader title="Recommendation Details" />
-
-            {/* 🧩 Основная информация */}
+            {recommendation.generationFailed && (
+                <DataCard title=" No Automatic Recommendation Found">
+                    {recommendation.rejectionReasonsSummary && recommendation.rejectionReasonsSummary.length > 0 ? (
+                        <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+                            {recommendation.rejectionReasonsSummary.map((reason, index) => (
+                                <li key={index}>{reason}</li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p className="italic text-gray-600">
+                            The system could not generate a recommendation due to patient conditions or contraindications.
+                        </p>
+                    )}
+                    <p className="mt-4 text-sm text-gray-500">
+                        This recommendation requires doctor review and possible manual override.
+                    </p>
+                </DataCard>
+            )}
+            {/*  Recommendation Info */}
             <DataCard title="Recommendation Info">
                 <InfoGrid columns={2}>
                     <InfoItem label="Patient MRN" value={mrn} />
-                    <InfoItem
-                        label="Status"
-                        value={statusLabels[recommendation.status] || "N/A"}
-                    />
-                    <InfoItem
-                        label="Regimen Hierarchy"
-                        value={recommendation.regimenHierarchy || "N/A"}
-                    />
-                    <InfoItem
-                        label="Created At"
-                        value={formatDate(recommendation.createdAt)}
-                    />
-                    <InfoItem
-                        label="Updated At"
-                        value={formatDate(recommendation.updatedAt)}
-                    />
-                    <InfoItem
-                        label="Created By"
-                        value={recommendation.createdBy || "N/A"}
-                    />
+                    <InfoItem label="Patient Name" value={`${patient?.firstName ?? "?"} ${patient?.lastName ?? ""}`} />
+                    <InfoItem label="Status" value={statusLabels[recommendation.status] || "N/A"} />
+                    <InfoItem label="Regimen Hierarchy" value={recommendation.regimenHierarchy || "N/A"} />
+                    <InfoItem label="Created At" value={formatDate(recommendation.createdAt)} />
+                    <InfoItem label="Updated At" value={formatDate(recommendation.updatedAt)} />
+                    <InfoItem label="Created By" value={recommendation.createdBy || "N/A"} />
 
-                    {/* ⚠️ Только если статус — Rejected */}
                     {recommendation.rejectedReason &&
                         recommendation.status &&
                         recommendation.status.toLowerCase().includes("rejected") && (
-                            <InfoItem
-                                label="Rejected Reason"
-                                value={recommendation.rejectedReason}
-                            />
+                            <InfoItem label="Rejected Reason" value={recommendation.rejectedReason} />
                         )}
                 </InfoGrid>
             </DataCard>
 
-            {/* 💬 Комментарии */}
+            {/*  Comments */}
             <DataCard title="Comments">
                 {recommendation.comments && recommendation.comments.length > 0 ? (
                     <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
@@ -131,15 +141,12 @@ const RecommendationDetails: React.FC = () => {
                 )}
             </DataCard>
 
-            {/* 💊 Список лекарств */}
+            {/* Drugs */}
             {recommendation.drugs && recommendation.drugs.length > 0 && (
                 <DataCard title="Drug Recommendations">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {recommendation.drugs.map((drug, i) => (
-                            <div
-                                key={i}
-                                className="border rounded-lg p-4 bg-gray-50 shadow-sm"
-                            >
+                            <div key={i} className="border rounded-lg p-4 bg-gray-50 shadow-sm">
                                 <InfoGrid columns={1}>
                                     <InfoItem label="Drug" value={drug.drugName} />
                                     <InfoItem label="Active Moiety" value={drug.activeMoiety} />
@@ -154,28 +161,20 @@ const RecommendationDetails: React.FC = () => {
                 </DataCard>
             )}
 
-            {/* ⚙️ Навигация */}
+            {/*  Navigation */}
             <div className="flex justify-between mt-6">
                 <Button variant="cancel" onClick={() => navigate("/nurse")}>
                     Back to Dashboard
                 </Button>
                 <Button
                     variant="default"
-                    onClick={() => {
-                        if (patient) {
-                            // If we have patient data in location state, use it
-                            navigate(`/nurse/patient/${mrn}`, { state: { patient } });
-                        } else {
-                            // Fallback to just MRN if no patient data is available
-                            navigate(`/nurse/patient/${mrn}`);
-                        }
-                    }}
+                    onClick={() => navigate(`/nurse/patient/${mrn}`, { state: patient ? { patient } : undefined })}
                 >
                     Back to Patient
                 </Button>
             </div>
-        <PageNavigation />
 
+            <PageNavigation />
         </div>
     );
 };

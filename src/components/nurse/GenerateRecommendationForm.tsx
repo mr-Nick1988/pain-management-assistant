@@ -39,7 +39,7 @@ const GenerateRecommendationForm: React.FC = () => {
         }));
     };
 
-    // 🔄 Обновление VAS
+    //  Обновление VAS
     const handleUpdateVAS = async () => {
         if (formData.painLevel < 0 || formData.painLevel > 10) {
             toast.warning("Pain level must be between 0 and 10");
@@ -54,7 +54,7 @@ const GenerateRecommendationForm: React.FC = () => {
         }
     };
 
-    // 💊 Генерация рекомендации (теперь без тела запроса!)
+    //  Генерация рекомендации (теперь без тела запроса!)
     const handleCreateRecommendation = async () => {
         try {
             await createRecommendation({ mrn: patient.mrn! }).unwrap();

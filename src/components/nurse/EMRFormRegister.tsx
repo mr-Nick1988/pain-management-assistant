@@ -169,7 +169,7 @@ const EMRFormRegister: React.FC = () => {
                         />
                     </FormFieldWrapper>
 
-                    <FormFieldWrapper label="GFR" required hint="Enter A–E or 0–150 ml/min" error={errors.gfr}>
+                    <FormFieldWrapper label="GFR" required hint="Enter A–E or 0–120 ml/min" error={errors.gfr}>
                         <Input
                             type="text"
                             name="gfr"

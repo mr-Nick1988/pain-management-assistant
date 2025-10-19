@@ -126,6 +126,9 @@ export const apiNurseSlice = createApi({
             }),
             invalidatesTags: ["Vas"],
         }),
+        getLastVasByPatientId: builder.query({
+            query: (mrn) => `/nurse/patients/${mrn}/vas`,
+        }),
 
         // Recommendation
         // Get all approved recommendations
@@ -168,4 +171,5 @@ export const {
     useGetRecommendationByPatientIdQuery,
     useGetIcdDiagnosesQuery,
     useGetAllApprovedRecommendationsQuery,
+    useGetLastVasByPatientIdQuery,
 } = apiNurseSlice;

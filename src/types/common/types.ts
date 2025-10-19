@@ -46,7 +46,7 @@ export interface Patient {
     address: string;
     additionalInfo?: string;
     isActive?: boolean;
-    
+
     createdAt?: string;
     createdBy?: string;
     updatedAt?: string;
@@ -86,12 +86,12 @@ export interface EMR {
     sodium: number; // натрий
     sensitivities?: string[]; // чувствительность
     diagnoses?: Diagnosis[]; // хронические болезни
-    
+
     createdAt?: string;
     createdBy?: string;
     updatedAt?: string;
     updatedBy?: string;
-    
+
     patientMrn?: string; // для запросов вне контекста Patient
 }
 
@@ -122,12 +122,12 @@ export interface Diagnosis {
 export interface VAS {
     painPlace: string;
     painLevel: number; // 0-10
-    
+    resolved?: boolean
     createdAt?: string;
     createdBy?: string;
     updatedAt?: string;
     updatedBy?: string;
-    
+
     patientMrn?: string; // для запросов вне контекста Patient
 }
 
@@ -142,7 +142,7 @@ export interface DrugRecommendation {
     interval: string;
     route: DrugRoute;
     role: DrugRole; // основное или альтернативное
-    
+
     patientMrn?: string; // для запросов вне контекста Patient
 }
 
@@ -155,15 +155,16 @@ export interface Recommendation {
     regimenHierarchy: number; // первая линия, вторая и т.д.
     status: RecommendationStatus;
     rejectedReason?: string;
-    
+
     drugs?: DrugRecommendation[];
     contraindications?: string[];
     comments?: string[];
-    
+    generationFailed?: boolean;
+    rejectionReasonsSummary?:string[];
     createdAt?: string;
     createdBy?: string;
     updatedAt?: string;
     updatedBy?: string;
-    
+
     patientMrn?: string; // для запросов вне контекста Patient
 }
