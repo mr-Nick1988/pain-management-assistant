@@ -26,7 +26,6 @@ const EMRUpdateForm: React.FC = () => {
         childPughScore: state?.emrData?.childPughScore || "",
         plt: state?.emrData?.plt || 0,
         wbc: state?.emrData?.wbc || 0,
-        sat: state?.emrData?.sat || 0,
         sodium: state?.emrData?.sodium || 0,
         sensitivities: state?.emrData?.sensitivities || [],
         diagnoses: state?.emrData?.diagnoses ?? [], // список диагнозов
@@ -34,6 +33,9 @@ const EMRUpdateForm: React.FC = () => {
 
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [searchTerm, setSearchTerm] = useState("");
+    const [sensitivitiesInput, setSensitivitiesInput] = useState<string>(
+        state?.emrData?.sensitivities?.join(", ") || ""
+    );
 
     //  RTK Query: поиск диагнозов ICD по введённой строке
     const {
@@ -67,11 +69,15 @@ const EMRUpdateForm: React.FC = () => {
 
     //  Обработка списка чувствительностей (через запятую)
     const handleSensitivitiesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const arr = e.target.value
+        setSensitivitiesInput(e.target.value);
+    };
+
+    const handleSensitivitiesBlur = () => {
+        const items = sensitivitiesInput
             .split(",")
             .map((s) => s.trim())
             .filter(Boolean);
-        setForm((prev) => ({...prev, sensitivities: arr}));
+        setForm((prev) => ({...prev, sensitivities: items}));
     };
 
     // Добавление диагноза из автоподбора
@@ -98,6 +104,9 @@ const EMRUpdateForm: React.FC = () => {
     // Сабмит формы (валидация + обновление EMR)
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Ensure sensitivities are parsed before validation
+        handleSensitivitiesBlur();
 
         const validationErrors = validateEmr(form as EMR);
         setErrors(validationErrors);
@@ -222,8 +231,9 @@ const EMRUpdateForm: React.FC = () => {
                         type="text"
                         name="sensitivities"
                         placeholder="e.g. PARACETAMOL, IBUPROFEN"
-                        value={form.sensitivities?.join(", ") || ""}
+                        value={sensitivitiesInput}
                         onChange={handleSensitivitiesChange}
+                        onBlur={handleSensitivitiesBlur}
                     />
                 </FormFieldWrapper>
 
@@ -269,7 +279,7 @@ const EMRUpdateForm: React.FC = () => {
                                     className="flex items-center justify-between border-b py-1"
                                 >
                                     <span>
-                                        ✅ {d.description}{" "}
+                                         {d.description}{" "}
                                         <span className="text-gray-500">({d.icdCode})</span>
                                     </span>
                                     <button

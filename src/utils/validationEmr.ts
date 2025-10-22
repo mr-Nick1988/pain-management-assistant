@@ -10,7 +10,7 @@ export const validateEmr = (form: EMR): Record<string, string> => {
         errors.weight = "Weight must be between 2 and 300 kg";
     }
 
-    if (!["A", "B", "C"].includes(form.childPughScore.trim().toUpperCase())) {
+    if (form.childPughScore && !["A", "B", "C"].includes(form.childPughScore.trim().toUpperCase())) {
         errors.childPughScore = "Child-Pugh score must be A, B, or C";
     }
 

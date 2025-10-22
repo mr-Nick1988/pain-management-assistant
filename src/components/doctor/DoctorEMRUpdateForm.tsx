@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, {useState} from "react";
+import {useLocation, useNavigate} from "react-router-dom";
 import {
     useUpdateEmrMutation,
     useGetIcdDiagnosesQuery,
 } from "../../api/api/apiDoctorSlice";
-import type { EMR, EMRUpdate, Patient, Diagnosis } from "../../types/doctor";
+import type {EMR, EMRUpdate, Patient, Diagnosis} from "../../types/doctor";
 import {
     Button,
     Card,
@@ -12,16 +12,17 @@ import {
     CardHeader,
     CardTitle,
     Input,
-    Label, PageNavigation } from "../ui";
+    Label, PageNavigation
+} from "../ui";
 
-import { validateEmr } from "../../utils/validationEmr";
+import {validateEmr} from "../../utils/validationEmr";
 
 const EMRUpdateForm: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const state = location.state as { patient: Patient; emrData: EMR } | undefined;
 
-    const [updateEmr, { isLoading }] = useUpdateEmrMutation();
+    const [updateEmr, {isLoading}] = useUpdateEmrMutation();
 
     const [form, setForm] = useState<EMRUpdate>({
         height: state?.emrData?.height,
@@ -41,10 +42,13 @@ const EMRUpdateForm: React.FC = () => {
         state?.emrData?.diagnoses ?? []
     );
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [sensitivitiesInput, setSensitivitiesInput] = useState(
+        state?.emrData?.sensitivities?.join(", ") || ""
+    );
 
-    const { data: icdResults = [], isFetching } = useGetIcdDiagnosesQuery(
+    const {data: icdResults = [], isFetching} = useGetIcdDiagnosesQuery(
         searchTerm,
-        { skip: searchTerm.length < 2 }
+        {skip: searchTerm.length < 2}
     );
 
     // Проверка: если нет данных
@@ -65,14 +69,14 @@ const EMRUpdateForm: React.FC = () => {
         );
     }
 
-    const { patient } = state;
+    const {patient} = state;
 
     // ===============================
     // 🔧 Обработчики
     // ===============================
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value, type } = e.target;
+        const {name, value, type} = e.target;
         setForm((prev) => ({
             ...prev,
             [name]: type === "number" ? Number(value) : value,
@@ -80,11 +84,15 @@ const EMRUpdateForm: React.FC = () => {
     };
 
     const handleSensitivitiesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const items = e.target.value
+        setSensitivitiesInput(e.target.value);
+    };
+
+    const handleSensitivitiesBlur = () => {
+        const items = sensitivitiesInput
             .split(",")
             .map((s) => s.trim())
             .filter(Boolean);
-        setForm((prev) => ({ ...prev, sensitivities: items }));
+        setForm((prev) => ({...prev, sensitivities: items}));
     };
 
     const handleSelectDiagnosis = (diagnosis: Diagnosis) => {
@@ -117,12 +125,15 @@ const EMRUpdateForm: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        // Ensure sensitivities are parsed before validation
+        handleSensitivitiesBlur();
+
         const validationErrors = validateEmr(form as EMR);
         setErrors(validationErrors);
         if (Object.keys(validationErrors).length > 0) return;
 
         try {
-            await updateEmr({ mrn: patient.mrn!, data: form }).unwrap();
+            await updateEmr({mrn: patient.mrn!, data: form}).unwrap();
             navigate(-1);
         } catch (err) {
             console.error("Failed to update EMR:", err);
@@ -131,7 +142,7 @@ const EMRUpdateForm: React.FC = () => {
     };
 
     // ===============================
-    // 🧱 JSX
+    // JSX
     // ===============================
     return (
         <div className="p-6 max-w-2xl mx-auto">
@@ -146,15 +157,15 @@ const EMRUpdateForm: React.FC = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {/* Основные поля */}
                             {[
-                                { id: "height", label: "Height (cm)", type: "number" },
-                                { id: "weight", label: "Weight (kg)", type: "number" },
-                                { id: "gfr", label: "Glomerular Filtration Rate (GFR)", type: "text" },
-                                { id: "childPughScore", label: "Child-Pugh Score", type: "text" },
-                                { id: "plt", label: "Platelet Count (PLT)", type: "number" },
-                                { id: "wbc", label: "White Blood Cells (WBC)", type: "number" },
-                                { id: "sat", label: "Oxygen Saturation (SpO₂)", type: "number" },
-                                { id: "sodium", label: "Sodium Level (Na)", type: "number" },
-                            ].map(({ id, label, type }) => (
+                                {id: "height", label: "Height (cm)", type: "number"},
+                                {id: "weight", label: "Weight (kg)", type: "number"},
+                                {id: "gfr", label: "Glomerular Filtration Rate (GFR)", type: "text"},
+                                {id: "childPughScore", label: "Child-Pugh Score", type: "text"},
+                                {id: "plt", label: "Platelet Count (PLT)", type: "number"},
+                                {id: "wbc", label: "White Blood Cells (WBC)", type: "number"},
+                                {id: "sat", label: "Oxygen Saturation (SpO₂)", type: "number"},
+                                {id: "sodium", label: "Sodium Level (Na)", type: "number"},
+                            ].map(({id, label, type}) => (
                                 <div key={id}>
                                     <Label htmlFor={id}>{label}</Label>
                                     <Input
@@ -181,8 +192,9 @@ const EMRUpdateForm: React.FC = () => {
                                     type="text"
                                     name="sensitivities"
                                     placeholder="Enter drug allergies separated by commas (e.g., Paracetamol, Ibuprofen)"
-                                    value={form.sensitivities?.join(", ") || ""}
+                                    value={sensitivitiesInput}
                                     onChange={handleSensitivitiesChange}
+                                    onBlur={handleSensitivitiesBlur}
                                 />
                                 <p className="text-xs text-gray-500 mt-1">
                                     Separate multiple allergies with commas
@@ -202,11 +214,13 @@ const EMRUpdateForm: React.FC = () => {
                                     />
                                     {isFetching && (
                                         <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
+                                            <div
+                                                className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900"></div>
                                         </div>
                                     )}
                                     {searchTerm.length >= 2 && icdResults.length > 0 && (
-                                        <div className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+                                        <div
+                                            className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
                                             {icdResults.map((diagnosis) => (
                                                 <div
                                                     key={diagnosis.icdCode}
@@ -274,8 +288,7 @@ const EMRUpdateForm: React.FC = () => {
                     </form>
                 </CardContent>
             </Card>
-        <PageNavigation />
-
+            <PageNavigation/>
         </div>
     );
 };

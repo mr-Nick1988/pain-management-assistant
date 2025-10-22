@@ -79,7 +79,7 @@ export interface EMR {
     height: number;
     weight: number;
     gfr: string; // функция почек
-    childPughScore: string; // печень
+    childPughScore?: string; // печень
     plt: number; // тромбоциты
     wbc: number; // лейкоциты
     sat: number; // сатурация
