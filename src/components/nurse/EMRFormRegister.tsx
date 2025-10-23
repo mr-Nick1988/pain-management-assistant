@@ -8,14 +8,14 @@ import { FormCard, FormGrid, FormFieldWrapper, Input, ErrorMessage , PageNavigat
 const EMRFormRegister: React.FC = () => {
     const navigate = useNavigate();
 
-    // 📌 Достаём из URL идентификатор пациента (MRN)
+    //  Достаём из URL идентификатор пациента (MRN)
     const { mrn } = useParams<{ mrn: string }>();
 
-    // 📌 RTK Mutation для создания новой EMR-карты
+    //  RTK Mutation для создания новой EMR-карты
     const [createEmr, { isLoading, error }] = useCreateEmrMutation();
 
     // =======================
-    // 🩺 Состояние формы EMR
+    //  Состояние формы EMR
     // =======================
     const [form, setForm] = useState<EMR>({
         height: 0,
@@ -31,13 +31,13 @@ const EMRFormRegister: React.FC = () => {
     });
 
     // ===============================
-    // 🔍 Состояние поиска диагнозов
+    //  Состояние поиска диагнозов
     // ===============================
     const [searchTerm, setSearchTerm] = useState("");                 // строка, которую вводит пользователь
     const [selectedDiagnoses, setSelectedDiagnoses] = useState<Diagnosis[]>([]); // выбранные диагнозы
 
     // ==============================
-    // 📡 RTK Query — поиск ICD кодов
+    //  RTK Query — поиск ICD кодов
     // ==============================
     const {
         data: icdResults = [],   // список диагнозов, полученных с бэкенда
@@ -47,12 +47,12 @@ const EMRFormRegister: React.FC = () => {
     });
 
     // ==========================
-    // ⚠️ Ошибки валидации формы
+    // Ошибки валидации формы
     // ==========================
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     // ===================================
-    // ✏️ Обработчик обычных текст/чисел
+    // Обработчик обычных текст/чисел
     // ===================================
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type } = e.target;
@@ -63,7 +63,7 @@ const EMRFormRegister: React.FC = () => {
     };
 
     // =====================================================
-    // 💊 Обработчик поля чувствительности (список через запятую)
+    //  Обработчик поля чувствительности (список через запятую)
     // =====================================================
     const handleSensitivitiesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value } = e.target;
@@ -78,7 +78,7 @@ const EMRFormRegister: React.FC = () => {
     };
 
     // ===========================================================
-    // 🧩 Выбор диагноза из выпадающего списка автоподстановки
+    //  Выбор диагноза из выпадающего списка автоподстановки
     // ===========================================================
     const handleSelectDiagnosis = (diagnosis: Diagnosis) => {
         // Добавляем диагноз в форму
@@ -99,7 +99,7 @@ const EMRFormRegister: React.FC = () => {
     };
 
     // ==================================
-    // 📨 Отправка формы на backend
+    //  Отправка формы на backend
     // ==================================
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -120,7 +120,7 @@ const EMRFormRegister: React.FC = () => {
     };
 
     // =======================
-    // 🧱 JSX-разметка формы
+    //  JSX-разметка формы
     // =======================
     return (
         <div className="p-6">
@@ -180,14 +180,13 @@ const EMRFormRegister: React.FC = () => {
                         />
                     </FormFieldWrapper>
 
-                    <FormFieldWrapper label="Child-Pugh Score" required hint="Enter A, B or C" error={errors.childPughScore}>
+                    <FormFieldWrapper label="Child-Pugh Score" error={errors.childPughScore}>
                         <Input
                             type="text"
                             name="childPughScore"
                             placeholder="A/B/C"
                             value={form.childPughScore}
                             onChange={handleChange}
-                            required
                         />
                     </FormFieldWrapper>
 
@@ -236,17 +235,21 @@ const EMRFormRegister: React.FC = () => {
                     </FormFieldWrapper>
                 </FormGrid>
 
-                {/* 💊 Чувствительность */}
-                <FormFieldWrapper label="Sensitivities" hint="Example: Paracetamol, Tramadol, Ibuprofen">
+                {/*  Чувствительность */}
+                <FormFieldWrapper
+                    label="Sensitivities"
+                    hint="Example: Paracetamol, Tramadol, Ibuprofen"
+                >
                     <Input
                         type="text"
                         name="sensitivities"
                         placeholder="Comma-separated (e.g. Paracetamol, Tramadol)"
+                        value={(form.sensitivities ?? []).join(", ")}  // ← теперь это строка, а не массив
                         onChange={handleSensitivitiesChange}
                     />
                 </FormFieldWrapper>
 
-                {/* 🧠 Диагнозы с автоподбором по ICD */}
+                {/*  Диагнозы с автоподбором по ICD */}
                 <FormFieldWrapper
                     label="Diagnoses"
                     hint="Start typing diagnosis name (2+ letters)..."

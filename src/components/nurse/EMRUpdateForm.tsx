@@ -1,12 +1,12 @@
-import React, {useState} from "react";
-import {useLocation, useNavigate} from "react-router-dom";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
     useUpdateEmrMutation,
     useGetIcdDiagnosesQuery,
 } from "../../api/api/apiNurseSlice";
-import type {EMR, EMRUpdate, Patient, Diagnosis} from "../../types/nurse";
-import {validateEmr} from "../../utils/validationEmr.ts";
-import {FormCard, FormGrid, FormFieldWrapper, Input} from "../ui";
+import type { EMR, EMRUpdate, Patient, Diagnosis } from "../../types/nurse";
+import { validateEmr } from "../../utils/validationEmr.ts";
+import { FormCard, FormGrid, FormFieldWrapper, Input } from "../ui";
 
 const EMRUpdateForm: React.FC = () => {
     const location = useLocation();
@@ -15,35 +15,6 @@ const EMRUpdateForm: React.FC = () => {
     //  Получаем данные пациента и его EMR из состояния маршрута
     const state = location.state as { patient: Patient; emrData: EMR } | undefined;
 
-    // RTK mutation для обновления EMR
-    const [updateEmr, {isLoading}] = useUpdateEmrMutation();
-
-    // Инициализация полей формы
-    const [form, setForm] = useState<EMRUpdate>({
-        height: state?.emrData?.height || 0,
-        weight: state?.emrData?.weight || 0,
-        gfr: state?.emrData?.gfr || "",
-        childPughScore: state?.emrData?.childPughScore || "",
-        plt: state?.emrData?.plt || 0,
-        wbc: state?.emrData?.wbc || 0,
-        sat: state?.emrData?.sat || 0,
-        sodium: state?.emrData?.sodium || 0,
-        sensitivities: state?.emrData?.sensitivities || [],
-        diagnoses: state?.emrData?.diagnoses ?? [], // список диагнозов
-    });
-
-    const [errors, setErrors] = useState<Record<string, string>>({});
-    const [searchTerm, setSearchTerm] = useState("");
-
-    //  RTK Query: поиск диагнозов ICD по введённой строке
-    const {
-        data: icdResults = [],
-        isFetching,
-    } = useGetIcdDiagnosesQuery(searchTerm, {
-        skip: searchTerm.length < 2, // запрос выполняется, если 2+ символа
-    });
-
-    // Если компонент открыт без данных
     if (!state || !state.patient || !state.patient?.mrn) {
         return (
             <div className="p-6">
@@ -52,11 +23,41 @@ const EMRUpdateForm: React.FC = () => {
         );
     }
 
-    const {patient} = state;
+    const { patient, emrData } = state;
+    const [updateEmr, { isLoading }] = useUpdateEmrMutation();
+
+    //  Инициализация формы
+    const [form, setForm] = useState<EMRUpdate>(() => ({
+        height: emrData.height || 0,
+        weight: emrData.weight || 0,
+        gfr: emrData.gfr || "",
+        childPughScore: emrData.childPughScore || "",
+        plt: emrData.plt || 0,
+        wbc: emrData.wbc || 0,
+        sat: emrData.sat || 0,
+        sodium: emrData.sodium || 0,
+        sensitivities: emrData.sensitivities || [],
+        diagnoses: emrData.diagnoses ?? [],
+    }));
+
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [searchTerm, setSearchTerm] = useState("");
+
+    //  Локальный input state для запятых
+    const [sensitivitiesInput, setSensitivitiesInput] = useState<string>(
+        (emrData.sensitivities ?? []).join(", ")
+    );
+
+    const {
+        data: icdResults = [],
+        isFetching,
+    } = useGetIcdDiagnosesQuery(searchTerm, {
+        skip: searchTerm.length < 2,
+    });
 
     //  Универсальный обработчик обычных полей
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const {name, value} = e.target;
+        const { name, value } = e.target;
         setForm((prev) => ({
             ...prev,
             [name]: ["height", "weight", "plt", "wbc", "sat", "sodium"].includes(name)
@@ -65,16 +66,20 @@ const EMRUpdateForm: React.FC = () => {
         }));
     };
 
-    //  Обработка списка чувствительностей (через запятую)
+    //  Обработка чувствительностей (разрешаем запятые)
     const handleSensitivitiesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const arr = e.target.value
+        setSensitivitiesInput(e.target.value);
+    };
+
+    //  При потере фокуса — парсим строку в массив
+    const handleSensitivitiesBlur = () => {
+        const arr = sensitivitiesInput
             .split(",")
             .map((s) => s.trim())
             .filter(Boolean);
-        setForm((prev) => ({...prev, sensitivities: arr}));
+        setForm((prev) => ({ ...prev, sensitivities: arr }));
     };
 
-    // Добавление диагноза из автоподбора
     const handleSelectDiagnosis = (diagnosis: Diagnosis) => {
         const prevList = form.diagnoses ?? [];
         if (!prevList.find((d) => d.icdCode === diagnosis.icdCode)) {
@@ -86,7 +91,6 @@ const EMRUpdateForm: React.FC = () => {
         setSearchTerm("");
     };
 
-    // Удаление диагноза
     const handleRemoveDiagnosis = (code: string) => {
         const prevList = form.diagnoses ?? [];
         setForm((prev) => ({
@@ -95,9 +99,12 @@ const EMRUpdateForm: React.FC = () => {
         }));
     };
 
-    // Сабмит формы (валидация + обновление EMR)
+    //  Сабмит формы
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // синхронизируем перед валидацией
+        handleSensitivitiesBlur();
 
         const validationErrors = validateEmr(form as EMR);
         setErrors(validationErrors);
@@ -108,14 +115,13 @@ const EMRUpdateForm: React.FC = () => {
                 mrn: patient.mrn!,
                 data: {
                     ...form,
-                    // преобразуем только названия полей, если нужно
-                    diagnoses: form.diagnoses?.map((d) => ({
-                        icdCode: d.icdCode,
-                        description: d.description,
-                    })) ?? [],
+                    diagnoses:
+                        form.diagnoses?.map((d) => ({
+                            icdCode: d.icdCode,
+                            description: d.description,
+                        })) ?? [],
                 },
             }).unwrap();
-
             navigate(-1);
         } catch (error) {
             console.error("Failed to update EMR:", error);
@@ -123,8 +129,6 @@ const EMRUpdateForm: React.FC = () => {
         }
     };
 
-
-    //  JSX-разметка формы
     return (
         <div className="p-6">
             <FormCard
@@ -134,7 +138,6 @@ const EMRUpdateForm: React.FC = () => {
                 submitText="Save Changes"
                 isLoading={isLoading}
             >
-                {/* Основные клинические поля */}
                 <FormGrid columns={2}>
                     <FormFieldWrapper label="Height (cm)" error={errors.height}>
                         <Input
@@ -213,17 +216,18 @@ const EMRUpdateForm: React.FC = () => {
                     </FormFieldWrapper>
                 </FormGrid>
 
-                {/* Sensitivities */}
+                {/*  Исправленное поле Sensitivities */}
                 <FormFieldWrapper
                     label="Sensitivities"
-                    hint="Optional: list allergies separated by commas"
+                    hint="Example: Paracetamol, Tramadol, Ibuprofen"
                 >
                     <Input
                         type="text"
                         name="sensitivities"
-                        placeholder="e.g. PARACETAMOL, IBUPROFEN"
-                        value={form.sensitivities?.join(", ") || ""}
+                        placeholder="Comma-separated (e.g. Paracetamol, Tramadol)"
+                        value={sensitivitiesInput}
                         onChange={handleSensitivitiesChange}
+                        onBlur={handleSensitivitiesBlur}
                     />
                 </FormFieldWrapper>
 
@@ -239,12 +243,10 @@ const EMRUpdateForm: React.FC = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
 
-                    {/* Индикатор загрузки */}
                     {isFetching && (
                         <p className="text-gray-400 text-sm mt-1">Searching...</p>
                     )}
 
-                    {/* Список найденных диагнозов */}
                     {icdResults.length > 0 && searchTerm.length >= 2 && (
                         <ul className="border rounded mt-1 bg-white shadow max-h-40 overflow-auto">
                             {icdResults.slice(0, 10).map((d) => (
@@ -260,7 +262,6 @@ const EMRUpdateForm: React.FC = () => {
                         </ul>
                     )}
 
-                    {/* Выбранные диагнозы */}
                     {(form.diagnoses ?? []).length > 0 && (
                         <ul className="mt-3 text-sm">
                             {(form.diagnoses ?? []).map((d) => (

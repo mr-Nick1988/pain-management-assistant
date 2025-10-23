@@ -10,7 +10,7 @@ export const validateEmr = (form: EMR): Record<string, string> => {
         errors.weight = "Weight must be between 2 and 300 kg";
     }
 
-    if (!["A", "B", "C"].includes(form.childPughScore.trim().toUpperCase())) {
+    if (form.childPughScore && !["A", "B", "C"].includes(form.childPughScore.trim().toUpperCase())) {
         errors.childPughScore = "Child-Pugh score must be A, B, or C";
     }
 
@@ -22,7 +22,7 @@ export const validateEmr = (form: EMR): Record<string, string> => {
     if (form.plt < 10 || form.plt > 600) {
         errors.plt = "PLT must be between 10 and 600 (×10³/µL)";
     }
-    if (form.wbc < 3.5 || form.wbc > 10) {
+    if (form.wbc < 2 || form.wbc > 40) {
         errors.wbc = "WBC must be between 3.5 and 10 (×10³/µL)";
     }
     if (form.sat < 85 || form.sat > 100) {

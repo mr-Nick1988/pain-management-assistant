@@ -196,7 +196,7 @@ const PatientDetails: React.FC = () => {
                                 <p className="text-sm text-gray-500 italic">No sensitivities recorded.</p>
                             )}
 
-                            {/* 🔘 Кнопка Update EMR */}
+                            {/*  Кнопка Update EMR */}
                             <div className="pt-2">
                                 <Button
                                     variant="update"
