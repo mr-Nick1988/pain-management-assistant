@@ -14,7 +14,9 @@ export enum PatientsGenders {
 export enum RecommendationStatus {
     PENDING = "PENDING",
     APPROVED = "APPROVED",
-    REJECTED = "REJECTED"
+    REJECTED = "REJECTED",
+    ESCALATED = "ESCALATED",
+    EXECUTED = "EXECUTED"
 }
 
 export enum DrugRoute {

@@ -5,6 +5,8 @@ import type {EMR, Patient, VAS, Recommendation} from "../../types/nurse.ts";
 export const apiNurseSlice = createApi({
     reducerPath: "apiNurse",
     tagTypes: ["Patient", "Emr", "Vas", "Recommendation"],
+    refetchOnFocus: true,
+    refetchOnReconnect: true,
     baseQuery: fetchBaseQuery({
         baseUrl: base_url,
         prepareHeaders: (headers) => {
@@ -143,6 +145,13 @@ export const apiNurseSlice = createApi({
             }),
             invalidatesTags: ["Recommendation"],
         }),
+        executeRecommendation: builder.mutation<Recommendation, { mrn: string; }>({
+            query: ({mrn}) => ({
+                url: `/nurse/patients/${mrn}/recommendation/execute`,
+                method: "POST",
+            }),
+            invalidatesTags: ["Recommendation"],
+        }),
 
         getRecommendationByPatientId: builder.query<Recommendation, string>({
             query: (mrn) => `/nurse/patients/${mrn}/recommendation`,
@@ -172,4 +181,5 @@ export const {
     useGetIcdDiagnosesQuery,
     useGetAllApprovedRecommendationsQuery,
     useGetLastVasByPatientIdQuery,
+    useExecuteRecommendationMutation,
 } = apiNurseSlice;

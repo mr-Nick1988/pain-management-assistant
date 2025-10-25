@@ -51,7 +51,10 @@ const PatientDetails: React.FC = () => {
         useGetLastVasByPatientIdQuery(patient.mrn ?? "", { skip: !patient?.mrn });
 
     const { data: lastRecommendation, isLoading: isRecLoading, isError: isRecError } =
-        useGetRecommendationByPatientIdQuery(patient?.mrn || "", { skip: !patient?.mrn });
+        useGetRecommendationByPatientIdQuery(patient?.mrn || "", {
+            skip: !patient?.mrn,
+            refetchOnMountOrArgChange: true,
+        });
 
     const [deletePatient] = useDeletePatientMutation();
 
@@ -85,6 +88,13 @@ const PatientDetails: React.FC = () => {
             navigate(`/nurse/vas-form/${patient.mrn}`, { state: patient });
         }
     };
+
+    // Кнопка блокируется только если последняя рекомендация существует
+    // и у неё статус не EXECUTED
+    const isRecommendationLocked =
+        lastRecommendation && lastRecommendation.status !== "EXECUTED";
+    const isRecommendationExecuted = lastRecommendation?.status === "EXECUTED";
+    const isRecommendationApproved = lastRecommendation?.status === "APPROVED";
 
     if (isLoadingPatient && !patient)
         return (
@@ -293,13 +303,16 @@ const PatientDetails: React.FC = () => {
                     <Button
                         variant="approve"
                         onClick={handlePainComplaint}
-                        disabled={isRecommendationPending}
+                        disabled={isRecommendationLocked}
                     >
                         Register Pain Complaint
                     </Button>
+
                     <Button
                         variant="update"
-                        onClick={() => navigate(`/nurse/update-patient/${patient.mrn}`, {state: patient})}
+                        onClick={() =>
+                            navigate(`/nurse/update-patient/${patient.mrn}`, { state: patient })
+                        }
                     >
                         Update Patient Data
                     </Button>
@@ -327,11 +340,38 @@ const PatientDetails: React.FC = () => {
                     </div>
                 )}
 
-                {/* Предупреждение о блокировке */}
+                {/*  Предупреждение о блокировке (PENDING) */}
                 {isRecommendationPending && (
                     <div className="mt-4 bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-md">
                         <p className="text-sm text-yellow-700 font-medium">
-                            Recommendation is pending doctor approval — new complaints are disabled.
+                            Recommendation is not yet approved — new pain complaints are temporarily disabled.
+                        </p>
+                    </div>
+                )}
+
+                {/*  Уведомление о готовности к выдаче лекарства (APPROVED) */}
+                {isRecommendationApproved && (
+                    <div className="mt-4 bg-green-50 border-l-4 border-green-400 p-4 rounded-md">
+                        <p className="text-sm text-green-700 font-medium">
+                            The recommendation has been approved by the doctor.
+                        </p>
+                        <p className="text-xs text-green-600 mt-1">
+                            Please review the recommendation and administer the prescribed medication.
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1 italic">
+                            You can open it via “View Full Recommendation”.
+                        </p>
+                    </div>
+                )}
+
+                {/*  Информационное уведомление (EXECUTED) */}
+                {isRecommendationExecuted && (
+                    <div className="mt-4 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md">
+                        <p className="text-sm text-blue-700 font-medium">
+                            The medication has been administered successfully.
+                        </p>
+                        <p className="text-xs text-blue-600 mt-1 italic">
+                            You can now register a new pain complaint if needed.
                         </p>
                     </div>
                 )}

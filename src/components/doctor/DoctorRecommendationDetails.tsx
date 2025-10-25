@@ -77,7 +77,7 @@ const RecommendationDetails: React.FC = () => {
         }
         try {
             const data: RecommendationApprovalRejection = {
-                status: "REJECTED" as RecommendationStatus,
+                status: "ESCALATED" as RecommendationStatus,
                 rejectedReason,
                 comment: comment || undefined,
             };

@@ -63,6 +63,7 @@ const GenerateRecommendationForm: React.FC = () => {
         } catch (error) {
             console.error("Failed to create recommendation:", error);
             toast.error("Failed to generate recommendation");
+            navigate(`/nurse/patient/${patient.mrn}`, { state: { patient } });
         }
     };
 
