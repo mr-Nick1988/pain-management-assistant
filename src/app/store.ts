@@ -4,11 +4,9 @@ import {apiDoctorSlice} from "../api/api/apiDoctorSlice.ts";
 import {apiAnesthesiologistSlice} from "../api/api/apiAnesthesiologistSlice.ts";
 import {apiAdminSlice} from "../api/api/apiAdminSlice.ts";
 import {apiNurseSlice} from "../api/api/apiNurseSlice.ts";
+import {apiFhirSlice} from "../api/api/apiFhirSlice.ts";
 import {listenerMiddleware} from "./listenerMiddleware.ts";
 // Импортируй свои slices здесь, когда создашь их
-
-
-
 
 
 export const store = configureStore({
@@ -18,6 +16,7 @@ export const store = configureStore({
         [apiDoctorSlice.reducerPath]: apiDoctorSlice.reducer,
         [apiAnesthesiologistSlice.reducerPath]: apiAnesthesiologistSlice.reducer,
         [apiNurseSlice.reducerPath]: apiNurseSlice.reducer,
+        [apiFhirSlice.reducerPath]: apiFhirSlice.reducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware()
@@ -26,7 +25,8 @@ export const store = configureStore({
             .concat(apiPersonSlice.middleware)
             .concat(apiDoctorSlice.middleware)
             .concat(apiAnesthesiologistSlice.middleware)
-            .concat(apiNurseSlice.middleware),
+            .concat(apiNurseSlice.middleware)
+            .concat(apiFhirSlice.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

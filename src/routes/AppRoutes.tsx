@@ -34,7 +34,9 @@ import {
     PatientFormRegister,
     PatientList,
     PatientUpdateForm,
-    VASFormRegister, RecommendationDetails, NurseRecommendationsList
+    VASFormRegister, RecommendationDetails, NurseRecommendationsList,
+    ImportPatientFromFHIR,
+    PatientSyncDashboard
 } from "../exports/exports.ts";
 import ProtectedRoute from "./ProtectedRoute.tsx";
 
@@ -77,6 +79,8 @@ const AppRoutes: React.FC = () => {
                 <Route path="recommendation/:mrn" element={<GenerateRecommendationForm/>}/>
                 <Route path="recommendation-details/:mrn" element={<RecommendationDetails/>}/>
                 <Route path="update-patient/:mrn" element={<PatientUpdateForm/>}/>
+                <Route path="import-patient" element={<ImportPatientFromFHIR/>}/>
+                <Route path="patient-sync" element={<PatientSyncDashboard/>}/>
             </Route>
 
             {/* DOCTOR ROUTES */}

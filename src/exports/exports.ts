@@ -52,6 +52,10 @@ export {default as TechnicalLogs} from "../components/admin/TechnicalLogs.tsx"
 export {default as EventsTimeline} from "../components/admin/EventsTimeline.tsx"
 export {default as UserActivityMonitor} from "../components/admin/UserActivityMonitor.tsx"
 
+// FHIR INTEGRATION
+export {default as ImportPatientFromFHIR} from "../components/fhir/ImportPatientFromFHIR.tsx"
+export {default as PatientSyncDashboard} from "../components/fhir/PatientSyncDashboard.tsx"
+
 
 
 
