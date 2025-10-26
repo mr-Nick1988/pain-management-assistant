@@ -19,6 +19,7 @@ import {
     DoctorPatientDetails,
     DoctorPatientFormRegister,
     DoctorPatientList,
+    DoctorQuickSearch,
     DoctorPatientUpdateForm,
     DoctorRecommendationDetails,
     DoctorRecommendationList,
@@ -67,7 +68,7 @@ const AppRoutes: React.FC = () => {
             }>
                 <Route index element={<NurseDashboard/>}/> {/* стартовая страница */}
                 <Route path="register-patient" element={<PatientFormRegister/>}/>
-                <Route path="/nurse/recommendations" element={<NurseRecommendationsList />}/>
+                <Route path="recommendations" element={<NurseRecommendationsList />}/>
                 <Route path="emr-form/:mrn" element={<EMRFormRegister/>}/>
                 <Route path="emr-update/:mrn" element={<EMRUpdateForm/>}/>
                 <Route path="patients" element={<PatientList/>}/>
@@ -89,6 +90,7 @@ const AppRoutes: React.FC = () => {
                 <Route path="emr-form/:mrn" element={<DoctorEMRFormRegister/>}/>
                 <Route path="emr-update/:mrn" element={<DoctorEMRUpdateForm/>}/>
                 <Route path="patients-list" element={<DoctorPatientList/>}/>
+                <Route path="quick-search" element={<DoctorQuickSearch/>}/>
                 <Route path="patient/:mrn" element={<DoctorPatientDetails/>}/>
                 <Route path="update-patient/:mrn" element={<DoctorPatientUpdateForm/>}/>
                 <Route path="recommendations" element={<DoctorRecommendationList/>}/>

@@ -9,21 +9,28 @@ const DoctorDashboard: React.FC = () => {
         {
             title: "Register Patient",
             description: "Register a new patient in the system",
-            action: () => navigate("/doctor/register-patient"),
+            action: () => navigate("register-patient"),
             variant: "default" as const,
             icon: "👤"
         },
         {
-            title: "Patient List",
-            description: "Search and view all patients",
-            action: () => navigate("/doctor/patients-list"),
+            title: "Quick Search",
+            description: "Quick search by MRN, email or phone",
+            action: () => navigate("quick-search"),
             variant: "update" as const,
+            icon: "🔍"
+        },
+        {
+            title: "All Patients",
+            description: "View and manage all patients",
+            action: () => navigate("patients-list"),
+            variant: "default" as const,
             icon: "📋"
         },
         {
             title: "Pending Recommendations",
             description: "Review and approve/reject recommendations",
-            action: () => navigate("/doctor/recommendations"),
+            action: () => navigate("recommendations"),
             variant: "approve" as const,
             icon: "📝"
         }
@@ -40,7 +47,7 @@ const DoctorDashboard: React.FC = () => {
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {dashboardCards.map((card, index) => (
                     <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer" onClick={card.action}>
                         <CardHeader>

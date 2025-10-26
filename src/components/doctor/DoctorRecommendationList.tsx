@@ -66,7 +66,7 @@ const RecommendationList: React.FC = () => {
                     <Card
                         key={index}
                         className="hover:shadow-lg transition-shadow cursor-pointer"
-                        onClick={() => navigate(`/doctor/recommendation/${recWithVas.patientMrn}`, {state: recWithVas})}
+                        onClick={() => navigate(`recommendation/${recWithVas.patientMrn}`, {state: recWithVas})}
                     >
                         <CardHeader>
                             <CardTitle>{recWithVas.patientMrn}</CardTitle>
@@ -98,7 +98,7 @@ const RecommendationList: React.FC = () => {
                                     size="sm"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        navigate(`/doctor/recommendation/${recWithVas.patientMrn}`, {state: recWithVas});
+                                        navigate(`recommendation/${recWithVas.patientMrn}`, {state: recWithVas});
                                     }}
                                 >
                                     Review

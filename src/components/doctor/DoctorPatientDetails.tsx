@@ -1,20 +1,27 @@
-import React, {useState} from "react";
-import {useLocation, useNavigate} from "react-router-dom";
+import React, {useState, useEffect} from "react";
+import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {
     useGetEmrByPatientIdQuery,
     useDeletePatientMutation,
     useGetAllEmrByPatientIdQuery,
-    useLazyGetLastRecommendationQuery
+    useLazyGetLastRecommendationQuery,
+    useLazyGetPatientByMrnQuery
 } from "../../api/api/apiDoctorSlice";
 import type {Patient, EMR} from "../../types/doctor";
-import {Button, Card, CardContent, CardHeader, CardTitle, PageNavigation} from "../ui";
+import {Button, Card, CardContent, CardHeader, CardTitle, PageNavigation, LoadingSpinner} from "../ui";
 import {useToast} from "../../contexts/ToastContext";
 
 const PatientDetails: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const patient = location.state as Patient;
+    const {mrn} = useParams<{mrn: string}>();
     const toast = useToast();
+    
+    // State for patient data
+    const [patient, setPatient] = useState<Patient | null>(location.state as Patient || null);
+    
+    // Lazy query for fetching patient by MRN if not in location.state
+    const [fetchPatient, {isFetching: isFetchingPatient}] = useLazyGetPatientByMrnQuery();
 
     // Все хуки должны быть вызваны ДО любых условных return
     const [loadEmr, setLoadEmr] = useState(false);
@@ -32,6 +39,33 @@ const PatientDetails: React.FC = () => {
 
     const [fetchRecommendation, {isFetching: recommendationLoading}] = useLazyGetLastRecommendationQuery();
     const [deletePatient] = useDeletePatientMutation();
+
+    // Fetch patient if not available in location.state
+    useEffect(() => {
+        if (!patient && mrn) {
+            fetchPatient(mrn).then((result) => {
+                if (result.data) {
+                    setPatient(result.data);
+                } else {
+                    toast.error("Patient not found");
+                }
+            });
+        }
+    }, [patient, mrn, fetchPatient, toast]);
+
+    // Loading state
+    if (isFetchingPatient) {
+        return (
+            <div className="p-6">
+                <Card>
+                    <CardContent className="text-center py-8">
+                        <LoadingSpinner />
+                        <p className="mt-4">Loading patient data...</p>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
 
     // Проверка после вызова всех хуков
     if (!patient?.mrn || !patient) {
@@ -64,7 +98,7 @@ const PatientDetails: React.FC = () => {
     const handleGetRecommendation = async () => {
         const result = await fetchRecommendation(patient.mrn!);
         if (result.data) {
-            navigate(`/doctor/recommendation/${patient.mrn}`, {state: result.data});
+            navigate(`recommendation/${patient.mrn}`, {state: result.data});
         } else {
             toast.warning("No recommendation found for this patient");
         }
@@ -236,7 +270,7 @@ const PatientDetails: React.FC = () => {
                                     <Button
                                         variant="update"
                                         onClick={() =>
-                                            navigate(`/doctor/emr-update/${patient.mrn}`, {
+                                            navigate(`../emr-update/${patient.mrn}`, {
                                                 state: {patient, emrData},
                                             })
                                         }
@@ -257,7 +291,7 @@ const PatientDetails: React.FC = () => {
                                 <p className="mb-4 text-gray-600">No EMR data available for this patient</p>
                                 <Button
                                     variant="approve"
-                                    onClick={() => navigate(`/doctor/emr-form/${patient.mrn}`, {state: patient})}
+                                    onClick={() => navigate(`../emr-form/${patient.mrn}`, {state: patient})}
                                 >
                                     Create EMR
                                 </Button>
@@ -357,7 +391,7 @@ const PatientDetails: React.FC = () => {
 
                         <Button
                             variant="update"
-                            onClick={() => navigate(`/doctor/update-patient/${patient.mrn}`, {state: patient})}
+                            onClick={() => navigate(`../update-patient/${patient.mrn}`, {state: patient})}
                             className="w-full"
                         >
                             Update Patient

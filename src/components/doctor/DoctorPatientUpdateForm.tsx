@@ -56,15 +56,30 @@ const PatientUpdateForm: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        console.log("Form submitted with data:", formData);
+        console.log("Patient MRN:", params.mrn);
+
         // Валидация формы (поля не обязательны при обновлении)
         const validationErrors = validatePatient(formData, false);
+        console.log("Validation errors:", validationErrors);
+        console.log("Number of errors:", Object.keys(validationErrors).length);
+        console.log("Error keys:", Object.keys(validationErrors));
+        console.log("Error details:", JSON.stringify(validationErrors, null, 2));
         setErrors(validationErrors);
-        if (Object.keys(validationErrors).length > 0) return;
+        
+        if (Object.keys(validationErrors).length > 0) {
+            console.log("Validation failed, not submitting");
+            console.log("ERRORS:", validationErrors);
+            toast.error(`Validation errors: ${Object.keys(validationErrors).join(", ")}`);
+            return;
+        }
 
         try {
-            await updatePatient({ mrn: params.mrn!, data: formData }).unwrap();
+            console.log("Calling updatePatient API...");
+            const result = await updatePatient({ mrn: params.mrn!, data: formData }).unwrap();
+            console.log("Update successful:", result);
             toast.success("Patient updated successfully!");
-            navigate(`/doctor/patient/${params.mrn}`, { state: { ...patient, ...formData } });
+            navigate(`../patient/${params.mrn}`, { state: { ...patient, ...formData } });
         } catch (error) {
             console.error("Failed to update patient:", error);
             toast.error("Error updating patient");
