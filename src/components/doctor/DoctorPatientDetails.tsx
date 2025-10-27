@@ -51,7 +51,8 @@ const PatientDetails: React.FC = () => {
                 }
             });
         }
-    }, [patient, mrn, fetchPatient, toast]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [mrn]);
 
     // Loading state
     if (isFetchingPatient) {
@@ -98,7 +99,7 @@ const PatientDetails: React.FC = () => {
     const handleGetRecommendation = async () => {
         const result = await fetchRecommendation(patient.mrn!);
         if (result.data) {
-            navigate(`recommendation/${patient.mrn}`, {state: result.data});
+            navigate(`/doctor/recommendations/recommendation/${patient.mrn}`, {state: result.data});
         } else {
             toast.warning("No recommendation found for this patient");
         }

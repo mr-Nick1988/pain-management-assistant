@@ -36,7 +36,10 @@ import {
     PatientUpdateForm,
     VASFormRegister, RecommendationDetails, NurseRecommendationsList,
     ImportPatientFromFHIR,
-    PatientSyncDashboard
+    PatientSyncDashboard,
+    ApiKeyManagement,
+    ExternalVasMonitor,
+    VasDeviceSimulator
 } from "../exports/exports.ts";
 import ProtectedRoute from "./ProtectedRoute.tsx";
 
@@ -60,6 +63,7 @@ const AppRoutes: React.FC = () => {
                 <Route path="logs" element={<TechnicalLogs/>}/>
                 <Route path="events" element={<EventsTimeline/>}/>
                 <Route path="create-person" element={<CreatePerson/>}/>
+                <Route path="api-keys" element={<ApiKeyManagement/>}/>
             </Route>
 
             {/* NURSE ROUTES */}
@@ -81,6 +85,8 @@ const AppRoutes: React.FC = () => {
                 <Route path="update-patient/:mrn" element={<PatientUpdateForm/>}/>
                 <Route path="import-patient" element={<ImportPatientFromFHIR/>}/>
                 <Route path="patient-sync" element={<PatientSyncDashboard/>}/>
+                <Route path="external-vas-monitor" element={<ExternalVasMonitor/>}/>
+                <Route path="vas-simulator" element={<VasDeviceSimulator/>}/>
             </Route>
 
             {/* DOCTOR ROUTES */}
@@ -98,7 +104,7 @@ const AppRoutes: React.FC = () => {
                 <Route path="patient/:mrn" element={<DoctorPatientDetails/>}/>
                 <Route path="update-patient/:mrn" element={<DoctorPatientUpdateForm/>}/>
                 <Route path="recommendations" element={<DoctorRecommendationList/>}/>
-                <Route path="recommendation/:mrn" element={<DoctorRecommendationDetails/>}/>
+                <Route path="recommendations/recommendation/:mrn" element={<DoctorRecommendationDetails/>}/>
             </Route>
 
             <Route path="/anesthesiologist" element={
@@ -112,7 +118,7 @@ const AppRoutes: React.FC = () => {
                 </ProtectedRoute>
             }/>
             <Route path="/" element={<Navigate to="/login" replace/>}/>
-            <Route path="*" element={<Navigate to="login" replace/>}/>
+            <Route path="*" element={<Navigate to="/login" replace/>}/>
         </Routes>
     )
 };

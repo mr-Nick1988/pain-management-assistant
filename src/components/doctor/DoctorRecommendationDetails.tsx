@@ -1,12 +1,12 @@
-import React, {useState, useEffect} from "react";
+import React, {useState} from "react";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {
     useApproveRecommendationMutation, 
     useRejectRecommendationMutation,
-    useLazyGetPatientByMrnQuery,
+    useGetPatientByMrnQuery,
     useGetEmrByPatientIdQuery
 } from "../../api/api/apiDoctorSlice";
-import type {RecommendationWithVas, RecommendationApprovalRejection, DrugRecommendation, RecommendationStatus, Patient, EMR} from "../../types/doctor";
+import type {RecommendationWithVas, RecommendationApprovalRejection, DrugRecommendation, RecommendationStatus} from "../../types/doctor";
 import {Button, Card, CardContent, CardHeader, CardTitle, Label, Textarea, PageNavigation, LoadingSpinner} from "../ui";
 import {useToast} from "../../contexts/ToastContext";
 
@@ -19,41 +19,25 @@ const RecommendationDetails: React.FC = () => {
 
     const [comment, setComment] = useState("");
     const [rejectedReason, setRejectedReason] = useState("");
-    const [patient, setPatient] = useState<Patient | null>(null);
-    const [emr, setEmr] = useState<EMR | null>(null);
 
     const [approveRecommendation, {isLoading: isApproving}] = useApproveRecommendationMutation();
     const [rejectRecommendation, {isLoading: isRejecting}] = useRejectRecommendationMutation();
-    const [fetchPatient, {isFetching: isFetchingPatient}] = useLazyGetPatientByMrnQuery();
     
     // Get MRN from various sources
-    const patientMrnToUse = mrn || recWithVas?.patientMrn || recWithVas?.recommendation?.patientMrn || "";
+    const patientMrnToUse = mrn || recWithVas?.patientMrn || recWithVas?.recommendation?.patientMrn || recWithVas?.vas?.patientMrn || "";
     
-    // Fetch EMR data using query hook (skip if no MRN)
-    const {data: emrData, isFetching: isFetchingEmr} = useGetEmrByPatientIdQuery(patientMrnToUse, {
+    // Fetch patient data
+    const {data: patient, isFetching: isFetchingPatient} = useGetPatientByMrnQuery(patientMrnToUse, {
+        skip: !patientMrnToUse
+    });
+    
+    // Fetch EMR data
+    const {data: emr, isFetching: isFetchingEmr} = useGetEmrByPatientIdQuery(patientMrnToUse, {
         skip: !patientMrnToUse
     });
 
     // Debug: log received data
     console.log("RecommendationDetails - received data:", recWithVas);
-
-    // Fetch patient data
-    useEffect(() => {
-        if (patientMrnToUse && !patient) {
-            fetchPatient(patientMrnToUse).then((result: {data?: Patient}) => {
-                if (result.data) {
-                    setPatient(result.data);
-                }
-            });
-        }
-    }, [patientMrnToUse, patient, fetchPatient]);
-    
-    // Set EMR from query result
-    useEffect(() => {
-        if (emrData && !emr) {
-            setEmr(emrData);
-        }
-    }, [emrData, emr]);
 
     if (!recWithVas) {
         return (
@@ -88,7 +72,7 @@ const RecommendationDetails: React.FC = () => {
             const result = await approveRecommendation({recommendationId: recommendation.id, data}).unwrap();
             console.log("Approval result:", result);
             toast.success("Recommendation approved successfully!");
-            navigate("../recommendations");
+            navigate("/doctor/recommendations");
         } catch (error) {
             console.error("Failed to approve recommendation:", error);
             const errorMessage = (error as { data?: { message?: string }; message?: string })?.data?.message 
@@ -118,7 +102,7 @@ const RecommendationDetails: React.FC = () => {
             const result = await rejectRecommendation({recommendationId: recommendation.id, data}).unwrap();
             console.log("Rejection result:", result);
             toast.success("Recommendation rejected successfully!");
-            navigate("../recommendations");
+            navigate("/doctor/recommendations");
         } catch (error) {
             console.error("Failed to reject recommendation:", error);
             const errorMessage = (error as { data?: { message?: string }; message?: string })?.data?.message 

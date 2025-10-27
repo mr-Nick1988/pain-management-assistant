@@ -11,7 +11,8 @@ const PatientList: React.FC = () => {
     // Load all patients on mount
     useEffect(() => {
         searchPatients({});
-    }, [searchPatients]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     if (isFetching) {
         return (

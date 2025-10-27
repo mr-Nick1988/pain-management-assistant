@@ -56,6 +56,11 @@ export {default as UserActivityMonitor} from "../components/admin/UserActivityMo
 export {default as ImportPatientFromFHIR} from "../components/fhir/ImportPatientFromFHIR.tsx"
 export {default as PatientSyncDashboard} from "../components/fhir/PatientSyncDashboard.tsx"
 
+// EXTERNAL VAS INTEGRATION
+export {default as ApiKeyManagement} from "../components/admin/ApiKeyManagement.tsx"
+export {default as ExternalVasMonitor} from "../components/nurse/ExternalVasMonitor.tsx"
+export {default as VasDeviceSimulator} from "../components/testing/VasDeviceSimulator.tsx"
+
 
 
 

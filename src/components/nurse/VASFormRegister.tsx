@@ -47,14 +47,37 @@ const VASFormRegister: React.FC = () => {
                 title="Register Pain Complaint (VAS)"
                 onSubmit={(e) => { e.preventDefault(); void handleNext(); }}
                 onCancel={() => navigate(-1)}
-                submitText="Next: Generate Recommendation"
                 isLoading={isLoading}
             >
                 <FormFieldWrapper label="Pain Location">
                     <Input type="text" name="painPlace" value={formData.painPlace} onChange={handleChange} placeholder="Enter pain location" />
                 </FormFieldWrapper>
-                <FormFieldWrapper label="Pain Level (0-10)" hint="0 = No pain, 10 = Worst pain imaginable">
-                    <Input type="number" name="painLevel" min={0} max={10} value={formData.painLevel} onChange={handleChange} placeholder="Enter pain level" />
+                <FormFieldWrapper
+                    label={
+                        <span>
+                            Pain Level: <span className={`font-bold text-xl ${
+                                formData.painLevel <= 3 ? "text-green-600" :
+                                formData.painLevel <= 6 ? "text-yellow-600" :
+                                "text-red-600"
+                            }`}>{formData.painLevel}</span>
+                        </span>
+                    }
+                    hint="Slide to select pain level"
+                >
+                    <input
+                        type="range"
+                        name="painLevel"
+                        min="0"
+                        max="10"
+                        value={formData.painLevel}
+                        onChange={handleChange}
+                        className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                    />
+                    <div className="flex justify-between text-sm text-gray-600 mt-2">
+                        <span>0 (No Pain)</span>
+                        <span>5 (Moderate)</span>
+                        <span>10 (Worst Pain)</span>
+                    </div>
                 </FormFieldWrapper>
             </FormCard>
             <PageNavigation />

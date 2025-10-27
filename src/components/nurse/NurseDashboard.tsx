@@ -100,8 +100,8 @@ const NurseDashboard: React.FC = () => {
                 />
             </div>
 
-            {/* Centered Approved Recommendations and Patient Sync Cards */}
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Integration Cards */}
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <ActionCard
                     title="Approved Recommendations"
                     description="View all approved recommendations"
@@ -117,6 +117,14 @@ const NurseDashboard: React.FC = () => {
                     onClick={() => navigate('/nurse/patient-sync')}
                     buttonText="Sync Dashboard"
                     buttonVariant="update"
+                />
+                <ActionCard
+                    title="External VAS Monitor"
+                    description="Monitor VAS from external devices"
+                    icon="📡"
+                    onClick={() => navigate('/nurse/external-vas-monitor')}
+                    buttonText="Open Monitor"
+                    buttonVariant="default"
                 />
             </div>
 

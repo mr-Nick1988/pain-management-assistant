@@ -107,6 +107,15 @@ const AdminDashboard: React.FC = () => {
             iconBg: "bg-teal-100",
             path: "/admin/create-person",
             stats: "Quick action"
+        },
+        {
+            title: "API Key Management",
+            description: "Manage external device API keys",
+            icon: "🔑",
+            color: "bg-orange-50 border-orange-200",
+            iconBg: "bg-orange-100",
+            path: "/admin/api-keys",
+            stats: "VAS Integration"
         }
     ];
 
