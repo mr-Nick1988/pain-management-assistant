@@ -59,7 +59,7 @@ export const FormGrid: React.FC<FormGridProps> = ({ children, columns = 2 }) => 
 };
 
 interface FormFieldWrapperProps {
-    label: string;
+    label: string | React.ReactNode;
     required?: boolean;
     hint?: string;
     error?: string;

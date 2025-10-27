@@ -15,6 +15,7 @@ const AdminLayout: React.FC = () => {
         { path: "/admin/patients-stats", label: "Patient Stats", icon: "🏥" },
         { path: "/admin/logs", label: "Technical Logs", icon: "📝" },
         { path: "/admin/events", label: "Events Timeline", icon: "🕐" },
+        { path: "/admin/api-keys", label: "API Keys", icon: "🔑" },
     ];
 
     const isActive = (path: string) => location.pathname === path;

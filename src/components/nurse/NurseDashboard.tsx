@@ -62,7 +62,7 @@ const NurseDashboard: React.FC = () => {
             <PageHeader title="Nurse Dashboard" description="Search for patients or register new ones" />
 
             {/* 🔹 Верхние карточки действий */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <ActionCard
                     title="Register Patient"
                     description="Add a new patient to the system"
@@ -89,20 +89,43 @@ const NurseDashboard: React.FC = () => {
                     buttonText={showSearchForm ? "Hide Search" : "Open Search"}
                     buttonVariant={showSearchForm ? "reject" : "default"}
                 />
+
+                <ActionCard
+                    title="Import from FHIR"
+                    description="Import patients from external systems"
+                    icon="📥"
+                    onClick={() => navigate("/nurse/import-patient")}
+                    buttonText="Import Patient"
+                    buttonVariant="update"
+                />
             </div>
 
-            {/* Centered Approved Recommendations Card */}
-            <div className="mt-8 flex justify-center">
-                <div className="w-full md:w-1/2 lg:w-1/3">
-                    <ActionCard
-                        title="Approved Recommendations"
-                        description="View all approved recommendations"
-                        icon="✅"
-                        onClick={() => navigate('/nurse/recommendations')}
-                        buttonText="View All"
-                        buttonVariant="approve"
-                    />
-                </div>
+            {/* Integration Cards */}
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <ActionCard
+                    title="Approved Recommendations"
+                    description="View all approved recommendations"
+                    icon="✅"
+                    onClick={() => navigate('/nurse/recommendations')}
+                    buttonText="View All"
+                    buttonVariant="approve"
+                />
+                <ActionCard
+                    title="Patient Sync"
+                    description="Synchronize patient data from FHIR"
+                    icon="🔄"
+                    onClick={() => navigate('/nurse/patient-sync')}
+                    buttonText="Sync Dashboard"
+                    buttonVariant="update"
+                />
+                <ActionCard
+                    title="External VAS Monitor"
+                    description="Monitor VAS from external devices"
+                    icon="📡"
+                    onClick={() => navigate('/nurse/external-vas-monitor')}
+                    buttonText="Open Monitor"
+                    buttonVariant="default"
+                />
             </div>
 
             {/* 🔹 Вся форма поиска появляется только после клика */}

@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -15,6 +16,37 @@ const EMRUpdateForm: React.FC = () => {
     //  Получаем данные пациента и его EMR из состояния маршрута
     const state = location.state as { patient: Patient; emrData: EMR } | undefined;
 
+    const [updateEmr, {isLoading}] = useUpdateEmrMutation();
+
+    // Инициализация полей формы
+    const [form, setForm] = useState<EMRUpdate>({
+        height: state?.emrData?.height || 0,
+        weight: state?.emrData?.weight || 0,
+        gfr: state?.emrData?.gfr || "",
+        childPughScore: state?.emrData?.childPughScore || "",
+        plt: state?.emrData?.plt || 0,
+        wbc: state?.emrData?.wbc || 0,
+        sat: state?.emrData?.sat || 0,
+        sodium: state?.emrData?.sodium || 0,
+        sensitivities: state?.emrData?.sensitivities || [],
+        diagnoses: state?.emrData?.diagnoses ?? [], // список диагнозов
+    });
+
+    const [errors, setErrors] = useState<Record<string, string>>({});
+    const [searchTerm, setSearchTerm] = useState("");
+    const [sensitivitiesInput, setSensitivitiesInput] = useState<string>(
+        state?.emrData?.sensitivities?.join(", ") || ""
+    );
+
+    //  RTK Query: поиск диагнозов ICD по введённой строке
+    const {
+        data: icdResults = [],
+        isFetching,
+    } = useGetIcdDiagnosesQuery(searchTerm, {
+        skip: searchTerm.length < 2, // запрос выполняется, если 2+ символа
+    });
+
+    // Если компонент открыт без данных
     if (!state || !state.patient || !state.patient?.mrn) {
         return (
             <div className="p-6">
@@ -23,41 +55,11 @@ const EMRUpdateForm: React.FC = () => {
         );
     }
 
-    const { patient, emrData } = state;
-    const [updateEmr, { isLoading }] = useUpdateEmrMutation();
-
-    //  Инициализация формы
-    const [form, setForm] = useState<EMRUpdate>(() => ({
-        height: emrData.height || 0,
-        weight: emrData.weight || 0,
-        gfr: emrData.gfr || "",
-        childPughScore: emrData.childPughScore || "",
-        plt: emrData.plt || 0,
-        wbc: emrData.wbc || 0,
-        sat: emrData.sat || 0,
-        sodium: emrData.sodium || 0,
-        sensitivities: emrData.sensitivities || [],
-        diagnoses: emrData.diagnoses ?? [],
-    }));
-
-    const [errors, setErrors] = useState<Record<string, string>>({});
-    const [searchTerm, setSearchTerm] = useState("");
-
-    //  Локальный input state для запятых
-    const [sensitivitiesInput, setSensitivitiesInput] = useState<string>(
-        (emrData.sensitivities ?? []).join(", ")
-    );
-
-    const {
-        data: icdResults = [],
-        isFetching,
-    } = useGetIcdDiagnosesQuery(searchTerm, {
-        skip: searchTerm.length < 2,
-    });
+    const {patient} = state;
 
     //  Универсальный обработчик обычных полей
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setForm((prev) => ({
             ...prev,
             [name]: ["height", "weight", "plt", "wbc", "sat", "sodium"].includes(name)
@@ -270,7 +272,7 @@ const EMRUpdateForm: React.FC = () => {
                                     className="flex items-center justify-between border-b py-1"
                                 >
                                     <span>
-                                        ✅ {d.description}{" "}
+                                         {d.description}{" "}
                                         <span className="text-gray-500">({d.icdCode})</span>
                                     </span>
                                     <button

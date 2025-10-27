@@ -41,7 +41,7 @@ const PatientFormRegister: React.FC = () => {
 
         try {
             const createdPatient = await createPatient(form).unwrap();
-            navigate(`/doctor/emr-form/${createdPatient.mrn}`);
+            navigate(`../emr-form/${createdPatient.mrn}`);
         } catch {
             // Ошибка отобразится условным рендером
         }

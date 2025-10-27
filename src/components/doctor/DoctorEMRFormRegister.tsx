@@ -207,7 +207,7 @@ const EMRFormRegister: React.FC = () => {
                                 />
                             </FormFieldWrapper>
 
-                            <FormFieldWrapper label="Sodium (mmol/L)" required hint="Enter 100–160 mmol/L" error={errors.sodium}>
+                            <FormFieldWrapper label="Sodium (mmol/L)" required hint="Enter 120–160 mmol/L" error={errors.sodium}>
                                 <Input
                                     type="number"
                                     name="sodium"

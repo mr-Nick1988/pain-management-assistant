@@ -27,6 +27,7 @@ export {default as DoctorPatientFormRegister} from "../components/doctor/DoctorP
 export {default as DoctorEMRFormRegister} from "../components/doctor/DoctorEMRFormRegister.tsx"
 export {default as DoctorEMRUpdateForm} from "../components/doctor/DoctorEMRUpdateForm.tsx"
 export {default as DoctorPatientList} from "../components/doctor/DoctorPatientList.tsx"
+export {default as DoctorQuickSearch} from "../components/doctor/DoctorQuickSearch.tsx"
 export {default as DoctorPatientDetails} from "../components/doctor/DoctorPatientDetails.tsx"
 export {default as DoctorPatientUpdateForm} from "../components/doctor/DoctorPatientUpdateForm.tsx"
 export {default as DoctorRecommendationList} from "../components/doctor/DoctorRecommendationList.tsx"
@@ -50,6 +51,15 @@ export {default as CreatePerson} from "../components/admin/CreatePerson.tsx"
 export {default as TechnicalLogs} from "../components/admin/TechnicalLogs.tsx"
 export {default as EventsTimeline} from "../components/admin/EventsTimeline.tsx"
 export {default as UserActivityMonitor} from "../components/admin/UserActivityMonitor.tsx"
+
+// FHIR INTEGRATION
+export {default as ImportPatientFromFHIR} from "../components/fhir/ImportPatientFromFHIR.tsx"
+export {default as PatientSyncDashboard} from "../components/fhir/PatientSyncDashboard.tsx"
+
+// EXTERNAL VAS INTEGRATION
+export {default as ApiKeyManagement} from "../components/admin/ApiKeyManagement.tsx"
+export {default as ExternalVasMonitor} from "../components/nurse/ExternalVasMonitor.tsx"
+export {default as VasDeviceSimulator} from "../components/testing/VasDeviceSimulator.tsx"
 
 
 

@@ -29,7 +29,9 @@ export const validateEmr = (form: EMR): Record<string, string> => {
         errors.sat = "Oxygen saturation must be between 85% and 100%";
     }
     if (form.sodium < 120 || form.sodium > 160) {
-        errors.sodium = "Sodium must be between 100 and 160 mmol/L";
+
+        errors.sodium = "Sodium must be between 120 and 160 mmol/L";
+
     }
 
     return errors;

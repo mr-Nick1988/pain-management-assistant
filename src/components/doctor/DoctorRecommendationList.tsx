@@ -62,14 +62,16 @@ const RecommendationList: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-                {recommendations.map((recWithVas, index) => (
+                {recommendations.map((recWithVas, index) => {
+                    const patientMrn = recWithVas.patientMrn || recWithVas.recommendation?.patientMrn || recWithVas.vas?.patientMrn;
+                    return (
                     <Card
                         key={index}
                         className="hover:shadow-lg transition-shadow cursor-pointer"
-                        onClick={() => navigate(`/doctor/recommendation/${recWithVas.patientMrn}`, {state: recWithVas})}
+                        onClick={() => navigate(`/doctor/recommendations/recommendation/${patientMrn}`, {state: recWithVas})}
                     >
                         <CardHeader>
-                            <CardTitle>{recWithVas.patientMrn}</CardTitle>
+                            <CardTitle>{patientMrn}</CardTitle>
                         </CardHeader>
                         <CardContent className="p-6">
                             <div className="flex justify-between items-start">
@@ -98,7 +100,7 @@ const RecommendationList: React.FC = () => {
                                     size="sm"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        navigate(`/doctor/recommendation/${recWithVas.patientMrn}`, {state: recWithVas});
+                                        navigate(`/doctor/recommendations/recommendation/${patientMrn}`, {state: recWithVas});
                                     }}
                                 >
                                     Review
@@ -106,7 +108,8 @@ const RecommendationList: React.FC = () => {
                             </div>
                         </CardContent>
                     </Card>
-                ))}
+                    );
+                })}
             </div>
             <PageNavigation />
         </div>

@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {
     useGetEmrByPatientIdQuery,
@@ -22,39 +22,63 @@ import {
     ModalFooter,
     PageNavigation,
 } from "../ui";
+import { useToast } from "../../contexts/ToastContext";
 
 const PatientDetails: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const {mrn} = useParams<{ mrn: string }>();
+    const { success, error } = useToast();
 
-    const cachedPatient = location.state?.patient || null;
+    const autoShowRecommendation = location.state?.autoShowRecommendation || false;
+    const fromExternalVas = location.state?.fromExternalVas || false;
 
     const {
         data: patientData,
         isLoading: isLoadingPatient,
         isError: isErrorPatient,
-    } = useGetPatientByMrnQuery(mrn || "", {skip: !mrn});
+    } = useGetPatientByMrnQuery(mrn || "", {
+        skip: !mrn,
+        refetchOnMountOrArgChange: true, // ВСЕГДА перезагружать при монтировании
+    });
 
-    const patient: Patient = patientData || cachedPatient;
+    // ВСЕГДА используем данные из API
+    const patient: Patient = patientData as Patient;
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [loadEmr, setLoadEmr] = useState(false);
-    const [showRecommendation, setShowRecommendation] = useState(false);
+    const [showRecommendation, setShowRecommendation] = useState(autoShowRecommendation);
 
     // Автоматически подгружаем EMR, VAS и последнюю рекомендацию
     const {data: emrData, isFetching: emrLoading} = useGetEmrByPatientIdQuery(
-        patient?.mrn || "",
-        {skip: !loadEmr || !patient?.mrn}
+        mrn || "",
+        {skip: !loadEmr || !mrn}
     );
 
     const { data: lastVas, isLoading: isVasLoading } =
-        useGetLastVasByPatientIdQuery(patient.mrn ?? "", { skip: !patient?.mrn });
+        useGetLastVasByPatientIdQuery(mrn || "", { skip: !mrn });
 
     const { data: lastRecommendation, isLoading: isRecLoading, isError: isRecError } =
-        useGetRecommendationByPatientIdQuery(patient?.mrn || "", {
-            skip: !patient?.mrn,
+        useGetRecommendationByPatientIdQuery(mrn || "", {
+            skip: !mrn,
             refetchOnMountOrArgChange: true,
         });
+
+    useEffect(() => {
+        if (fromExternalVas && autoShowRecommendation) {
+            setShowRecommendation(true);
+            // Даем время на загрузку рекомендации
+            const timer = setTimeout(() => {
+                if (!lastRecommendation && !isRecLoading) {
+                    error(" Recommendation was NOT created! Check backend logs. Possible reasons: Previous recommendation is still unresolved, or Pain Trend Rule blocked it.");
+                } else if (lastRecommendation) {
+                    success("📋 Showing automatically generated recommendation from External VAS");
+                }
+            }, 1000);
+            
+            return () => clearTimeout(timer);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [fromExternalVas, autoShowRecommendation, lastRecommendation, isRecLoading]);
 
     const [deletePatient] = useDeletePatientMutation();
 
