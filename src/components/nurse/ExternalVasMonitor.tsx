@@ -24,6 +24,7 @@ const ExternalVasMonitor: React.FC = () => {
         vasLevel: 5,
         deviceId: "MONITOR-001",
         location: "Ward A",
+        painPlace: "",
         timestamp: new Date().toISOString(),
         notes: "",
         source: "VAS_MONITOR",
@@ -110,13 +111,15 @@ const ExternalVasMonitor: React.FC = () => {
             return;
         }
 
+        const requestData = {
+            ...simulatorData,
+            timestamp: new Date().toISOString(),
+        };
+
         try {
             const result = await recordVas({
                 apiKey: apiKey.trim(),
-                data: {
-                    ...simulatorData,
-                    timestamp: new Date().toISOString(),
-                },
+                data: requestData,
             }).unwrap();
 
             // Показываем уведомление с информацией о рекомендации
@@ -321,6 +324,7 @@ const ExternalVasMonitor: React.FC = () => {
                                         <th className="p-3 text-left text-sm font-semibold text-gray-700">Time</th>
                                         <th className="p-3 text-left text-sm font-semibold text-gray-700">Patient</th>
                                         <th className="p-3 text-left text-sm font-semibold text-gray-700">VAS Level</th>
+                                        <th className="p-3 text-left text-sm font-semibold text-gray-700">Pain Place</th>
                                         <th className="p-3 text-left text-sm font-semibold text-gray-700">Auto Rec.</th>
                                         <th className="p-3 text-left text-sm font-semibold text-gray-700">Device ID</th>
                                         <th className="p-3 text-left text-sm font-semibold text-gray-700">Location</th>
@@ -350,6 +354,15 @@ const ExternalVasMonitor: React.FC = () => {
                                                 <div className={`inline-flex items-center gap-1 px-3 py-1 rounded-full font-bold ${getVasLevelColor(record.vasLevel)}`}>
                                                     {getVasLevelIcon(record.vasLevel)} {record.vasLevel}
                                                 </div>
+                                            </td>
+                                            <td className="p-3 text-sm">
+                                                {record.painPlace ? (
+                                                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">
+                                                        📍 {record.painPlace}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-gray-400">-</span>
+                                                )}
                                             </td>
                                             <td className="p-3">
                                                 {record.vasLevel >= 4 ? (
@@ -467,7 +480,7 @@ const ExternalVasMonitor: React.FC = () => {
                             {/* Location */}
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    📍 Location
+                                    📍 Patient Location (Ward/Bed)
                                 </label>
                                 <input
                                     type="text"
@@ -478,23 +491,37 @@ const ExternalVasMonitor: React.FC = () => {
                                 />
                             </div>
 
-                            {/* Source */}
+                            {/* Pain Place */}
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                    🔌 Source
+                                    🎯 Pain Location on Body (Optional)
                                 </label>
-                                <select
-                                    value={simulatorData.source}
-                                    onChange={(e) => setSimulatorData({ ...simulatorData, source: e.target.value as "VAS_MONITOR" | "MANUAL_ENTRY" | "EMR_SYSTEM" | "MOBILE_APP" | "TABLET" })}
+                                <input
+                                    type="text"
+                                    value={simulatorData.painPlace || ""}
+                                    onChange={(e) => setSimulatorData({ ...simulatorData, painPlace: e.target.value })}
+                                    placeholder="Shoulder, Leg, Abdomen, Chest, Back..."
                                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    <option value="VAS_MONITOR">VAS Monitor</option>
-                                    <option value="MANUAL_ENTRY">Manual Entry</option>
-                                    <option value="EMR_SYSTEM">EMR System</option>
-                                    <option value="MOBILE_APP">Mobile App</option>
-                                    <option value="TABLET">Tablet</option>
-                                </select>
+                                />
                             </div>
+                        </div>
+
+                        {/* Source */}
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                🔌 Source
+                            </label>
+                            <select
+                                value={simulatorData.source}
+                                onChange={(e) => setSimulatorData({ ...simulatorData, source: e.target.value as "VAS_MONITOR" | "MANUAL_ENTRY" | "EMR_SYSTEM" | "MOBILE_APP" | "TABLET" })}
+                                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="VAS_MONITOR">VAS Monitor</option>
+                                <option value="MANUAL_ENTRY">Manual Entry</option>
+                                <option value="EMR_SYSTEM">EMR System</option>
+                                <option value="MOBILE_APP">Mobile App</option>
+                                <option value="TABLET">Tablet</option>
+                            </select>
                         </div>
 
                         {/* Notes */}
@@ -521,6 +548,7 @@ const ExternalVasMonitor: React.FC = () => {
                                         vasLevel: 5,
                                         deviceId: "MONITOR-001",
                                         location: "Ward A",
+                                        painPlace: "",
                                         timestamp: new Date().toISOString(),
                                         notes: "",
                                         source: "VAS_MONITOR",

@@ -10,7 +10,8 @@ export interface ExternalVasRecordRequest {
     patientMrn: string;
     vasLevel: number; // 0-10
     deviceId: string;
-    location: string;
+    location: string; // Локация пациента (палата, отделение)
+    painPlace?: string; // Локация боли на теле (Shoulder, Leg, Abdomen, etc.)
     timestamp: string; // ISO 8601
     notes?: string;
     source: VasSource;
@@ -49,7 +50,8 @@ export interface ExternalVasRecord {
     patientLastName?: string;
     vasLevel: number;
     deviceId: string;
-    location: string;
+    location: string; // Локация пациента (палата, отделение)
+    painPlace?: string; // Локация боли на теле (Shoulder, Leg, Abdomen, etc.)
     timestamp: string;
     notes?: string;
     source: VasSource;

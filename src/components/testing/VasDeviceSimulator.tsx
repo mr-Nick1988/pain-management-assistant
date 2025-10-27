@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useRecordExternalVasMutation } from "../../api/api/apiExternalVasSlice";
-import type { ExternalVasRecordRequest, VasSource } from "../../types/externalVas";
+import type { ExternalVasRecordRequest, VasSource, ExternalVasRecordResponse } from "../../types/externalVas";
 import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label } from "../ui";
 import { useToast } from "../../contexts/ToastContext";
 
@@ -13,9 +13,10 @@ const VasDeviceSimulator: React.FC = () => {
     const [vasLevel, setVasLevel] = useState(5);
     const [deviceId, setDeviceId] = useState("SIMULATOR-001");
     const [location, setLocation] = useState("Test Ward, Bed 1");
+    const [painPlace, setPainPlace] = useState("");
     const [notes, setNotes] = useState("");
     const [source, setSource] = useState<VasSource>("VAS_MONITOR");
-    const [response, setResponse] = useState<any>(null);
+    const [response, setResponse] = useState<{ success: boolean; data?: ExternalVasRecordResponse; error?: string } | null>(null);
 
     // API hook
     const [recordVas, { isLoading }] = useRecordExternalVasMutation();
@@ -33,6 +34,7 @@ const VasDeviceSimulator: React.FC = () => {
             vasLevel,
             deviceId: deviceId.trim(),
             location: location.trim(),
+            painPlace: painPlace.trim() || undefined,
             timestamp: new Date().toISOString(),
             notes: notes.trim() || undefined,
             source,
@@ -42,9 +44,13 @@ const VasDeviceSimulator: React.FC = () => {
             const result = await recordVas({ apiKey, data: request }).unwrap();
             setResponse({ success: true, data: result });
             toast.success("VAS record sent successfully!");
-        } catch (error: any) {
-            console.error("Failed to send VAS record:", error);
-            setResponse({ success: false, error: error.data || error.message || "Unknown error" });
+        } catch (error) {
+            const errorMessage = error && typeof error === 'object' && 'data' in error
+                ? (error.data as { message?: string })?.message || 'Unknown error'
+                : error instanceof Error
+                ? error.message
+                : 'Unknown error';
+            setResponse({ success: false, error: errorMessage });
             toast.error("Failed to send VAS record");
         }
     };
@@ -131,12 +137,23 @@ const VasDeviceSimulator: React.FC = () => {
 
                         {/* Location */}
                         <div>
-                            <Label htmlFor="location">Location</Label>
+                            <Label htmlFor="location">Patient Location (Ward/Bed)</Label>
                             <Input
                                 id="location"
                                 value={location}
                                 onChange={(e) => setLocation(e.target.value)}
                                 placeholder="Ward A, Bed 12"
+                            />
+                        </div>
+
+                        {/* Pain Place */}
+                        <div>
+                            <Label htmlFor="painPlace">Pain Location on Body (Optional)</Label>
+                            <Input
+                                id="painPlace"
+                                value={painPlace}
+                                onChange={(e) => setPainPlace(e.target.value)}
+                                placeholder="Shoulder, Leg, Abdomen, Chest, Back..."
                             />
                         </div>
 
@@ -226,6 +243,7 @@ const VasDeviceSimulator: React.FC = () => {
                             setVasLevel(8);
                             setDeviceId("MONITOR-001");
                             setLocation("Ward A, Bed 12");
+                            setPainPlace("Lower Back");
                             setNotes("High pain alert - patient needs attention");
                             setSource("VAS_MONITOR");
                         }}
@@ -240,6 +258,7 @@ const VasDeviceSimulator: React.FC = () => {
                             setVasLevel(3);
                             setDeviceId("TABLET-005");
                             setLocation("Ward B, Bed 5");
+                            setPainPlace("Shoulder");
                             setNotes("Patient comfortable, pain managed");
                             setSource("TABLET");
                         }}
@@ -254,6 +273,7 @@ const VasDeviceSimulator: React.FC = () => {
                             setVasLevel(5);
                             setDeviceId("MOBILE-APP");
                             setLocation("Home Care");
+                            setPainPlace("Abdomen");
                             setNotes("Patient self-reported via mobile app");
                             setSource("MOBILE_APP");
                         }}
