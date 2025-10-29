@@ -28,7 +28,7 @@ export enum DrugRoute {
 }
 
 export enum DrugRole {
-    PRIMARY = "PRIMARY",
+    MAIN = "MAIN",
     ALTERNATIVE = "ALTERNATIVE"
 }
 
@@ -169,4 +169,18 @@ export interface Recommendation {
     updatedBy?: string;
 
     patientMrn?: string; // для запросов вне контекста Patient
+}
+
+// Для просмотра рекомендации вместе с VAS (вне контекста Patient)
+export interface RecommendationWithVas {
+    recommendation: Recommendation;
+    vas: VAS;
+    patientMrn?: string;
+}
+
+// Для approve/reject рекомендаций
+export interface RecommendationApprovalRejection {
+    status: RecommendationStatus;
+    comment?: string;
+    rejectedReason?: string; // обязательно при REJECTED
 }

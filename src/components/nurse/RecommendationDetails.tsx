@@ -47,10 +47,10 @@ const RecommendationDetails: React.FC = () => {
         isError,
     } = useGetRecommendationByPatientIdQuery(mrn ?? "", { skip: !mrn });
 
-    // ✅ Хук для подтверждения выдачи лекарства
+    //  Хук для подтверждения выдачи лекарства
     const [executeRecommendation, { isLoading: isExecuting }] = useExecuteRecommendationMutation();
 
-    // ✅ Обработчик клика "Administrate Medicine"
+    // Обработчик клика "Administrate Medicine"
     const handleExecute = async () => {
         if (!mrn) return;
         try {

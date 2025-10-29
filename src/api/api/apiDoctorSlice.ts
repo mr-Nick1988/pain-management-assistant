@@ -4,10 +4,9 @@ import type {
     Patient,
     PatientUpdate,
     EMR,
-    EMRUpdate,
-    RecommendationWithVas,
-    RecommendationApprovalRejection
+    EMRUpdate
 } from "../../types/doctor.ts";
+import type {RecommendationApprovalRejection, RecommendationWithVas} from "../../types/common/types.ts";
 
 export const apiDoctorSlice = createApi({
     reducerPath: "apiDoctor",
@@ -92,7 +91,7 @@ export const apiDoctorSlice = createApi({
         >({
             query: (queryString) => ({
                 url: `/icd/search`,
-                params: { query: queryString },
+                params: {query: queryString},
             }),
         }),
 
@@ -138,21 +137,32 @@ export const apiDoctorSlice = createApi({
             query: (mrn) => `/doctor/patients/${mrn}/recommendations/last`,
             providesTags: ["Recommendation"],
         }),
-        approveRecommendation: builder.mutation<void, { recommendationId: number; data: RecommendationApprovalRejection }>({
-            query: ({ recommendationId, data }) => ({
+        approveRecommendation: builder.mutation<void, {
+            recommendationId: number;
+            data: RecommendationApprovalRejection
+        }>({
+            query: ({recommendationId, data}) => ({
                 url: `/doctor/recommendations/${recommendationId}/approve`,
                 method: "POST",
                 body: data,
             }),
             invalidatesTags: ["Recommendation"],
         }),
-        rejectRecommendation: builder.mutation<void, { recommendationId: number; data: RecommendationApprovalRejection }>({
-            query: ({ recommendationId, data }) => ({
+        rejectRecommendation: builder.mutation<void, {
+            recommendationId: number;
+            data: RecommendationApprovalRejection
+        }>({
+            query: ({recommendationId, data}) => ({
                 url: `/doctor/recommendations/${recommendationId}/reject`,
                 method: "POST",
                 body: data,
             }),
             invalidatesTags: ["Recommendation"],
+        }),
+
+        getPatientHistory: builder.query<RecommendationWithVas[], string>({
+            query: (mrn) => `doctor/patients/${mrn}/history`,
+            providesTags: ["Recommendation"],
         }),
     }),
 });
@@ -180,4 +190,6 @@ export const {
     useApproveRecommendationMutation,
     useRejectRecommendationMutation,
     useGetIcdDiagnosesQuery,
+    useGetPatientHistoryQuery,
+    useLazyGetPatientHistoryQuery
 } = apiDoctorSlice;

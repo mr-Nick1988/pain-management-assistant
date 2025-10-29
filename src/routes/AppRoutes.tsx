@@ -34,14 +34,23 @@ import {
     PatientFormRegister,
     PatientList,
     PatientUpdateForm,
-    VASFormRegister, RecommendationDetails, NurseRecommendationsList,
+    VASFormRegister,
+    RecommendationDetails,
+    NurseRecommendationsList,
     ImportPatientFromFHIR,
     PatientSyncDashboard,
     ApiKeyManagement,
     ExternalVasMonitor,
-    VasDeviceSimulator
+    VasDeviceSimulator,
+    AnesthesiologistLayout,
+    AnesthesiologistEscalationList,
+    AnesthesiologistRejectedList,
+    AnesthesiologistRecommendationDetails,
+    AnesthesiologistRecommendationUpdateForm,
+    AnesthesiologistRecommendationCreateForm
 } from "../exports/exports.ts";
 import ProtectedRoute from "./ProtectedRoute.tsx";
+
 
 const AppRoutes: React.FC = () => {
     return (
@@ -107,11 +116,20 @@ const AppRoutes: React.FC = () => {
                 <Route path="recommendations/recommendation/:mrn" element={<DoctorRecommendationDetails/>}/>
             </Route>
 
+            {/* ANESTHESIOLOGIST ROUTES */}
             <Route path="/anesthesiologist" element={
                 <ProtectedRoute>
-                    <AnesthesiologistDashboard/>
+                    <AnesthesiologistLayout/>
                 </ProtectedRoute>
-            }/>
+            }>
+                <Route index element={<AnesthesiologistDashboard/>}/>
+                <Route path="escalations" element={<AnesthesiologistEscalationList/>}/>
+                <Route path="rejected" element={<AnesthesiologistRejectedList/>}/>
+                <Route path="recommendation/details/:mrn" element={<AnesthesiologistRecommendationDetails/>}/>
+                <Route path="recommendation/update/:mrn" element={<AnesthesiologistRecommendationUpdateForm/>}/>
+                <Route path="recommendation/create/:mrn" element={<AnesthesiologistRecommendationCreateForm/>}/>
+            </Route>
+
             <Route path="/change-credentials" element={
                 <ProtectedRoute allowedOnFirstLogin={true}>
                     <ChangeCredentials/>

@@ -399,6 +399,21 @@ const PatientDetails: React.FC = () => {
                         </p>
                     </div>
                 )}
+                {/*  Уведомление о передаче к анестезиологу (ESCALATED) */}
+                {lastRecommendation?.status === "ESCALATED" && (
+                    <div className="mt-4 bg-orange-50 border-l-4 border-orange-400 p-4 rounded-md">
+                        <p className="text-sm text-orange-700 font-medium">
+                            Recommendation has been escalated to the anesthesiologist.
+                        </p>
+                        <p className="text-xs text-orange-600 mt-1">
+                            Please wait for the anesthesiologist to review and approve the recommendation
+                            before registering new pain complaints.
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1 italic">
+                            The “Register Pain Complaint” button is temporarily disabled during this process.
+                        </p>
+                    </div>
+                )}
             </DataCard>
 
             {/* Delete Modal */}

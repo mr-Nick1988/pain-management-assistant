@@ -1,14 +1,16 @@
 import React, {useState} from "react";
 import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {
-    useApproveRecommendationMutation, 
+    useApproveRecommendationMutation,
     useRejectRecommendationMutation,
     useGetPatientByMrnQuery,
-    useGetEmrByPatientIdQuery
+    useGetEmrByPatientIdQuery, useLazyGetPatientHistoryQuery
 } from "../../api/api/apiDoctorSlice";
-import type {RecommendationWithVas, RecommendationApprovalRejection, DrugRecommendation, RecommendationStatus} from "../../types/doctor";
+import type {DrugRecommendation, RecommendationStatus} from "../../types/doctor";
 import {Button, Card, CardContent, CardHeader, CardTitle, Label, Textarea, PageNavigation, LoadingSpinner} from "../ui";
 import {useToast} from "../../contexts/ToastContext";
+import type {RecommendationApprovalRejection, RecommendationWithVas} from "../../types/common/types.ts";
+import {PatientHistoryList} from "../../exports/exports.ts";
 
 const RecommendationDetails: React.FC = () => {
     const navigate = useNavigate();
@@ -35,6 +37,9 @@ const RecommendationDetails: React.FC = () => {
     const {data: emr, isFetching: isFetchingEmr} = useGetEmrByPatientIdQuery(patientMrnToUse, {
         skip: !patientMrnToUse
     });
+
+    const [triggerHistory, { data: history, isFetching: isHistoryLoading, isError: isHistoryError }] =
+        useLazyGetPatientHistoryQuery();
 
     // Debug: log received data
     console.log("RecommendationDetails - received data:", recWithVas);
@@ -339,6 +344,26 @@ const RecommendationDetails: React.FC = () => {
                             </div>
                         </div>
                     )}
+                    {/* Comments Section */}
+                    {Array.isArray(recommendation.comments) && recommendation.comments.length > 0 && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Comments & Notes</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <ul className="space-y-3">
+                                    {recommendation.comments.map((text: string, index: number) => (
+                                        <li
+                                            key={index}
+                                            className="p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-800"
+                                        >
+                                            💬 {text}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </CardContent>
+                        </Card>
+                    )}
 
                     {/*/!* Contraindications *!/*/}
                     {/*{recommendation.contraindications && recommendation.contraindications.length > 0 && (*/}
@@ -375,31 +400,29 @@ const RecommendationDetails: React.FC = () => {
             </Card>
 
             {/* Show All Recommendations Button */}
+            {/* Patient Recommendation History */}
             <Card>
-                <CardHeader>
-                    <CardTitle>Patient Recommendation History</CardTitle>
-                </CardHeader>
+                <CardHeader><CardTitle>Patient Recommendation History</CardTitle></CardHeader>
                 <CardContent>
-                    <p className="text-sm text-gray-600 mb-4">
-                        View all past and current recommendations for this patient
-                    </p>
-                    {/* TODO: Implement backend endpoint GET /doctor/patients/{mrn}/recommendations 
-                        to fetch all recommendations for a specific patient by MRN.
-                        This will allow doctors to view the complete recommendation history. */}
-                    <Button
-                        variant="default"
-                        onClick={() => {
-                            toast.info("This feature will be available soon. Backend endpoint needs to be implemented.");
-                            // Future implementation:
-                            // navigate(`/doctor/patient/${patientMrnToUse}/recommendations`);
-                        }}
-                        className="w-full"
-                    >
-                        📋 Show All Recommendations (Coming Soon)
-                    </Button>
+                    {isHistoryError ? (
+                        <p className="text-sm text-red-600">
+                            Failed to load history. Try again.
+                        </p>
+                    ) : !history ? (
+                        <Button
+                            variant="outline"
+                            onClick={() => triggerHistory(patientMrnToUse)}
+                            className="mx-auto block"
+                        >
+                            📋 Load Patient History
+                        </Button>
+                    ) : isHistoryLoading ? (
+                        <LoadingSpinner message="Loading..." />
+                    ) : (
+                        <PatientHistoryList history={history || []} />
+                    )}
                 </CardContent>
             </Card>
-
             {/* Approve/Reject Section (only if PENDING) */}
             {isPending && (
                 <Card>

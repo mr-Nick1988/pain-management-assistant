@@ -6,6 +6,8 @@ export {default as FirstLoginNotice} from "../components/person_login/FirstLogin
 // NAVIGATION
 export {default as Navigation} from "../components/Navigation"
 
+export { default as PatientHistoryList } from "../components/PatientHistoryList";
+
 // NURSE
 export {default as NurseLayout} from "../components/nurse/NurseLayout.tsx"
 export {default as NurseDashboard} from "../components/nurse/NurseDashboard.tsx"
@@ -34,8 +36,16 @@ export {default as DoctorRecommendationList} from "../components/doctor/DoctorRe
 export {default as DoctorRecommendationDetails} from "../components/doctor/DoctorRecommendationDetails.tsx"
 // ANESTHESIOLOGIST
 export {default as AnesthesiologistDashboard} from "../components/anesthesiologist/AnesthesiologistDashboard.tsx"
-export {default as EscalationsList} from "../components/anesthesiologist/EscalationsList.tsx"
-export {default as ProtocolEditor} from "../components/anesthesiologist/ProtocolEditor.tsx"
+export {default as AnesthesiologistLayout} from "../components/anesthesiologist/AnesthesiologistLayout.tsx"
+export {default as AnesthesiologistEscalationList} from "../components/anesthesiologist/AnesthesiologistEscalationList.tsx"
+export {default as AnesthesiologistRecommendationCreateForm} from "../components/anesthesiologist/AnesthesiologistRecommendationCreateForm.tsx"
+export {default as AnesthesiologistRecommendationUpdateForm} from "../components/anesthesiologist/AnesthesiologistRecommendationUpdateForm.tsx"
+export {default as AnesthesiologistRecommendationDetails} from "../components/anesthesiologist/AnesthesiologistRecommendationDetails.tsx"
+export {default as AnesthesiologistRejectedList} from "../components/anesthesiologist/AnesthesiologistRejectedList.tsx"
+
+
+
+
 
 // ADMIN
 export {default as UsersManagement} from "../components/admin/UsersManagement.tsx"

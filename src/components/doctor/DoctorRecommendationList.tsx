@@ -5,7 +5,14 @@ import {Button, Card, CardContent, CardHeader, CardTitle, LoadingSpinner, PageNa
 
 const RecommendationList: React.FC = () => {
     const navigate = useNavigate();
-    const {data: recommendations, isLoading, error} = useGetAllPendingRecommendationsQuery();
+    const {
+        data: recommendations,
+        isLoading,
+        error,
+    } = useGetAllPendingRecommendationsQuery(undefined, {
+        refetchOnMountOrArgChange: true, // при каждом монтировании — свежий запрос
+        refetchOnFocus: true,            // при возвращении во вкладку — свежий запрос
+    });
 
     if (isLoading) {
         return (
