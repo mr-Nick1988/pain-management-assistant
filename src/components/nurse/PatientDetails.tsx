@@ -7,7 +7,7 @@ import {
     useGetPatientByMrnQuery,
     useGetLastVasByPatientIdQuery,
 } from "../../api/api/apiNurseSlice";
-import type {Patient} from "../../types/nurse";
+import {type Patient, RecommendationStatus} from "../../types/nurse";
 import type {Diagnosis} from "../../types/common/types.ts";
 import {
     PageHeader,
@@ -400,7 +400,7 @@ const PatientDetails: React.FC = () => {
                     </div>
                 )}
                 {/*  Уведомление о передаче к анестезиологу (ESCALATED) */}
-                {lastRecommendation?.status === "ESCALATED" && (
+                {lastRecommendation?.status === RecommendationStatus.ESCALATED || lastRecommendation?.status === RecommendationStatus.REJECTED && (
                     <div className="mt-4 bg-orange-50 border-l-4 border-orange-400 p-4 rounded-md">
                         <p className="text-sm text-orange-700 font-medium">
                             Recommendation has been escalated to the anesthesiologist.
