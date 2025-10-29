@@ -114,7 +114,7 @@ const BackupHistoryTable: React.FC<BackupHistoryTableProps> = ({ backups, onRest
                                 {formatDate(backup.expirationDate)}
                             </td>
                             <td className="p-3">
-                                <div className="flex gap-2">
+                                <div className="flex flex-col gap-2">
                                     {backup.status === "SUCCESS" && (
                                         <Button
                                             variant="default"
@@ -125,13 +125,10 @@ const BackupHistoryTable: React.FC<BackupHistoryTableProps> = ({ backups, onRest
                                         </Button>
                                     )}
                                     {backup.errorMessage && (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            title={backup.errorMessage}
-                                        >
-                                            ⚠️ Error
-                                        </Button>
+                                        <div className="text-xs text-red-600 max-w-xs">
+                                            <p className="font-semibold">❌ Error:</p>
+                                            <p className="break-words">{backup.errorMessage}</p>
+                                        </div>
                                     )}
                                 </div>
                             </td>

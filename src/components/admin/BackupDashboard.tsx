@@ -77,10 +77,10 @@ const BackupDashboard: React.FC = () => {
             {/* Backup Configuration Info */}
             <Card className="bg-blue-50 border-blue-200">
                 <CardHeader>
-                    <CardTitle className="text-blue-900">⚙️ Backup Configuration</CardTitle>
+                    <CardTitle className="text-blue-900">⚙️ Backup Configuration & Requirements</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div>
                             <p className="font-semibold text-blue-900 mb-1">📅 Schedule</p>
                             <p className="text-blue-700">H2: Daily at 02:00</p>
@@ -96,6 +96,12 @@ const BackupDashboard: React.FC = () => {
                             <p className="font-semibold text-blue-900 mb-1">💾 Storage Locations</p>
                             <p className="text-blue-700">H2: ./backups/h2/</p>
                             <p className="text-blue-700">MongoDB: ./backups/mongodb/</p>
+                        </div>
+                        <div>
+                            <p className="font-semibold text-blue-900 mb-1">⚠️ MongoDB Requirements</p>
+                            <p className="text-blue-700">mongodump utility required</p>
+                            <p className="text-blue-700">Install: MongoDB Database Tools</p>
+                            <p className="text-blue-700">Check: mongodump --version</p>
                         </div>
                     </div>
                 </CardContent>
