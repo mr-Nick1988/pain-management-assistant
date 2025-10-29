@@ -9,8 +9,10 @@ const AdminLayout: React.FC = () => {
     const navItems = [
         { path: "/admin", label: "Dashboard", icon: "🏠" },
         { path: "/admin/analytics", label: "Analytics", icon: "📊" },
+        { path: "/admin/reporting", label: "Reporting", icon: "📈" },
+        { path: "/admin/backup", label: "Backup & Restore", icon: "💾" },
         { path: "/admin/users", label: "Employees", icon: "👥" },
-        { path: "/admin/activity", label: "Employee Activity", icon: "📈" },
+        { path: "/admin/activity", label: "Employee Activity", icon: "👤" },
         { path: "/admin/performance", label: "Performance", icon: "⚡" },
         { path: "/admin/patients-stats", label: "Patient Stats", icon: "🏥" },
         { path: "/admin/logs", label: "Technical Logs", icon: "📝" },

@@ -116,6 +116,24 @@ const AdminDashboard: React.FC = () => {
             iconBg: "bg-orange-100",
             path: "/admin/api-keys",
             stats: "VAS Integration"
+        },
+        {
+            title: "Reporting Dashboard",
+            description: "Daily reports, analytics and statistics",
+            icon: "📊",
+            color: "bg-cyan-50 border-cyan-200",
+            iconBg: "bg-cyan-100",
+            path: "/admin/reporting",
+            stats: "Export & Email"
+        },
+        {
+            title: "Backup & Restore",
+            description: "Database backup and recovery management",
+            icon: "💾",
+            color: "bg-emerald-50 border-emerald-200",
+            iconBg: "bg-emerald-100",
+            path: "/admin/backup",
+            stats: "Automated backups"
         }
     ];
 
