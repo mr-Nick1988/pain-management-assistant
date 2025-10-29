@@ -59,7 +59,13 @@ export {default as PatientSyncDashboard} from "../components/fhir/PatientSyncDas
 // EXTERNAL VAS INTEGRATION
 export {default as ApiKeyManagement} from "../components/admin/ApiKeyManagement.tsx"
 export {default as ExternalVasMonitor} from "../components/nurse/ExternalVasMonitor.tsx"
-export {default as VasDeviceSimulator} from "../components/testing/VasDeviceSimulator.tsx"
+export {default as VasDeviceSimulator} from "../components/testing_external_VAS/VasDeviceSimulator.tsx"
+
+// REPORTING MODULE
+export {default as ReportingDashboard} from "../components/admin/ReportingDashboard.tsx"
+
+// BACKUP & RESTORE MODULE
+export {default as BackupDashboard} from "../components/admin/BackupDashboard.tsx"
 
 
 

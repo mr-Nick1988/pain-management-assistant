@@ -39,7 +39,9 @@ import {
     PatientSyncDashboard,
     ApiKeyManagement,
     ExternalVasMonitor,
-    VasDeviceSimulator
+    VasDeviceSimulator,
+    ReportingDashboard,
+    BackupDashboard
 } from "../exports/exports.ts";
 import ProtectedRoute from "./ProtectedRoute.tsx";
 
@@ -64,6 +66,8 @@ const AppRoutes: React.FC = () => {
                 <Route path="events" element={<EventsTimeline/>}/>
                 <Route path="create-person" element={<CreatePerson/>}/>
                 <Route path="api-keys" element={<ApiKeyManagement/>}/>
+                <Route path="reporting" element={<ReportingDashboard/>}/>
+                <Route path="backup" element={<BackupDashboard/>}/>
             </Route>
 
             {/* NURSE ROUTES */}

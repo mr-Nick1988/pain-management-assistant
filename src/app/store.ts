@@ -6,8 +6,9 @@ import {apiAdminSlice} from "../api/api/apiAdminSlice.ts";
 import {apiNurseSlice} from "../api/api/apiNurseSlice.ts";
 import {apiFhirSlice} from "../api/api/apiFhirSlice.ts";
 import {apiExternalVasSlice} from "../api/api/apiExternalVasSlice.ts";
+import {reportingApi} from "../api/api/apiReportingSlice.ts";
+import {backupApi} from "../api/api/apiBackupSlice.ts";
 import {listenerMiddleware} from "./listenerMiddleware.ts";
-// Импортируй свои slices здесь, когда создашь их
 
 
 export const store = configureStore({
@@ -19,6 +20,8 @@ export const store = configureStore({
         [apiNurseSlice.reducerPath]: apiNurseSlice.reducer,
         [apiFhirSlice.reducerPath]: apiFhirSlice.reducer,
         [apiExternalVasSlice.reducerPath]: apiExternalVasSlice.reducer,
+        [reportingApi.reducerPath]: reportingApi.reducer,
+        [backupApi.reducerPath]: backupApi.reducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware()
@@ -29,7 +32,9 @@ export const store = configureStore({
             .concat(apiAnesthesiologistSlice.middleware)
             .concat(apiNurseSlice.middleware)
             .concat(apiFhirSlice.middleware)
-            .concat(apiExternalVasSlice.middleware),
+            .concat(apiExternalVasSlice.middleware)
+            .concat(reportingApi.middleware)
+            .concat(backupApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
