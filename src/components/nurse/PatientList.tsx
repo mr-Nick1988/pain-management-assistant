@@ -1,76 +1,122 @@
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useGetPatientsQuery } from "../../api/api/apiNurseSlice.ts";
-import {
-    PageHeader,
-    ActionCard,
-    LoadingSpinner,
-    Button,
-    PageNavigation,
-} from "../ui";
+import {useNavigate} from "react-router-dom";
+import {useGetPatientsQuery} from "../../api/api/apiNurseSlice";
+import {Button, Card, CardContent, CardHeader, CardTitle, LoadingSpinner, PageNavigation} from "../ui";
+import type {Patient} from "../../types/nurse";
 
 const PatientList: React.FC = () => {
     const navigate = useNavigate();
-    const location = useLocation();
-    const queryParams = location.state || {};
+    const {data: patients, isFetching, error} = useGetPatientsQuery({});
 
-    const { data: patients, isLoading } = useGetPatientsQuery(queryParams);
-
-    // Загрузка
-    if (isLoading)
+    if (isFetching) {
         return (
             <div className="p-6">
-                <LoadingSpinner message="Loading patients..." />
+                <Card>
+                    <CardContent className="text-center py-8">
+                        <LoadingSpinner />
+                        <p className="mt-4">Loading all patients...</p>
+                    </CardContent>
+                </Card>
             </div>
         );
+    }
 
-    //  Если список пуст
-    if (!patients || patients.length === 0)
+    if (error) {
         return (
             <div className="p-6">
-                <PageHeader title="Patient List" />
-                <div className="flex justify-center mt-4">
-                    <Button variant="default" onClick={() => navigate("/nurse")}>
-                        Back to Dashboard
-                    </Button>
-                </div>
-                <p className="text-center text-gray-500 mt-6">No patients found</p>
+                <Card>
+                    <CardContent className="text-center py-8">
+                        <p className="text-red-500 mb-4">Error loading patients</p>
+                        <Button variant="update" onClick={() => navigate("/nurse")}>
+                            Back to Dashboard
+                        </Button>
+                    </CardContent>
+                </Card>
             </div>
         );
+    }
 
-    // ✅ Основной контент
+    if (!patients || patients.length === 0) {
+        return (
+            <div className="p-6">
+                <Card>
+                    <CardContent className="text-center py-8">
+                        <p className="text-gray-600 mb-4">No patients found</p>
+                        <Button variant="update" onClick={() => navigate("/nurse")}>
+                            Back to Dashboard
+                        </Button>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+
     return (
         <div className="p-6 space-y-6">
-            <PageHeader
-                title="Patient List"
-                description={`Found ${patients.length} patient(s)`}
-            />
-
-            {/* 🔙 Кнопка возврата */}
-            <div className="flex justify-start mb-2">
-                <Button variant="default" onClick={() => navigate("/nurse")}>
-                    Back to Dashboard
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900">All Patients</h1>
+                    <p className="text-gray-600 mt-1">{patients.length} patient(s) in the system</p>
+                </div>
+                <Button variant="outline" onClick={() => navigate("/nurse")}>
+                    ← Back to Dashboard
                 </Button>
             </div>
 
-            {/* 🧍 Список пациентов в карточках */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {patients.map((p) => (
-                    <ActionCard
-                        key={p.mrn}
-                        title={`${p.firstName} ${p.lastName}`}
-                        description={`MRN: ${p.mrn}\nPhone: ${p.phoneNumber || "N/A"}\nBirth: ${p.dateOfBirth || "N/A"}`}
-                        icon="🧍"
-                        onClick={() =>
-                            navigate(`/nurse/patient/${p.mrn}`, { state: { patient: p } })
-                        }
-                        buttonText="Open Details"
-                        buttonVariant={p.isActive ? "approve" : "reject"}
-                    />
+                {patients.map((patient: Patient) => (
+                    <Card
+                        key={patient.mrn}
+                        className="hover:shadow-lg transition-shadow cursor-pointer"
+                        onClick={() => navigate(`../patient/${patient.mrn}`, {state: patient})}
+                    >
+                        <CardHeader>
+                            <CardTitle className="text-lg">
+                                {patient.firstName} {patient.lastName}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-2 text-sm">
+                                <div>
+                                    <span className="text-gray-500">MRN:</span>
+                                    <span className="ml-2 font-semibold">{patient.mrn}</span>
+                                </div>
+                                <div>
+                                    <span className="text-gray-500">DOB:</span>
+                                    <span className="ml-2">{patient.dateOfBirth}</span>
+                                </div>
+                                <div>
+                                    <span className="text-gray-500">Phone:</span>
+                                    <span className="ml-2">{patient.phoneNumber || "N/A"}</span>
+                                </div>
+                                <div>
+                                    <span className="text-gray-500">Gender:</span>
+                                    <span className="ml-2">{patient.gender}</span>
+                                </div>
+                                <div className="pt-2">
+                                    <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
+                                        patient.isActive 
+                                            ? "bg-green-100 text-green-800" 
+                                            : "bg-gray-100 text-gray-800"
+                                    }`}>
+                                        {patient.isActive ? "In Treatment" : "Not in Treatment"}
+                                    </span>
+                                </div>
+                            </div>
+                            <Button
+                                variant="default"
+                                className="w-full mt-4"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`../patient/${patient.mrn}`, {state: patient});
+                                }}
+                            >
+                                View Details
+                            </Button>
+                        </CardContent>
+                    </Card>
                 ))}
             </div>
-
-            {/*  Навигация снизу */}
             <PageNavigation />
         </div>
     );

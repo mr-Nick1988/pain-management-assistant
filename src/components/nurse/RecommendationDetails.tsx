@@ -6,26 +6,14 @@ import {
     useExecuteRecommendationMutation,
 } from "../../api/api/apiNurseSlice";
 import {
-    PageHeader,
-    DataCard,
-    InfoGrid,
-    InfoItem,
-    LoadingSpinner,
     Button,
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    LoadingSpinner,
     PageNavigation,
 } from "../ui";
-
-const formatDate = (dateString?: string): string => {
-    if (!dateString) return "N/A";
-    const date = new Date(dateString);
-    return date.toLocaleString("en-GB", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-    });
-};
 
 const RecommendationDetails: React.FC = () => {
     const { mrn } = useParams<{ mrn: string }>();
@@ -47,10 +35,8 @@ const RecommendationDetails: React.FC = () => {
         isError,
     } = useGetRecommendationByPatientIdQuery(mrn ?? "", { skip: !mrn });
 
-    //  Хук для подтверждения выдачи лекарства
     const [executeRecommendation, { isLoading: isExecuting }] = useExecuteRecommendationMutation();
 
-    // Обработчик клика "Administrate Medicine"
     const handleExecute = async () => {
         if (!mrn) return;
         try {
@@ -66,135 +52,220 @@ const RecommendationDetails: React.FC = () => {
     if (isLoading || isPatientLoading)
         return (
             <div className="p-6">
-                <LoadingSpinner message="Loading recommendation..." />
+                <Card>
+                    <CardContent className="text-center py-8">
+                        <LoadingSpinner />
+                        <p className="mt-4">Loading recommendation...</p>
+                    </CardContent>
+                </Card>
             </div>
         );
 
     if (isError || !recommendation)
         return (
-            <div className="p-6 text-center text-red-600">
-                <p>No recommendation found.</p>
-                <div className="flex justify-center mt-4">
-                    <Button variant="default" onClick={() => navigate("/nurse")}>
-                        Back to Dashboard
-                    </Button>
-                </div>
+            <div className="p-6">
+                <Card>
+                    <CardContent className="text-center py-8">
+                        <p className="text-red-500 mb-4">No recommendation found.</p>
+                        <Button variant="update" onClick={() => navigate("/nurse")}>
+                            Back to Dashboard
+                        </Button>
+                    </CardContent>
+                </Card>
             </div>
         );
 
     return (
         <div className="p-6 space-y-6">
-            <PageHeader title="Recommendation Details" />
+            <div className="flex justify-between items-center">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900">Recommendation Details</h1>
+                    <p className="text-gray-600 mt-1">Patient MRN: {mrn}</p>
+                </div>
+                <Button variant="outline" onClick={() => navigate("/nurse")}>
+                    Back to Dashboard
+                </Button>
+            </div>
 
-            {/* === Основная информация === */}
-            <DataCard title="Recommendation Info">
-                <InfoGrid columns={2}>
-                    <InfoItem label="Patient MRN" value={mrn} />
-                    <InfoItem
-                        label="Patient Name"
-                        value={`${patient?.firstName ?? "?"} ${patient?.lastName ?? ""}`}
-                    />
-                    <InfoItem label="Status" value={recommendation.status} />
-                    <InfoItem
-                        label="Regimen Hierarchy"
-                        value={recommendation.regimenHierarchy || "N/A"}
-                    />
-                    <InfoItem label="Created At" value={formatDate(recommendation.createdAt)} />
-                    <InfoItem label="Updated At" value={formatDate(recommendation.updatedAt)} />
-                    <InfoItem label="Created By" value={recommendation.createdBy || "N/A"} />
-
-                    {recommendation.rejectedReason &&
-                        recommendation.status === "REJECTED" && (
-                            <InfoItem
-                                label="Rejected Reason"
-                                value={recommendation.rejectedReason}
-                            />
+            {/* Recommendation Info */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Recommendation Information</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-500">Patient MRN</p>
+                            <p className="font-semibold">{mrn}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-500">Patient Name</p>
+                            <p className="font-semibold">{patient?.firstName ?? "?"} {patient?.lastName ?? ""}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-500">Status</p>
+                            <p className="font-semibold">
+                                <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
+                                    recommendation.status === "PENDING" ? "bg-yellow-100 text-yellow-800" :
+                                    recommendation.status === "APPROVED" ? "bg-green-100 text-green-800" :
+                                    recommendation.status === "EXECUTED" ? "bg-blue-100 text-blue-800" :
+                                    "bg-red-100 text-red-800"
+                                }`}>
+                                    {recommendation.status}
+                                </span>
+                            </p>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-500">Regimen Hierarchy</p>
+                            <p className="font-semibold">{recommendation.regimenHierarchy || "N/A"}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-500">Created At</p>
+                            <p className="font-semibold text-sm">{recommendation.createdAt ? new Date(recommendation.createdAt).toLocaleString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            }) : 'N/A'}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-500">Updated At</p>
+                            <p className="font-semibold text-sm">{recommendation.updatedAt ? new Date(recommendation.updatedAt).toLocaleString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                            }) : 'N/A'}</p>
+                        </div>
+                        <div className="space-y-2">
+                            <p className="text-sm text-gray-500">Created By</p>
+                            <p className="font-semibold">{recommendation.createdBy || "N/A"}</p>
+                        </div>
+                        {recommendation.rejectedReason && recommendation.status === "REJECTED" && (
+                            <div className="space-y-2 md:col-span-2">
+                                <p className="text-sm text-gray-500">Rejected Reason</p>
+                                <p className="font-semibold text-red-600">{recommendation.rejectedReason}</p>
+                            </div>
                         )}
-                </InfoGrid>
-            </DataCard>
+                    </div>
+                </CardContent>
+            </Card>
 
-            {/* === Комментарии === */}
-            <DataCard title="Comments">
-                {recommendation.comments?.length ? (
-                    <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-                        {recommendation.comments.map((comment, i) => (
-                            <li key={i}>
-                                {comment.trim().startsWith("[SYSTEM]") ? (
-                                    <span className="text-blue-600 font-medium">
-                                        {comment.replace("[SYSTEM]", "💡 System:")}
-                                    </span>
-                                ) : comment.trim().startsWith("[DOCTOR]") ? (
-                                    <span className="text-green-600 font-medium">
-                                        {comment.replace("[DOCTOR]", "👨‍⚕️ Doctor:")}
-                                    </span>
-                                ) : (
-                                    comment
-                                )}
-                            </li>
-                        ))}
-                    </ul>
-                ) : (
-                    <p className="italic text-gray-500">No comments available.</p>
-                )}
-            </DataCard>
-            {/* === System Rejection Reasons === */}
-            {(recommendation.generationFailed || (recommendation.rejectionReasonsSummary?.length ?? 0) > 0) && (
-                <DataCard title="System Rejection Reasons">
-                    {recommendation.rejectionReasonsSummary?.length ? (
-                        <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
-                            {recommendation.rejectionReasonsSummary.map((reason: string, i: number) => (
-                                <li key={i} className="text-red-600 font-medium">
-                                    ⚠️ {reason}
+            {/* Comments */}
+            {recommendation.comments && recommendation.comments.length > 0 && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Comments</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ul className="space-y-2">
+                            {recommendation.comments.map((comment, i) => (
+                                <li key={i} className="p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm">
+                                    {comment.trim().startsWith("[SYSTEM]") ? (
+                                        <span className="text-blue-600 font-medium">
+                                            {comment.replace("[SYSTEM]", "💡 System:")}
+                                        </span>
+                                    ) : comment.trim().startsWith("[DOCTOR]") ? (
+                                        <span className="text-green-600 font-medium">
+                                            {comment.replace("[DOCTOR]", "👨‍⚕️ Doctor:")}
+                                        </span>
+                                    ) : (
+                                        <span className="text-gray-700">{comment}</span>
+                                    )}
                                 </li>
                             ))}
                         </ul>
-                    ) : (
-                        <p className="italic text-gray-500">
-                            No rejection reasons recorded.
-                        </p>
-                    )}
-                </DataCard>
+                    </CardContent>
+                </Card>
             )}
-            {/* === Препараты === */}
+
+            {/* System Rejection Reasons */}
+            {(recommendation.generationFailed || (recommendation.rejectionReasonsSummary?.length ?? 0) > 0) && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle>System Rejection Reasons</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {recommendation.rejectionReasonsSummary?.length ? (
+                            <ul className="space-y-2">
+                                {recommendation.rejectionReasonsSummary.map((reason: string, i: number) => (
+                                    <li key={i} className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600 font-medium">
+                                        ⚠️ {reason}
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="text-sm text-gray-500 italic">No rejection reasons recorded.</p>
+                        )}
+                    </CardContent>
+                </Card>
+            )}
+
+            {/* Drug Recommendations */}
             {(recommendation.drugs ?? []).length > 0 && (
-                <DataCard title="Drug Recommendations">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {recommendation.drugs?.map((drug, i) => (
-                            <div
-                                key={i}
-                                className="border rounded-lg p-4 bg-gray-50 shadow-sm hover:shadow-md transition"
-                            >
-                                <InfoGrid columns={1}>
-                                    <InfoItem label="Drug" value={drug.drugName} />
-                                    <InfoItem label="Active Moiety" value={drug.activeMoiety} />
-                                    <InfoItem label="Dosing" value={drug.dosing} />
-                                    <InfoItem label="Interval" value={drug.interval} />
-                                    <InfoItem label="Route" value={drug.route} />
-                                    <InfoItem label="Role" value={drug.role} />
-                                </InfoGrid>
-                            </div>
-                        ))}
-                    </div>
-                </DataCard>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Prescribed Medications</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {recommendation.drugs?.map((drug, i) => (
+                                <div
+                                    key={i}
+                                    className="p-4 bg-gray-50 rounded-lg border hover:shadow-md transition"
+                                >
+                                    <p className="font-bold text-blue-600 mb-3">{drug.drugName}</p>
+                                    <div className="space-y-2 text-sm">
+                                        <div>
+                                            <p className="text-gray-500">Active Moiety</p>
+                                            <p className="font-semibold">{drug.activeMoiety}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-500">Dosing</p>
+                                            <p className="font-semibold">{drug.dosing}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-500">Interval</p>
+                                            <p className="font-semibold">{drug.interval}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-500">Route</p>
+                                            <p className="font-semibold">{drug.route}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-500">Role</p>
+                                            <p className="font-semibold">{drug.role}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
             )}
 
-            {/* === Кнопка выдачи лекарства (только если статус APPROVED) === */}
+            {/* Administrate Medicine Button */}
             {recommendation.status === "APPROVED" && (
-                <div className="flex justify-center mt-6">
-                    <Button
-                        variant="approve"
-                        onClick={handleExecute}
-                        disabled={isExecuting}
-                    >
-                        {isExecuting ? "Processing..." : "💊 Administrate Medicine"}
-                    </Button>
-                </div>
+                <Card>
+                    <CardContent className="text-center py-6">
+                        <Button
+                            variant="approve"
+                            onClick={handleExecute}
+                            disabled={isExecuting}
+                            className="px-8"
+                        >
+                            {isExecuting ? "Processing..." : "💊 Administrate Medicine"}
+                        </Button>
+                    </CardContent>
+                </Card>
             )}
 
-            {/* === Навигация === */}
-            <div className="flex justify-between mt-8">
-                <Button variant="cancel" onClick={() => navigate("/nurse")}>
-                    Back to Dashboard
+            {/* Navigation */}
+            <div className="flex justify-between">
+                <Button variant="outline" onClick={() => navigate("/nurse")}>
+                    ← Back to Dashboard
                 </Button>
                 <Button
                     variant="default"
@@ -202,7 +273,7 @@ const RecommendationDetails: React.FC = () => {
                         navigate(`/nurse/patient/${mrn}`, { state: patient ? { patient } : undefined })
                     }
                 >
-                    Back to Patient
+                    Back to Patient →
                 </Button>
             </div>
 

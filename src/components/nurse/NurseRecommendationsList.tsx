@@ -52,30 +52,31 @@ const NurseRecommendationsList: React.FC = () => {
           </Button>
         </div>
 
-        {/* 📋 Если нет данных */}
         {(!recommendations || recommendations.length === 0) ? (
-            <p className="text-center text-gray-500 italic">
+            <p className="text-center text-white bg-gray-800 p-4 rounded-lg font-semibold">
               No approved recommendations found.
             </p>
         ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {recommendations.map((r: Recommendation, index: number) => (
-                  <DataCard
+                  <div
                       key={index}
-                      title={`MRN: ${r.patientMrn || "N/A"}`}
-                      className="hover:shadow-lg transition-shadow cursor-pointer"
-                      // @ts-ignore
                       onClick={() => navigate(`/nurse/patient/${r.patientMrn}`)}
+                      className="cursor-pointer"
                   >
-                    <p className="text-sm text-gray-700"><strong>Drug(s):</strong> {r.drugs?.map(d => d.activeMoiety).join(", ") || "N/A"}</p>
-                    <p className="text-sm text-gray-700"><strong>Created:</strong> {new Date(r.createdAt || "").toLocaleDateString()}</p>
-                    <p className="text-sm text-green-600 font-semibold mt-1">✅ Approved</p>
-                  </DataCard>
+                    <DataCard
+                        title={`MRN: ${r.patientMrn || "N/A"}`}
+                        className="hover:shadow-lg transition-shadow"
+                    >
+                      <p className="text-sm text-gray-700"><strong>Drug(s):</strong> {r.drugs?.map(d => d.activeMoiety).join(", ") || "N/A"}</p>
+                      <p className="text-sm text-gray-700"><strong>Created:</strong> {new Date(r.createdAt || "").toLocaleDateString()}</p>
+                      <p className="text-sm text-green-600 font-semibold mt-1">✅ Approved</p>
+                    </DataCard>
+                  </div>
               ))}
             </div>
         )}
       </div>
   );
 };
-
 export default NurseRecommendationsList;
