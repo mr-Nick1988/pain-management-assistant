@@ -14,13 +14,22 @@ const BackupDashboard: React.FC = () => {
     const [cleanupModalOpen, setCleanupModalOpen] = useState(false);
     const [selectedBackup, setSelectedBackup] = useState<BackupResponseDTO | null>(null);
 
-    // API queries
-    const { data: statistics, isLoading: statsLoading, refetch: refetchStats } = useGetBackupStatisticsQuery();
-    const { data: history, isLoading: historyLoading, refetch: refetchHistory } = useGetBackupHistoryQuery();
+    // API queries with polling disabled and manual refetch
+    const { data: statistics, isLoading: statsLoading, refetch: refetchStats } = useGetBackupStatisticsQuery(undefined, {
+        pollingInterval: 0,
+        refetchOnMountOrArgChange: true,
+    });
+    const { data: history, isLoading: historyLoading, refetch: refetchHistory } = useGetBackupHistoryQuery(undefined, {
+        pollingInterval: 0,
+        refetchOnMountOrArgChange: true,
+    });
 
     const handleRefresh = () => {
-        refetchStats();
-        refetchHistory();
+        console.log("🔄 Refreshing backup data...");
+        // Force refetch - returns promises
+        Promise.all([refetchStats(), refetchHistory()])
+            .then(() => console.log("✅ Refresh completed"))
+            .catch((err) => console.error("❌ Refresh failed:", err));
     };
 
     const handleRestoreClick = (backup: BackupResponseDTO) => {

@@ -12,6 +12,7 @@ export const backupApi = createApi({
     reducerPath: "backupApi",
     baseQuery: fetchBaseQuery({
         baseUrl: BASE_URL,
+        timeout: 120000, // 120 seconds for long-running operations (restore can take 15-30s)
         prepareHeaders: (headers) => {
             const token = localStorage.getItem("token");
             if (token) {
@@ -38,6 +39,11 @@ export const backupApi = createApi({
                 url: "/restore",
                 method: "POST",
                 body: data,
+                responseHandler: async (response) => {
+                    // Backend returns plain text, not JSON
+                    const text = await response.text();
+                    return text;
+                },
             }),
             invalidatesTags: ["Backup"],
         }),
