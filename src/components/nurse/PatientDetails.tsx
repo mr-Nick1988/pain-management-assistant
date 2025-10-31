@@ -356,7 +356,13 @@ const PatientDetails: React.FC = () => {
                                         </div>
                                         <div className="space-y-2">
                                             <p className="text-sm text-gray-500">Created At</p>
-                                            <p className="font-semibold">{lastRecommendation.createdAt ?? "N/A"}</p>
+                                            <p className="font-semibold">{lastRecommendation.createdAt ? new Date(lastRecommendation.createdAt).toLocaleString('en-US', {
+                                                year: 'numeric',
+                                                month: 'short',
+                                                day: 'numeric',
+                                                hour: '2-digit',
+                                                minute: '2-digit'
+                                            }) : 'N/A'}</p>
                                         </div>
                                         <div className="space-y-2">
                                             <p className="text-sm text-gray-500">Created By</p>
