@@ -60,6 +60,7 @@ export interface ImportCheckDTO {
 }
 
 export interface FhirSearchParams {
+    patientId?: string;
     firstName?: string;
     lastName?: string;
     birthDate?: string;

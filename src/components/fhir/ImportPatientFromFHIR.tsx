@@ -4,8 +4,7 @@ import {
     useLazySearchFhirPatientsQuery,
     useImportPatientFromFhirMutation,
     useGenerateMockPatientMutation,
-    useGenerateBatchMockPatientsMutation,
-    useLazyCheckImportStatusQuery
+    useGenerateBatchMockPatientsMutation
 } from "../../api/api/apiFhirSlice";
 import type {FhirPatientDTO, EmrImportResultDTO} from "../../types/fhir";
 import {Button, Card, CardContent, CardHeader, CardTitle, Input, Label, LoadingSpinner, PageNavigation} from "../ui";
@@ -17,6 +16,7 @@ const ImportPatientFromFHIR: React.FC = () => {
 
     // Search form state
     const [searchParams, setSearchParams] = useState({
+        patientId: "",
         firstName: "",
         lastName: "",
         birthDate: ""
@@ -34,10 +34,9 @@ const ImportPatientFromFHIR: React.FC = () => {
     const [importPatient, {isLoading: isImporting}] = useImportPatientFromFhirMutation();
     const [generateMock, {isLoading: isGeneratingMock}] = useGenerateMockPatientMutation();
     const [generateBatch, {isLoading: isGeneratingBatch}] = useGenerateBatchMockPatientsMutation();
-    const [checkImport] = useLazyCheckImportStatusQuery();
 
     const handleSearch = async () => {
-        if (!searchParams.firstName && !searchParams.lastName && !searchParams.birthDate) {
+        if (!searchParams.patientId && !searchParams.firstName && !searchParams.lastName && !searchParams.birthDate) {
             toast.error("Please enter at least one search parameter");
             return;
         }
@@ -52,13 +51,6 @@ const ImportPatientFromFHIR: React.FC = () => {
 
     const handleImport = async (patient: FhirPatientDTO) => {
         try {
-            // Check if already imported
-            const checkResult = await checkImport(patient.patientIdInFhirResource).unwrap();
-            if (checkResult.alreadyImported) {
-                toast.error(`Patient already imported with MRN: ${checkResult.internalEmrNumber}`);
-                return;
-            }
-
             const result = await importPatient({
                 fhirPatientId: patient.patientIdInFhirResource,
                 importedBy: localStorage.getItem("username") || "system"
@@ -70,9 +62,12 @@ const ImportPatientFromFHIR: React.FC = () => {
             if (result.success) {
                 toast.success("Patient imported successfully!");
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Import failed:", error);
-            toast.error("Failed to import patient");
+            
+            // Показываем конкретную ошибку от бэкенда
+            const errorMessage = error?.data?.message || error?.message || "Failed to import patient";
+            toast.error(errorMessage);
         }
     };
 
@@ -138,7 +133,16 @@ const ImportPatientFromFHIR: React.FC = () => {
                     <CardTitle>Search in FHIR System</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="md:col-span-2">
+                            <Label htmlFor="patientId">Patient ID (FHIR)</Label>
+                            <Input
+                                id="patientId"
+                                placeholder="Enter FHIR Patient ID (e.g., example, 1234567)"
+                                value={searchParams.patientId}
+                                onChange={(e) => setSearchParams({...searchParams, patientId: e.target.value})}
+                            />
+                        </div>
                         <div>
                             <Label htmlFor="firstName">First Name</Label>
                             <Input
@@ -157,7 +161,7 @@ const ImportPatientFromFHIR: React.FC = () => {
                                 onChange={(e) => setSearchParams({...searchParams, lastName: e.target.value})}
                             />
                         </div>
-                        <div>
+                        <div className="md:col-span-2">
                             <Label htmlFor="birthDate">Birth Date</Label>
                             <Input
                                 id="birthDate"
