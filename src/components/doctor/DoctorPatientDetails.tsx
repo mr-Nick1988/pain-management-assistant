@@ -10,6 +10,8 @@ import {
 import type {Patient, EMR} from "../../types/doctor";
 import {Button, Card, CardContent, CardHeader, CardTitle, PageNavigation, LoadingSpinner} from "../ui";
 import {useToast} from "../../contexts/ToastContext";
+import { useGetPainTrendQuery } from "../../api/api/apiPainEscalationSlice";
+import { PainTrendCard } from "../common/PainTrendCard";
 
 const PatientDetails: React.FC = () => {
     const navigate = useNavigate();
@@ -39,6 +41,9 @@ const PatientDetails: React.FC = () => {
 
     const [fetchRecommendation, {isFetching: recommendationLoading}] = useLazyGetLastRecommendationQuery();
     const [deletePatient] = useDeletePatientMutation();
+
+    const { data: painTrend, isLoading: isPainTrendLoading, error: painTrendError } =
+        useGetPainTrendQuery(patient?.mrn ?? "", { skip: !patient?.mrn });
 
     // Fetch patient if not available in location.state
     useEffect(() => {
@@ -373,6 +378,9 @@ const PatientDetails: React.FC = () => {
                     </CardContent>
                 </Card>
             )}
+
+            {/* Pain Trend Analysis */}
+            <PainTrendCard trend={painTrend} isLoading={isPainTrendLoading} error={painTrendError} />
 
             {/* Actions */}
             <Card>

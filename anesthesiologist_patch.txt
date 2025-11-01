@@ -1,0 +1,11 @@
+--- Add imports after line 24
++import { useGetPainTrendQuery } from "../../api/api/apiPainEscalationSlice";
++import { PainTrendCard } from "../common/PainTrendCard";
+
+--- Add hook after line 68 (after emr query)
++    const { data: painTrend, isLoading: isPainTrendLoading, error: painTrendError } = useGetPainTrendQuery(mrnToUse, { skip: !mrnToUse });
+
+--- Add component after line 244 (after EMR card, before Patient Recommendation History)
++            {/* Pain Trend Analysis */}
++            <PainTrendCard trend={painTrend} isLoading={isPainTrendLoading} error={painTrendError} />
++

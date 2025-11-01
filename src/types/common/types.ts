@@ -184,3 +184,43 @@ export interface RecommendationApprovalRejection {
     comment?: string;
     rejectedReason?: string; // обязательно при REJECTED
 }
+
+// ============================================
+// PAIN TREND ANALYSIS
+// ============================================
+
+export type PainTrend = 'INCREASING' | 'DECREASING' | 'STABLE' | 'NO_DATA';
+
+export interface PainTrendAnalysisDTO {
+    patientMrn: string;
+    currentVas: number;
+    previousVas: number;
+    vasChange: number;
+    lastVasRecordedAt?: string;        // ISO datetime (опционально в UI)
+    previousVasRecordedAt?: string;    // ISO datetime (опционально в UI)
+    daysBetweenVasRecords: number;     // int
+    painTrend: PainTrend;
+    averageVas: number;
+    maxVas: number;
+    minVas: number;
+    vasHistory: number[];              // для графика
+    vasRecordCount: number;
+}
+
+// ============================================
+// PAIN ESCALATION NOTIFICATIONS (WebSocket)
+// ============================================
+
+export type EscalationPriority = 'INFO' | 'ALERT' | 'CRITICAL';
+
+export interface PainEscalationNotificationDTO {
+    escalationId: number;
+    patientMrn: string;
+    patientName: string;
+    currentVas: number;
+    previousVas: number;
+    vasChange: number;
+    priority: EscalationPriority;
+    createdAt: string;          // ISO datetime
+    latestDiagnoses: string[];  // можно показать в tooltip/expand
+}

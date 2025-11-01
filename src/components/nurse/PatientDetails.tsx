@@ -23,6 +23,8 @@ import {
     PageNavigation,
 } from "../ui";
 import { useToast } from "../../contexts/ToastContext";
+import { useGetPainTrendQuery } from "../../api/api/apiPainEscalationSlice";
+import { PainTrendCard } from "../common/PainTrendCard";
 
 const PatientDetails: React.FC = () => {
     const navigate = useNavigate();
@@ -61,6 +63,9 @@ const PatientDetails: React.FC = () => {
             refetchOnMountOrArgChange: true,
         });
 
+    const { data: painTrend, isLoading: isPainTrendLoading, error: painTrendError } =
+        useGetPainTrendQuery(mrn || "", { skip: !mrn });
+
     useEffect(() => {
         if (fromExternalVas && autoShowRecommendation) {
             setShowRecommendation(true);
@@ -91,7 +96,7 @@ const PatientDetails: React.FC = () => {
         if (isVasLoading || isRecLoading) return;
 
         if (isRecommendationPending) {
-            alert("You cannot register a new pain complaint until the current recommendation is approved.");
+            error("You cannot register a new pain complaint until the current recommendation is approved.");
             return;
         }
 
@@ -324,6 +329,9 @@ const PatientDetails: React.FC = () => {
                     </CardContent>
                 </Card>
             )}
+
+            {/* Pain Trend Analysis */}
+            <PainTrendCard trend={painTrend} isLoading={isPainTrendLoading} error={painTrendError} />
 
             {/* Recommendation */}
             <Card>

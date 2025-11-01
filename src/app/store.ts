@@ -8,6 +8,7 @@ import {apiFhirSlice} from "../api/api/apiFhirSlice.ts";
 import {apiExternalVasSlice} from "../api/api/apiExternalVasSlice.ts";
 import {reportingApi} from "../api/api/apiReportingSlice.ts";
 import {backupApi} from "../api/api/apiBackupSlice.ts";
+import {apiPainEscalationSlice} from "../api/api/apiPainEscalationSlice.ts";
 import {listenerMiddleware} from "./listenerMiddleware.ts";
 
 
@@ -22,6 +23,7 @@ export const store = configureStore({
         [apiExternalVasSlice.reducerPath]: apiExternalVasSlice.reducer,
         [reportingApi.reducerPath]: reportingApi.reducer,
         [backupApi.reducerPath]: backupApi.reducer,
+        [apiPainEscalationSlice.reducerPath]: apiPainEscalationSlice.reducer,
     },
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware()
@@ -34,7 +36,8 @@ export const store = configureStore({
             .concat(apiFhirSlice.middleware)
             .concat(apiExternalVasSlice.middleware)
             .concat(reportingApi.middleware)
-            .concat(backupApi.middleware),
+            .concat(backupApi.middleware)
+            .concat(apiPainEscalationSlice.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

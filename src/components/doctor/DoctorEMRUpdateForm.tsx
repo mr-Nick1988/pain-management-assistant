@@ -12,13 +12,16 @@ import {
     CardHeader,
     CardTitle,
     Input,
-    Label, PageNavigation } from "../ui";
-
+    Label,
+    PageNavigation
+} from "../ui";
 import { validateEmr } from "../../utils/validationEmr";
+import { useToast } from "../../contexts/ToastContext";
 
 const EMRUpdateForm: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const toast = useToast();
     const state = location.state as { patient: Patient; emrData: EMR } | undefined;
 
     const [updateEmr, { isLoading }] = useUpdateEmrMutation();
@@ -123,10 +126,11 @@ const EMRUpdateForm: React.FC = () => {
 
         try {
             await updateEmr({ mrn: patient.mrn!, data: form }).unwrap();
+            toast.success("EMR updated successfully!");
             navigate(-1);
         } catch (err) {
             console.error("Failed to update EMR:", err);
-            alert("Error updating EMR");
+            toast.error("Error updating EMR. Please try again.");
         }
     };
 
@@ -213,12 +217,11 @@ const EMRUpdateForm: React.FC = () => {
                                                     className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
                                                     onClick={() => handleSelectDiagnosis(diagnosis)}
                                                 >
-                                                    {/* 💊 Код диагноза теперь в скобках */}
                                                     <div className="font-medium">
                                                         {diagnosis.description}{" "}
                                                         <span className="text-gray-500 text-sm">
-                              ({diagnosis.icdCode})
-                            </span>
+                                                            ({diagnosis.icdCode})
+                                                        </span>
                                                     </div>
                                                 </div>
                                             ))}
@@ -239,8 +242,8 @@ const EMRUpdateForm: React.FC = () => {
                                                     <div>
                                                         {diagnosis.description}{" "}
                                                         <span className="text-gray-500">
-                              ({diagnosis.icdCode})
-                            </span>
+                                                            ({diagnosis.icdCode})
+                                                        </span>
                                                     </div>
                                                     <button
                                                         type="button"
@@ -274,8 +277,7 @@ const EMRUpdateForm: React.FC = () => {
                     </form>
                 </CardContent>
             </Card>
-        <PageNavigation />
-
+            <PageNavigation />
         </div>
     );
 };

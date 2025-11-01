@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -8,11 +7,12 @@ import {
 import type { EMR, EMRUpdate, Patient, Diagnosis } from "../../types/nurse";
 import { validateEmr } from "../../utils/validationEmr.ts";
 import { FormCard, FormGrid, FormFieldWrapper, Input } from "../ui";
+import { useToast } from "../../contexts/ToastContext";
 
 const EMRUpdateForm: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
-
+    const toast = useToast();
     //  Получаем данные пациента и его EMR из состояния маршрута
     const state = location.state as { patient: Patient; emrData: EMR } | undefined;
 
@@ -124,10 +124,11 @@ const EMRUpdateForm: React.FC = () => {
                         })) ?? [],
                 },
             }).unwrap();
+            toast.success("EMR updated successfully!");
             navigate(-1);
         } catch (error) {
             console.error("Failed to update EMR:", error);
-            alert("Error updating EMR");
+            toast.error("Error updating EMR. Please try again.");
         }
     };
 

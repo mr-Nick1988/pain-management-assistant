@@ -12,6 +12,7 @@
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@reduxjs/toolkit": "^2.9.0",
+    "@stomp/stompjs": "^7.2.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
@@ -19,6 +20,8 @@
     "react-dom": "^19.1.1",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.9.1",
+    "recharts": "^3.3.0",
+    "sockjs-client": "^1.6.1",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.0.0"
   },
@@ -27,6 +30,7 @@
     "@tailwindcss/postcss": "^4.1.13",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
+    "@types/sockjs-client": "^1.5.4",
     "@vitejs/plugin-react": "^5.0.0",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.33.0",

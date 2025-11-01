@@ -38,19 +38,8 @@ const AnesthesiologistRecommendationDetails: React.FC = () => {
 
     const [rejectRecommendation, { isLoading: isRejecting }] = useRejectRecommendationMutation();
 
-    // Extract data before any early returns
-    const { recommendation, vas, patientMrn } = recWithVas || {};
-    const mrnToUse = patientMrn || mrnFromUrl || "";
 
-    // ALL HOOKS MUST BE CALLED BEFORE ANY EARLY RETURNS
-    const [triggerHistory, { data: history, isFetching: isHistoryLoading, isError: isHistoryError }] =
-        useLazyGetPatientHistoryQuery();
 
-    const { data: patient, isFetching: isFetchingPatient } = useGetPatientByMrnQuery(mrnToUse, { skip: !mrnToUse || !recWithVas });
-    const { data: emr, isFetching: isFetchingEmr } = useGetLastEmrByPatientMrnQuery(mrnToUse, { skip: !mrnToUse || !recWithVas });
-    const { data: painTrend, isLoading: isPainTrendLoading, error: painTrendError } = useGetPainTrendQuery(mrnToUse, { skip: !mrnToUse || !recWithVas });
-
-    // Now we can do early returns
     if (!recWithVas) {
         return (
             <div className="p-6">
@@ -66,16 +55,22 @@ const AnesthesiologistRecommendationDetails: React.FC = () => {
         );
     }
 
+    const { recommendation, vas, patientMrn } = recWithVas;
+    const mrnToUse = patientMrn || mrnFromUrl || "";
+
+    const [triggerHistory, { data: history, isFetching: isHistoryLoading, isError: isHistoryError }] =
+        useLazyGetPatientHistoryQuery();
+
     const toastError = () => toast.error("Patient MRN is missing. Cannot fetch patient data.");
 
     if (!mrnToUse) toastError();
 
-    // Type guards - these will never be undefined after the early return check above
-    if (!recommendation || !vas) {
-        return null; // This should never happen due to the recWithVas check above
-    }
+    // --- API calls ---
+    const { data: patient, isFetching: isFetchingPatient } = useGetPatientByMrnQuery(mrnToUse, { skip: !mrnToUse });
+    const { data: emr, isFetching: isFetchingEmr } = useGetLastEmrByPatientMrnQuery(mrnToUse, { skip: !mrnToUse });
+    const { data: painTrend, isLoading: isPainTrendLoading, error: painTrendError } = useGetPainTrendQuery(mrnToUse, { skip: !mrnToUse });
 
-    const drugs: DrugRecommendation[] = Array.isArray(recommendation.drugs) ? recommendation.drugs : [];
+    const drugs: DrugRecommendation[] = Array.isArray(recommendation?.drugs) ? recommendation.drugs : [];
 
     // === Handlers === //
     const handleApproveAndUpdate = async () => {

@@ -17,12 +17,13 @@ import {
     FormFieldWrapper,
     FormGrid,
 } from "../ui";
+import { useToast } from "../../contexts/ToastContext";
 
 const EMRFormRegister: React.FC = () => {
     const navigate = useNavigate();
     const { mrn } = useParams<{ mrn: string }>();
+    const toast = useToast();
 
-    // ❗ Убрали error, чтобы не подчёркивало как неиспользуемое
     const [createEmr, { isLoading }] = useCreateEmrMutation();
 
     // 🩺 Состояние формы
@@ -110,10 +111,11 @@ const EMRFormRegister: React.FC = () => {
 
         try {
             await createEmr({ mrn, data: form }).unwrap();
+            toast.success("EMR created successfully!");
             navigate("/doctor");
         } catch (err) {
             console.error("Error creating EMR:", err);
-            alert("Error creating EMR. Check console for details.");
+            toast.error("Error creating EMR. Please try again.");
         }
     };
 
@@ -301,8 +303,7 @@ const EMRFormRegister: React.FC = () => {
                     </form>
                 </CardContent>
             </Card>
-        <PageNavigation />
-
+            <PageNavigation />
         </div>
     );
 };

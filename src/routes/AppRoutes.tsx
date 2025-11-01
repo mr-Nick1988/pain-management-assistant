@@ -53,12 +53,13 @@ import {
 
 } from "../exports/exports.ts";
 import ProtectedRoute from "./ProtectedRoute.tsx";
-
+import WebSocketTest from "../components/test/WebSocketTest.tsx";
 
 const AppRoutes: React.FC = () => {
     return (
         <Routes>
             <Route path="/login" element={<Login/>}/>
+            <Route path="/websocket-test" element={<WebSocketTest/>}/>
             
             {/* ADMIN ROUTES */}
             <Route path="/admin" element={

@@ -14,11 +14,13 @@ import {
     LoadingSpinner,
     PageNavigation,
 } from "../ui";
+import { useToast } from "../../contexts/ToastContext";
 
 const RecommendationDetails: React.FC = () => {
     const { mrn } = useParams<{ mrn: string }>();
     const navigate = useNavigate();
     const location = useLocation();
+    const toast = useToast();
 
     const cachedPatient = location.state?.patient || null;
 
@@ -41,11 +43,11 @@ const RecommendationDetails: React.FC = () => {
         if (!mrn) return;
         try {
             await executeRecommendation({ mrn }).unwrap();
-            alert("✅ Medication administration confirmed successfully.");
+            toast.success("💊 Medication administration confirmed successfully!");
             navigate(`/nurse/patient/${mrn}`, { replace: true });
         } catch (err) {
             console.error("Execution error:", err);
-            alert("❌ Failed to confirm medication administration. Please try again.");
+            toast.error("Failed to confirm medication administration. Please try again.");
         }
     };
 
