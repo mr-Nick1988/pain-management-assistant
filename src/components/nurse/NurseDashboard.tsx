@@ -18,7 +18,7 @@ interface PatientSearchParams {
 const NurseDashboard: React.FC = () => {
     const navigate = useNavigate();
 
-    // 🔹 Состояния полей поиска
+    //  Состояния полей поиска
     const [mrn, setMrn] = useState("");
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -26,32 +26,32 @@ const NurseDashboard: React.FC = () => {
     const [phoneNumber, setPhoneNumber] = useState("");
     const [birthDate, setBirthDate] = useState("");
 
-    // 🔹 Состояние показа формы поиска
+    //  Состояние показа формы поиска
     const [showSearchForm, setShowSearchForm] = useState(false);
 
-    // 🔹 Lazy queries
+    //  Lazy queries
     const [fetchPatientByMrn, { isError: isMrnError, error: mrnError }] = useLazyGetPatientByMrnQuery();
     const [fetchPatientByEmail, { isError: isEmailError, error: emailError }] = useLazyGetPatientByEmailQuery();
     const [fetchPatientByPhone, { isError: isPhoneError, error: phoneError }] = useLazyGetPatientByPhoneNumberQuery();
 
-    // 🔹 Общий поиск
+    //  Общий поиск
     const handleFindPatients = (params?: PatientSearchParams) => {
         navigate("/nurse/patients", { state: params });
     };
 
-    // 🔹 Поиск по MRN
+    //  Поиск по MRN
     const handleFindByMRN = async () => {
         const result = await fetchPatientByMrn(mrn.trim());
         if (result.data) navigate(`/nurse/patient/${mrn.trim()}`, { state: result.data });
     };
 
-    // 🔹 Поиск по Email
+    //  Поиск по Email
     const handleFindByEmail = async () => {
         const result = await fetchPatientByEmail(email.trim());
         if (result.data) navigate(`/nurse/patient/${result.data.mrn}`, { state: result.data });
     };
 
-    // 🔹 Поиск по Phone Number
+    //  Поиск по Phone Number
     const handleFindByPhoneNumber = async () => {
         const result = await fetchPatientByPhone(phoneNumber.trim());
         if (result.data) navigate(`/nurse/patient/${result.data.mrn}`, { state: result.data });
@@ -61,7 +61,7 @@ const NurseDashboard: React.FC = () => {
         <div className="p-6 space-y-6">
             <PageHeader title="Nurse Dashboard" description="Search for patients or register new ones" />
 
-            {/* 🔹 Верхние карточки действий */}
+            {/*  Верхние карточки действий */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <ActionCard
                     title="Register Patient"
@@ -128,7 +128,7 @@ const NurseDashboard: React.FC = () => {
                 />
             </div>
 
-            {/* 🔹 Вся форма поиска появляется только после клика */}
+            {/*  Вся форма поиска появляется только после клика */}
             {showSearchForm && (
                 <>
                     <SearchCard title="Search Patients" description="Use any of the search methods below">
@@ -201,7 +201,7 @@ const NurseDashboard: React.FC = () => {
                         </SearchField>
                     </SearchCard>
 
-                    {/* 🔹 Фильтр по статусу лечения */}
+                    {/*  Фильтр по статусу лечения */}
                     <SearchCard title="Filter by Treatment Status" description="View patients by their treatment status">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <Button variant="approve" onClick={() => handleFindPatients({ isActive: true })}>

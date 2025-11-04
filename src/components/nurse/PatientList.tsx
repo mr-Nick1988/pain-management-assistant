@@ -1,12 +1,16 @@
 import React from "react";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {useGetPatientsQuery} from "../../api/api/apiNurseSlice";
 import {Button, Card, CardContent, CardHeader, CardTitle, LoadingSpinner, PageNavigation} from "../ui";
 import type {Patient} from "../../types/nurse";
 
 const PatientList: React.FC = () => {
     const navigate = useNavigate();
-    const {data: patients, isFetching, error} = useGetPatientsQuery({});
+    const location = useLocation(); // читаем объект, переданный из Dashboard
+
+
+    const searchParams = (location.state as { isActive?: boolean } | undefined) ?? {};
+    const { data: patients, isFetching, error } = useGetPatientsQuery(searchParams);
 
     if (isFetching) {
         return (

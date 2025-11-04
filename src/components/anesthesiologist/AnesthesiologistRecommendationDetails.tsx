@@ -371,23 +371,43 @@ const AnesthesiologistRecommendationDetails: React.FC = () => {
                             />
                         </div>
 
-                        <div className="flex space-x-2 pt-4">
-                            <Button
-                                variant="approve"
-                                onClick={handleApproveAndUpdate}
-                                className="flex-1"
-                            >
-                                Update & Approve
-                            </Button>
-                            <Button
-                                variant="reject"
-                                onClick={handleRejectAndCreateNew}
-                                disabled={isRejecting}
-                                className="flex-1"
-                            >
-                                {isRejecting ? "Rejecting..." : "❌ Reject & Create New"}
-                            </Button>
-                        </div>
+                        {/* === Added Check for Missing Active Moieties === */}
+                        {(() => {
+                            const firstDrug = drugs[0];
+                            const secondDrug = drugs[1];
+                            const isAutoEscalated =
+                                (!firstDrug?.activeMoiety || firstDrug.activeMoiety === null) &&
+                                (!secondDrug?.activeMoiety || secondDrug.activeMoiety === null);
+
+                            return (
+                                <>
+                                    {isAutoEscalated && (
+                                        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+                                            ⚠️ Escalation was initialized by the system, please create a new recommendation for this patient.
+                                        </div>
+                                    )}
+
+                                    <div className="flex space-x-2 pt-4">
+                                        <Button
+                                            variant="approve"
+                                            onClick={handleApproveAndUpdate}
+                                            className="flex-1"
+                                            disabled={isAutoEscalated}
+                                        >
+                                            Update & Approve
+                                        </Button>
+                                        <Button
+                                            variant="reject"
+                                            onClick={handleRejectAndCreateNew}
+                                            disabled={isRejecting}
+                                            className="flex-1"
+                                        >
+                                            {isRejecting ? "Rejecting..." : "❌ Reject & Create New"}
+                                        </Button>
+                                    </div>
+                                </>
+                            );
+                        })()}
                     </CardContent>
                 </Card>
             ) : recommendation.status === RecommendationStatus.REJECTED ? (
