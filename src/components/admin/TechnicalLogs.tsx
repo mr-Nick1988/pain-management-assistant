@@ -9,16 +9,15 @@ const TechnicalLogs: React.FC = () => {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
 
-    // RTK Query hooks - загружает технические логи
-    // Если выбран уровень лога - используем getLogsByLevel, иначе getRecentLogs
+    // RTK Query hooks - загружает технические логи из МОНОЛИТА
     const { data: recentLogs, isLoading: isLoadingRecent, error: errorRecent } = useGetRecentLogsQuery(
         { limit, startDate, endDate },
-        { skip: !!logLevel } // Skip если выбран конкретный уровень
+        { skip: !!logLevel }
     );
 
     const { data: logsByLevel, isLoading: isLoadingByLevel, error: errorByLevel } = useGetLogsByLevelQuery(
         { level: logLevel, startDate, endDate },
-        { skip: !logLevel } // Skip если уровень не выбран
+        { skip: !logLevel }
     );
 
     const logs = logLevel ? logsByLevel : recentLogs;
@@ -76,8 +75,9 @@ const TechnicalLogs: React.FC = () => {
             case "doctor": return "bg-blue-100 text-blue-800";
             case "anesthesiologist": return "bg-purple-100 text-purple-800";
             case "admin": return "bg-red-100 text-red-800";
-            case "emr_integration": return "bg-indigo-100 text-indigo-800";
+            case "external_emr_integration_service": return "bg-indigo-100 text-indigo-800";
             case "treatment_protocol": return "bg-pink-100 text-pink-800";
+            case "unknown": return "bg-gray-100 text-gray-800";
             default: return "bg-gray-100 text-gray-800";
         }
     };
@@ -111,7 +111,6 @@ const TechnicalLogs: React.FC = () => {
                                 <option value="ERROR">ERROR</option>
                                 <option value="WARN">WARN</option>
                                 <option value="INFO">INFO</option>
-                                <option value="DEBUG">DEBUG</option>
                             </Select>
                         </div>
                         <div>
@@ -161,18 +160,18 @@ const TechnicalLogs: React.FC = () => {
                                 <div
                                     key={log.id}
                                     className={`p-4 border-l-4 rounded-r-lg ${
-                                        log.level === 'ERROR' ? 'border-red-500 bg-red-50' :
-                                        log.level === 'WARN' ? 'border-yellow-500 bg-yellow-50' :
-                                        log.level === 'INFO' ? 'border-blue-500 bg-blue-50' :
+                                        log.logLevel === 'ERROR' ? 'border-red-500 bg-red-50' :
+                                        log.logLevel === 'WARN' ? 'border-yellow-500 bg-yellow-50' :
+                                        log.logLevel === 'INFO' ? 'border-blue-500 bg-blue-50' :
                                         'border-gray-500 bg-gray-50'
                                     }`}
                                 >
                                     {/* Log Header */}
                                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
                                         <div className="flex items-center space-x-2">
-                                            <span className="text-xl">{getLogLevelIcon(log.level)}</span>
-                                            <Badge className={`${getLogLevelColor(log.level)} border`}>
-                                                {log.level}
+                                            <span className="text-xl">{getLogLevelIcon(log.logLevel)}</span>
+                                            <Badge className={`${getLogLevelColor(log.logLevel)} border`}>
+                                                {log.logLevel}
                                             </Badge>
                                             <Badge className={getModuleColor(log.module)}>
                                                 {log.module}

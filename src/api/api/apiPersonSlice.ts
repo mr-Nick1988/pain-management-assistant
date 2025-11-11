@@ -1,20 +1,11 @@
-import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
+import {createApi} from "@reduxjs/toolkit/query/react";
+import {baseQueryWithReauth} from "../baseQueryWithReauth.ts";
 import type {PersonLogin, ChangeCredentialsType, PersonLoginResponse} from "../../types/personRegister";
-
-import {base_url} from "../../utils/constants";
 
 export const apiPersonSlice = createApi({
     reducerPath: "apiUser",
     tagTypes: ["User"],
-    baseQuery: fetchBaseQuery({
-        baseUrl: base_url,
-        prepareHeaders: (headers) => {
-            // Authentication is handled via session/cookies on the backend
-            // No need to add Bearer token headers
-            return headers;
-        },
-        credentials: 'include', // Important: include cookies in requests
-    }),
+    baseQuery: baseQueryWithReauth,
     endpoints: (builder) => ({
         login: builder.mutation<PersonLoginResponse, PersonLogin>({
             query: (credentials) => ({

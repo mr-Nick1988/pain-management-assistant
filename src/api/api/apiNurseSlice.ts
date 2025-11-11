@@ -1,5 +1,5 @@
-import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
-import {base_url} from "../../utils/constants.ts";
+import {createApi} from "@reduxjs/toolkit/query/react";
+import {baseQueryWithReauth} from "../baseQueryWithReauth.ts";
 import type {EMR, Patient, VAS, Recommendation} from "../../types/nurse.ts";
 
 export const apiNurseSlice = createApi({
@@ -7,15 +7,7 @@ export const apiNurseSlice = createApi({
     tagTypes: ["Patient", "Emr", "Vas", "Recommendation"],
     refetchOnFocus: true,
     refetchOnReconnect: true,
-    baseQuery: fetchBaseQuery({
-        baseUrl: base_url,
-        prepareHeaders: (headers) => {
-            // Authentication is handled via session/cookies on the backend
-            // No need to add Bearer token headers
-            return headers;
-        },
-        credentials: 'include', // Important: include cookies in requests
-    }),
+    baseQuery: baseQueryWithReauth,
     endpoints: (builder) => ({
         // PATIENT
         getPatients: builder.query<Patient[], {

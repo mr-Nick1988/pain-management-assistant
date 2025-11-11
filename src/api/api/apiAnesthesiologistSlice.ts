@@ -1,5 +1,5 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { base_url } from "../../utils/constants.ts";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseQueryWithReauth } from "../baseQueryWithReauth.ts";
 import type {
     AnesthesiologistRecommendationCreate,
     AnesthesiologistRecommendationUpdate,
@@ -14,34 +14,30 @@ import type {
 
 export const apiAnesthesiologistSlice = createApi({
     reducerPath: "apiAnesthesiologist",
-    baseQuery: fetchBaseQuery({
-        baseUrl: base_url + "/anesthesiologist/",
-        credentials: "include",
-    }),
+    baseQuery: baseQueryWithReauth,
     tagTypes: ["Recommendation", "Escalation", "Patient", "EMR"],
     endpoints: (builder) => ({
-
         // ======== PATIENT & EMR ======== //
 
         getPatientByMrn: builder.query<Patient, string>({
-            query: (mrn) => `patients/mrn/${mrn}`,
+            query: (mrn) => `/anesthesiologist/patients/mrn/${mrn}`,
             providesTags: ["Patient"],
         }),
 
         getLastEmrByPatientMrn: builder.query<EMR, string>({
-            query: (mrn) => `patients/${mrn}/emr/last`,
+            query: (mrn) => `/anesthesiologist/patients/${mrn}/emr/last`,
             providesTags: ["EMR"],
         }),
 
         // ======== ESCALATIONS & REJECTED ======== //
 
         getAllEscalations: builder.query<RecommendationWithVas[], void>({
-            query: () => `escalations`,
+            query: () => `/anesthesiologist/escalations`,
             providesTags: ["Escalation"],
         }),
 
         getAllRejectedRecommendations: builder.query<RecommendationWithVas[], void>({
-            query: () => `recommendations/rejected`,
+            query: () => `/anesthesiologist/recommendations/rejected`,
             providesTags: ["Recommendation"],
         }),
 
@@ -52,7 +48,7 @@ export const apiAnesthesiologistSlice = createApi({
             { recommendationId: number; dto: RecommendationApprovalRejection }
         >({
             query: ({ recommendationId, dto }) => ({
-                url: `recommendations/${recommendationId}/approve`,
+                url: `/anesthesiologist/recommendations/${recommendationId}/approve`,
                 method: "POST",
                 body: dto,
             }),
@@ -64,7 +60,7 @@ export const apiAnesthesiologistSlice = createApi({
             { recommendationId: number; dto: RecommendationApprovalRejection }
         >({
             query: ({ recommendationId, dto }) => ({
-                url: `recommendations/${recommendationId}/reject`,
+                url: `/anesthesiologist/recommendations/${recommendationId}/reject`,
                 method: "POST",
                 body: dto,
             }),
@@ -76,7 +72,7 @@ export const apiAnesthesiologistSlice = createApi({
             AnesthesiologistRecommendationCreate
         >({
             query: (dto) => ({
-                url: `recommendations`,
+                url: `/anesthesiologist/recommendations`,
                 method: "POST",
                 body: dto,
             }),
@@ -88,7 +84,7 @@ export const apiAnesthesiologistSlice = createApi({
             { id: number; dto: AnesthesiologistRecommendationUpdate }
         >({
             query: ({ id, dto }) => ({
-                url: `recommendations/${id}/update`,
+                url: `/anesthesiologist/recommendations/${id}/update`,
                 method: "PUT",
                 body: dto,
             }),
@@ -97,7 +93,7 @@ export const apiAnesthesiologistSlice = createApi({
 
         // ======== PATIENT HISTORY (VAS + Recommendations) ======== //
         getPatientHistory: builder.query<RecommendationWithVas[], string>({
-            query: (mrn) => `patients/${mrn}/history`,
+            query: (mrn) => `/anesthesiologist/patients/${mrn}/history`,
             // кэш помечаем как Recommendation, чтобы инвалидация после approve/reject/create подтягивала историю
             providesTags: ["Recommendation"],
         }),

@@ -1,14 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useLoginMutation } from "../../api/api/apiPersonSlice.ts";
+import { useLoginMutation } from "../../api/api/apiAuthSlice.ts";
 import {UserRole} from "../../types/personRegister.ts";
 import { Container, FormField, GradientButton, GradientTitle } from "../ui";
-
-interface LoginResponse {
-    firstName: string;
-    role: UserRole;
-    temporaryCredentials: boolean;
-}
 
 const Login: React.FC = () => {
     const [login, setLogin] = useState("");
@@ -28,15 +22,17 @@ const Login: React.FC = () => {
         setError(null);
 
         try {
-            const response = await loginMutation({ login, password }).unwrap() as LoginResponse;
+            // Логин через Authentication Service
+            // Токены автоматически сохраняются в HttpOnly cookies на бэкенде
+            const response = await loginMutation({ login, password }).unwrap();
             
-            // Save user data
+            // Сохраняем только метаданные пользователя (НЕ токены!)
             localStorage.setItem("userRole", response.role);
             localStorage.setItem("userFirstName", response.firstName);
             localStorage.setItem("userLogin", login);
             localStorage.setItem("isFirstLogin", String(response.temporaryCredentials));
 
-            // Redirect based on role
+            // Редирект по роли
             const redirectPath = {
                 [UserRole.ADMIN]: "/admin",
                 [UserRole.DOCTOR]: "/doctor",

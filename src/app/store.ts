@@ -1,4 +1,5 @@
 import {configureStore} from "@reduxjs/toolkit";
+import {apiAuthSlice} from "../api/api/apiAuthSlice.ts";
 import {apiPersonSlice} from "../api/api/apiPersonSlice.ts";
 import {apiDoctorSlice} from "../api/api/apiDoctorSlice.ts";
 import {apiAnesthesiologistSlice} from "../api/api/apiAnesthesiologistSlice.ts";
@@ -14,6 +15,7 @@ import {listenerMiddleware} from "./listenerMiddleware.ts";
 
 export const store = configureStore({
     reducer: {
+        [apiAuthSlice.reducerPath]: apiAuthSlice.reducer,
         [apiAdminSlice.reducerPath]: apiAdminSlice.reducer,
         [apiPersonSlice.reducerPath]: apiPersonSlice.reducer,
         [apiDoctorSlice.reducerPath]: apiDoctorSlice.reducer,
@@ -28,6 +30,7 @@ export const store = configureStore({
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware()
             .prepend(listenerMiddleware.middleware) // - важно: prepend, чтобы слушатели обрабатывались первыми
+            .concat(apiAuthSlice.middleware)
             .concat(apiAdminSlice.middleware)
             .concat(apiPersonSlice.middleware)
             .concat(apiDoctorSlice.middleware)

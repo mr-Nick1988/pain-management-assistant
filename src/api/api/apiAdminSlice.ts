@@ -1,4 +1,4 @@
-import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react";
+import {createApi} from "@reduxjs/toolkit/query/react";
 import type {PersonRegister} from "../../types/personRegister.ts";
 import type {Patient} from "../../types/common/types.ts";
 import type {
@@ -12,20 +12,12 @@ import type {
     EventsQueryParams,
     LogsQueryParams
 } from "../../types/analytics.ts";
-import {base_url} from "../../utils/constants";
+import {baseQueryWithReauth} from "../baseQueryWithReauth.ts";
 
 export const apiAdminSlice = createApi({
     reducerPath: "apiAdmin",
     tagTypes: ["User", "Analytics", "Patients"],
-    baseQuery: fetchBaseQuery({
-        baseUrl: base_url,
-        prepareHeaders: (headers) => {
-            // Authentication is handled via session/cookies on the backend
-            // No need to add Bearer token headers
-            return headers;
-        },
-        credentials: 'include', // Important: include cookies in requests
-    }),
+    baseQuery: baseQueryWithReauth,
     endpoints: (builder) => ({
         createPerson: builder.mutation({
             query: (userData: PersonRegister) => ({
@@ -56,7 +48,7 @@ export const apiAdminSlice = createApi({
         }),
 
         // ==================== PATIENTS ENDPOINTS ====================
-        
+
         /**
          * GET /api/admin/persons/patients
          * Получить список всех пациентов в больнице
@@ -67,7 +59,7 @@ export const apiAdminSlice = createApi({
         }),
 
         // ==================== ANALYTICS ENDPOINTS ====================
-        
+
         /**
          * GET /api/analytics/events/stats
          * Получить общую статистику событий
@@ -87,7 +79,7 @@ export const apiAdminSlice = createApi({
          * Получить активность пользователя
          */
         getUserActivity: builder.query<UserActivityDTO, { userId: string } & DateRangeParams>({
-            query: ({ userId, startDate, endDate }) => {
+            query: ({userId, startDate, endDate}) => {
                 const searchParams = new URLSearchParams();
                 if (startDate) searchParams.append('startDate', startDate);
                 if (endDate) searchParams.append('endDate', endDate);
@@ -144,40 +136,46 @@ export const apiAdminSlice = createApi({
          * Получить события по типу
          */
         getEventsByType: builder.query<AnalyticsEvent[], { eventType: string } & DateRangeParams>({
-            query: ({ eventType, startDate, endDate }) => {
+            query: ({eventType, startDate}) => {
                 const searchParams = new URLSearchParams();
                 if (startDate) searchParams.append('startDate', startDate);
-                if (endDate) searchParams.append('endDate', endDate);
                 return `/analytics/events/type/${eventType}${searchParams.toString() ? `?${searchParams}` : ''}`;
             },
             providesTags: ["Analytics"],
         }),
 
         /**
-         * GET /api/analytics/logs/recent?limit=100
-         * Получить последние технические логи
+         * Получить все логи из Logging Service
          */
         getRecentLogs: builder.query<LogEntry[], LogsQueryParams | void>({
             query: (params) => {
                 const searchParams = new URLSearchParams();
-                if (params?.limit) searchParams.append('limit', params.limit.toString());
-                if (params?.startDate) searchParams.append('startDate', params.startDate);
-                if (params?.endDate) searchParams.append('endDate', params.endDate);
-                return `/analytics/logs/recent${searchParams.toString() ? `?${searchParams}` : ''}`;
+                if (params?.startDate?.trim()) {
+                    searchParams.append('startDate', params.startDate);
+                }
+                if (params?.endDate?.trim()) {
+                    searchParams.append('endDate', params.endDate);
+                }
+                const url = `http://localhost:8081/api/logs${searchParams.toString() ? `?${searchParams}` : ''}`;
+                return { url, method: 'GET' };
             },
             providesTags: ["Analytics"],
         }),
-
         /**
-         * GET /api/analytics/logs/level/{level}
-         * Получить логи по уровню (INFO/WARN/ERROR)
+         * GET http://localhost:8081/api/logs/level/{level}?startDate=...&endDate=...
+         * Получить логи по уровню из Logging Service
          */
         getLogsByLevel: builder.query<LogEntry[], { level: string } & DateRangeParams>({
             query: ({ level, startDate, endDate }) => {
                 const searchParams = new URLSearchParams();
-                if (startDate) searchParams.append('startDate', startDate);
-                if (endDate) searchParams.append('endDate', endDate);
-                return `/analytics/logs/level/${level}${searchParams.toString() ? `?${searchParams}` : ''}`;
+                if (startDate?.trim()) {
+                    searchParams.append('startDate', startDate);
+                }
+                if (endDate?.trim()) {
+                    searchParams.append('endDate', endDate);
+                }
+                const url = `http://localhost:8081/api/logs/level/${level}${searchParams.toString() ? `?${searchParams}` : ''}`;
+                return { url, method: 'GET' };
             },
             providesTags: ["Analytics"],
         }),
@@ -185,7 +183,6 @@ export const apiAdminSlice = createApi({
 });
 
 export const {
-    // User Management
     useCreatePersonMutation,
     useGetPersonsQuery,
     useDeletePersonMutation,

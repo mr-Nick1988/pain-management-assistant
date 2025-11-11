@@ -73,14 +73,14 @@ export interface AnalyticsEvent {
 }
 
 /**
- * Технический лог из MongoDB
+ * Технический лог из MongoDB (через монолит)
  * GET /api/analytics/logs/recent
  * GET /api/analytics/logs/level/{level}
  */
 export interface LogEntry {
     id: string;
     timestamp: string; // ISO date string
-    level: string; // INFO, WARN, ERROR
+    logLevel: string; // INFO, WARN, ERROR
     logCategory: string;
     className: string;
     methodName: string;
