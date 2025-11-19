@@ -49,7 +49,9 @@ import {
     AnesthesiologistRecommendationCreateForm,
     VasDeviceSimulator,
     ReportingDashboard,
-    BackupDashboard
+    BackupDashboard,
+    MicroserviceAnalytics,
+    MicroserviceReporting
 
 } from "../exports/exports.ts";
 import ProtectedRoute from "./ProtectedRoute.tsx";
@@ -79,6 +81,8 @@ const AppRoutes: React.FC = () => {
                 <Route path="api-keys" element={<ApiKeyManagement/>}/>
                 <Route path="reporting" element={<ReportingDashboard/>}/>
                 <Route path="backup" element={<BackupDashboard/>}/>
+                <Route path="microservice-analytics" element={<MicroserviceAnalytics/>}/>
+                <Route path="microservice-reporting" element={<MicroserviceReporting/>}/>
             </Route>
 
             {/* NURSE ROUTES */}

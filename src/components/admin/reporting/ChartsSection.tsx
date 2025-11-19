@@ -43,7 +43,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ reports }) => {
                         
                         {/* Bars */}
                         <div className="flex-1 flex items-end justify-between gap-1 ml-8">
-                            {sortedReports.map((report, index) => {
+                            {sortedReports.map((report) => {
                                 const height = (report.averageVasLevel / maxVas) * 100;
                                 const color = report.averageVasLevel <= 3 ? "bg-green-500" :
                                             report.averageVasLevel <= 6 ? "bg-yellow-500" : "bg-red-500";

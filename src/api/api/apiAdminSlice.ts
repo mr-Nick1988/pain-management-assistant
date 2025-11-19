@@ -13,6 +13,7 @@ import type {
     LogsQueryParams
 } from "../../types/analytics.ts";
 import {baseQueryWithReauth} from "../baseQueryWithReauth.ts";
+import { logging_service_url } from "../../utils/constants";
 
 export const apiAdminSlice = createApi({
     reducerPath: "apiAdmin",
@@ -156,7 +157,7 @@ export const apiAdminSlice = createApi({
                 if (params?.endDate?.trim()) {
                     searchParams.append('endDate', params.endDate);
                 }
-                const url = `http://localhost:8081/api/logs${searchParams.toString() ? `?${searchParams}` : ''}`;
+                const url = `${logging_service_url}/api/logs${searchParams.toString() ? `?${searchParams}` : ''}`;
                 return { url, method: 'GET' };
             },
             providesTags: ["Analytics"],
@@ -174,7 +175,7 @@ export const apiAdminSlice = createApi({
                 if (endDate?.trim()) {
                     searchParams.append('endDate', endDate);
                 }
-                const url = `http://localhost:8081/api/logs/level/${level}${searchParams.toString() ? `?${searchParams}` : ''}`;
+                const url = `${logging_service_url}/api/logs/level/${level}${searchParams.toString() ? `?${searchParams}` : ''}`;
                 return { url, method: 'GET' };
             },
             providesTags: ["Analytics"],

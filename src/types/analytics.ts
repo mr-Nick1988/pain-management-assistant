@@ -116,3 +116,159 @@ export interface EventsQueryParams extends DateRangeParams {
 export interface LogsQueryParams extends DateRangeParams {
     limit?: number;
 }
+
+// ========================================
+// ANALYTICS MICROSERVICE TYPES (Port 8091)
+// ========================================
+
+/**
+ * Событие аналитики из микросервиса (MongoDB)
+ * GET /api/analytics/events?start={ISO}&end={ISO}
+ */
+export interface MicroserviceAnalyticsEvent {
+    id: string;
+    timestamp: string; // ISO 8601: "2025-11-11T14:30:00"
+    eventType: MicroserviceEventType;
+    patientMrn?: string;
+    userId?: string;
+    userRole?: string;
+    recommendationId?: number;
+    escalationId?: number;
+    vasLevel?: number;
+    priority?: string;
+    status?: string;
+    processingTimeMs?: number;
+    diagnosisCodes?: string[];
+    rejectionReason?: string;
+    metadata?: Record<string, unknown>;
+}
+
+/**
+ * Типы событий микросервиса
+ */
+export type MicroserviceEventType =
+    | "PERSON_CREATED"
+    | "PERSON_DELETED"
+    | "PERSON_UPDATED"
+    | "USER_LOGIN_SUCCESS"
+    | "USER_LOGIN_FAILED"
+    | "PATIENT_REGISTERED"
+    | "EMR_CREATED"
+    | "VAS_RECORDED"
+    | "RECOMMENDATION_CREATED"
+    | "RECOMMENDATION_APPROVED"
+    | "RECOMMENDATION_REJECTED"
+    | "DOSE_ADMINISTERED"
+    | "ESCALATION_CREATED"
+    | "ESCALATION_RESOLVED";
+
+/**
+ * Дневной агрегированный отчет из микросервиса (PostgreSQL)
+ * POST /api/reporting/aggregate/daily?date={YYYY-MM-DD}
+ * GET /api/reporting/daily/{YYYY-MM-DD}
+ */
+export interface MicroserviceDailyReportAggregate {
+    id: number;
+    reportDate: string; // "2025-11-11"
+    
+    // Пациенты
+    totalPatientsRegistered: number;
+    totalVasRecords: number;
+    averageVasLevel: number;
+    criticalVasCount: number; // VAS >= 7
+    
+    // Рекомендации
+    totalRecommendations: number;
+    approvedRecommendations: number;
+    rejectedRecommendations: number;
+    approvalRate: number; // %
+    
+    // Эскалации
+    totalEscalations: number;
+    resolvedEscalations: number;
+    pendingEscalations: number;
+    averageResolutionTimeHours: number;
+    
+    // Система
+    averageProcessingTimeMs: number;
+    totalOperations: number;
+    failedOperations: number;
+    
+    // Пользователи
+    totalLogins: number;
+    uniqueActiveUsers: number;
+    failedLoginAttempts: number;
+    
+    // JSON поля
+    topDrugsJson?: string; // {"Morphine":45,"Fentanyl":32}
+    doseAdjustmentsJson?: string; // {"Renal Impairment":15}
+    
+    sourceEventsCount: number;
+}
+
+/**
+ * Недельный агрегированный отчет
+ * POST /api/reporting/aggregate/weekly?weekStart={YYYY-MM-DD}&weekEnd={YYYY-MM-DD}
+ */
+export interface MicroserviceWeeklyReportAggregate {
+    id: number;
+    weekStart: string; // "2025-11-10"
+    weekEnd: string; // "2025-11-16"
+    totalEvents: number;
+    averageVasLevel: number;
+    criticalVasCount: number;
+    approvedRecommendations: number;
+    rejectedRecommendations: number;
+    averageProcessingTimeMs: number;
+    failedOperations: number;
+    uniqueActiveUsers: number;
+}
+
+/**
+ * Месячный агрегированный отчет
+ * POST /api/reporting/aggregate/monthly?year={YYYY}&month={MM}
+ */
+export interface MicroserviceMonthlyReportAggregate {
+    id: number;
+    year: number; // 2025
+    month: number; // 11 (1-12)
+    totalEvents: number;
+    averageVasLevel: number;
+    criticalVasCount: number;
+    approvedRecommendations: number;
+    rejectedRecommendations: number;
+    averageProcessingTimeMs: number;
+    failedOperations: number;
+    uniqueActiveUsers: number;
+}
+
+/**
+ * Query параметры для событий микросервиса
+ */
+export interface MicroserviceEventsQueryParams {
+    start: string; // ISO 8601: "2025-11-11T00:00:00"
+    end: string; // ISO 8601: "2025-11-11T23:59:59"
+}
+
+/**
+ * Параметры для дневной агрегации
+ */
+export interface DailyAggregationParams {
+    date: string; // "2025-11-11"
+}
+
+/**
+ * Параметры для недельной агрегации
+ */
+export interface WeeklyAggregationParams {
+    weekStart: string; // "2025-11-10"
+    weekEnd: string; // "2025-11-16"
+}
+
+/**
+ * Параметры для месячной агрегации
+ */
+export interface MonthlyAggregationParams {
+    year: number; // 2025
+    month: number; // 11 (1-12)
+}

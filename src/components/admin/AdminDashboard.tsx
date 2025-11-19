@@ -134,6 +134,24 @@ const AdminDashboard: React.FC = () => {
             iconBg: "bg-emerald-100",
             path: "/admin/backup",
             stats: "Automated backups"
+        },
+        {
+            title: "Microservice Analytics",
+            description: "Real-time events from Analytics Microservice",
+            icon: "🔬",
+            color: "bg-violet-50 border-violet-200",
+            iconBg: "bg-violet-100",
+            path: "/admin/microservice-analytics",
+            stats: "Port 8091"
+        },
+        {
+            title: "Microservice Reporting",
+            description: "Aggregated reports from microservice",
+            icon: "📈",
+            color: "bg-sky-50 border-sky-200",
+            iconBg: "bg-sky-100",
+            path: "/admin/microservice-reporting",
+            stats: "Daily/Weekly/Monthly"
         }
     ];
 

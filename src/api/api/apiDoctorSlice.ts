@@ -153,7 +153,7 @@ export const apiDoctorSlice = createApi({
         }),
 
         getPatientHistory: builder.query<RecommendationWithVas[], string>({
-            query: (mrn) => `doctor/patients/${mrn}/history`,
+            query: (mrn) => `/doctor/patients/${mrn}/history`,
             providesTags: ["Recommendation"],
         }),
     }),

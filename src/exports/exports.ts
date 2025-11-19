@@ -77,6 +77,10 @@ export {default as ReportingDashboard} from "../components/admin/ReportingDashbo
 // BACKUP & RESTORE MODULE
 export {default as BackupDashboard} from "../components/admin/BackupDashboard.tsx"
 
+// ANALYTICS MICROSERVICE MODULE
+export {default as MicroserviceAnalytics} from "../components/admin/MicroserviceAnalytics.tsx"
+export {default as MicroserviceReporting} from "../components/admin/MicroserviceReporting.tsx"
+
 
 
 
