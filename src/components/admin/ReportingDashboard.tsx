@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import { format, subDays } from "date-fns";
-import { useGetDailyReportsQuery, useGetSummaryStatisticsQuery } from "../../api/api/apiReportingSlice";
-import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, PageNavigation } from "../ui";
+import {
+    useGetDailyReportsQuery,
+    useGetSummaryStatisticsQuery,
+    useGenerateDailyCommandMutation,
+    useGenerateYesterdayCommandMutation,
+    useGeneratePeriodCommandMutation,
+} from "../../api/api/apiReportingSlice";
+import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, PageNavigation, Button } from "../ui";
+import { monolith_root_url } from "../../utils/constants";
 import DailyReportsTable from "./reporting/DailyReportsTable";
 import SummaryCards from "./reporting/SummaryCards";
 import ChartsSection from "./reporting/ChartsSection";
@@ -11,6 +18,10 @@ const ReportingDashboard: React.FC = () => {
     // Date range state (default: last 7 days)
     const [startDate, setStartDate] = useState(format(subDays(new Date(), 7), "yyyy-MM-dd"));
     const [endDate, setEndDate] = useState(format(new Date(), "yyyy-MM-dd"));
+    const [generateDate, setGenerateDate] = useState(format(new Date(), "yyyy-MM-dd"));
+    const [regenDaily, setRegenDaily] = useState(false);
+    const [regenYesterday, setRegenYesterday] = useState(false);
+    const [regenPeriod, setRegenPeriod] = useState(false);
 
     // API queries
     const { data: reports, isLoading: reportsLoading, error: reportsError } = useGetDailyReportsQuery({
@@ -23,9 +34,51 @@ const ReportingDashboard: React.FC = () => {
         endDate,
     });
 
+    // Kafka commands
+    const [generateDaily, { isLoading: publishingDaily }] = useGenerateDailyCommandMutation();
+    const [generateYesterday, { isLoading: publishingYesterday }] = useGenerateYesterdayCommandMutation();
+    const [generatePeriod, { isLoading: publishingPeriod }] = useGeneratePeriodCommandMutation();
+
     const handleDateRangeChange = (start: string, end: string) => {
         setStartDate(start);
         setEndDate(end);
+    };
+
+    const handleExportPeriodExcel = () => {
+        const url = `${monolith_root_url}/api/reports/export/excel?startDate=${startDate}&endDate=${endDate}`;
+        window.open(url, "_blank");
+    };
+
+    const handleExportPeriodPdf = () => {
+        const url = `${monolith_root_url}/api/reports/export/pdf?startDate=${startDate}&endDate=${endDate}`;
+        window.open(url, "_blank");
+    };
+
+    const handleGenerateDaily = async () => {
+        try {
+            const res = await generateDaily({ date: generateDate, regenerate: regenDaily }).unwrap();
+            alert(`Daily command published: ${res.status}`);
+        } catch (e) {
+            alert("Failed to publish daily command");
+        }
+    };
+
+    const handleGenerateYesterday = async () => {
+        try {
+            const res = await generateYesterday({ regenerate: regenYesterday }).unwrap();
+            alert(`Yesterday command published: ${res.status}`);
+        } catch (e) {
+            alert("Failed to publish yesterday command");
+        }
+    };
+
+    const handleGeneratePeriod = async () => {
+        try {
+            const res = await generatePeriod({ startDate, endDate, regenerate: regenPeriod }).unwrap();
+            alert(`Period command published: ${res.status}`);
+        } catch (e) {
+            alert("Failed to publish period command");
+        }
     };
 
     // Debug: log data
@@ -56,6 +109,66 @@ const ReportingDashboard: React.FC = () => {
                 endDate={endDate}
                 onChange={handleDateRangeChange}
             />
+
+            {/* Period Export & Kafka Commands */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Operations</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Period Export */}
+                        <div>
+                            <h3 className="font-semibold mb-3">Export Period</h3>
+                            <div className="flex gap-2">
+                                <Button onClick={handleExportPeriodExcel}>📊 Export Excel</Button>
+                                <Button onClick={handleExportPeriodPdf}>📄 Export PDF</Button>
+                            </div>
+                        </div>
+                        {/* Kafka Commands */}
+                        <div className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Generate Daily (date)</label>
+                                    <input
+                                        type="date"
+                                        value={generateDate}
+                                        onChange={(e) => setGenerateDate(e.target.value)}
+                                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <label className="flex items-center gap-2 text-sm text-gray-700">
+                                    <input type="checkbox" checked={regenDaily} onChange={(e) => setRegenDaily(e.target.checked)} />
+                                    Regenerate
+                                </label>
+                                <Button onClick={handleGenerateDaily} disabled={publishingDaily}>
+                                    {publishingDaily ? "⏳ Publishing..." : "🚀 Generate Daily"}
+                                </Button>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+                                <div className="text-sm font-medium text-gray-700">Generate Yesterday</div>
+                                <label className="flex items-center gap-2 text-sm text-gray-700">
+                                    <input type="checkbox" checked={regenYesterday} onChange={(e) => setRegenYesterday(e.target.checked)} />
+                                    Regenerate
+                                </label>
+                                <Button onClick={handleGenerateYesterday} disabled={publishingYesterday}>
+                                    {publishingYesterday ? "⏳ Publishing..." : "🚀 Generate Yesterday"}
+                                </Button>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+                                <div className="text-sm font-medium text-gray-700">Generate Period</div>
+                                <label className="flex items-center gap-2 text-sm text-gray-700">
+                                    <input type="checkbox" checked={regenPeriod} onChange={(e) => setRegenPeriod(e.target.checked)} />
+                                    Regenerate
+                                </label>
+                                <Button onClick={handleGeneratePeriod} disabled={publishingPeriod}>
+                                    {publishingPeriod ? "⏳ Publishing..." : "🚀 Generate Period"}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
 
             {/* Debug Info */}
             <Card className="bg-yellow-50 border-yellow-200">

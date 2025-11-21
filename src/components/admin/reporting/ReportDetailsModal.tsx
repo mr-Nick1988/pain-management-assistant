@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import type { DailyReportAggregate } from "../../../types/reporting";
 import { Button } from "../../ui";
 import ExportDialog from "./ExportDialog";
+import { monolith_root_url } from "../../../utils/constants";
 
 interface ReportDetailsModalProps {
     report: DailyReportAggregate;
@@ -13,12 +14,12 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ report, onClose
     const [exportDialogOpen, setExportDialogOpen] = useState(false);
 
     const handleDownloadExcel = () => {
-        const url = `http://localhost:8080/api/reports/export/excel/daily/${report.reportDate}`;
+        const url = `${monolith_root_url}/api/reports/daily/${report.reportDate}/export/excel`;
         window.open(url, "_blank");
     };
 
     const handleDownloadPdf = () => {
-        const url = `http://localhost:8080/api/reports/export/pdf/daily/${report.reportDate}`;
+        const url = `${monolith_root_url}/api/reports/daily/${report.reportDate}/export/pdf`;
         window.open(url, "_blank");
     };
 

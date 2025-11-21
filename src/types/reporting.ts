@@ -85,3 +85,25 @@ export interface PeriodEmailReportRequest {
   attachPdf?: boolean;
   attachExcel?: boolean;
 }
+
+// File download result (for Excel/PDF exports)
+export interface FileDownload {
+  blob: Blob;
+  filename?: string;
+  contentType?: string;
+}
+
+// Health endpoint
+export interface ReportsHealthStatus {
+  status: string;
+  message?: string;
+}
+
+// Kafka command publication response
+export interface ReportingCommandResponse {
+  status: string; // e.g., "PUBLISHED"
+  action: string; // e.g., GENERATE_DAILY
+  requestId?: string;
+  timestamp?: string;
+  details?: Record<string, unknown>;
+}

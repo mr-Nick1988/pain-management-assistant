@@ -4,6 +4,7 @@ import type { DailyReportAggregate } from "../../../types/reporting";
 import { Button } from "../../ui";
 import ReportDetailsModal from "./ReportDetailsModal.tsx";
 import ExportDialog from "./ExportDialog.tsx";
+import { monolith_root_url } from "../../../utils/constants";
 
 interface DailyReportsTableProps {
     reports: DailyReportAggregate[];
@@ -24,7 +25,7 @@ const DailyReportsTable: React.FC<DailyReportsTableProps> = ({ reports }) => {
     };
 
     const handleDownloadExcel = (date: string) => {
-        const url = `http://localhost:8080/api/reports/export/excel/daily/${date}`;
+        const url = `${monolith_root_url}/api/reports/daily/${date}/export/excel`;
         const link = document.createElement("a");
         link.href = url;
         link.download = `daily_report_${date}.xlsx`;
@@ -34,7 +35,7 @@ const DailyReportsTable: React.FC<DailyReportsTableProps> = ({ reports }) => {
     };
 
     const handleDownloadPdf = (date: string) => {
-        const url = `http://localhost:8080/api/reports/export/pdf/daily/${date}`;
+        const url = `${monolith_root_url}/api/reports/daily/${date}/export/pdf`;
         const link = document.createElement("a");
         link.href = url;
         link.download = `daily_report_${date}.pdf`;

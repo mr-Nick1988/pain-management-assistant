@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useSendDailyReportEmailMutation } from "../../../api/api/apiReportingSlice";
 import { Button, Input, Label } from "../../ui";
 import { useToast } from "../../../contexts/ToastContext";
+import { monolith_root_url } from "../../../utils/constants";
 
 interface ExportDialogProps {
     date: string;
@@ -48,12 +49,12 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ date, onClose }) => {
     };
 
     const handleDownloadExcel = () => {
-        const url = `http://localhost:8080/api/reports/export/excel/daily/${date}`;
+        const url = `${monolith_root_url}/api/reports/daily/${date}/export/excel`;
         window.open(url, "_blank");
     };
 
     const handleDownloadPdf = () => {
-        const url = `http://localhost:8080/api/reports/export/pdf/daily/${date}`;
+        const url = `${monolith_root_url}/api/reports/daily/${date}/export/pdf`;
         window.open(url, "_blank");
     };
 
