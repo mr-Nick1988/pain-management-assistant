@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { useSendDailyReportEmailMutation } from "../../../api/api/apiReportingSlice";
+import { useLazyDownloadDailyExcelQuery, useLazyDownloadDailyPdfQuery, useSendDailyReportEmailMutation } from "../../../api/api/apiReportingSlice";
 import { Button, Input, Label } from "../../ui";
 import { useToast } from "../../../contexts/ToastContext";
-import { monolith_root_url } from "../../../utils/constants";
 
 interface ExportDialogProps {
     date: string;
@@ -16,6 +15,19 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ date, onClose }) => {
     const [attachExcel, setAttachExcel] = useState(true);
     
     const [sendEmail, { isLoading }] = useSendDailyReportEmailMutation();
+    const [triggerExcel, { isFetching: downloadingExcel }] = useLazyDownloadDailyExcelQuery();
+    const [triggerPdf, { isFetching: downloadingPdf }] = useLazyDownloadDailyPdfQuery();
+
+    const saveBlob = (file: Blob, filename: string) => {
+        const url = URL.createObjectURL(file);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
 
     const handleSendEmail = async () => {
         if (!email.trim()) {
@@ -48,14 +60,22 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ date, onClose }) => {
         }
     };
 
-    const handleDownloadExcel = () => {
-        const url = `${monolith_root_url}/api/reports/daily/${date}/export/excel`;
-        window.open(url, "_blank");
+    const handleDownloadExcel = async () => {
+        const res = await triggerExcel(date).unwrap();
+        if (res.status === 204 || res.blob.size === 0) {
+            toast.info("No data available for this date (204)");
+            return;
+        }
+        saveBlob(res.blob, res.filename || `daily_report_${date}.xlsx`);
     };
 
-    const handleDownloadPdf = () => {
-        const url = `${monolith_root_url}/api/reports/daily/${date}/export/pdf`;
-        window.open(url, "_blank");
+    const handleDownloadPdf = async () => {
+        const res = await triggerPdf(date).unwrap();
+        if (res.status === 204 || res.blob.size === 0) {
+            toast.info("No data available for this date (204)");
+            return;
+        }
+        saveBlob(res.blob, res.filename || `daily_report_${date}.pdf`);
     };
 
     return (
@@ -86,6 +106,7 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ date, onClose }) => {
                                 variant="default"
                                 onClick={handleDownloadExcel}
                                 className="flex-1"
+                                disabled={downloadingExcel}
                             >
                                 📊 Excel
                             </Button>
@@ -93,6 +114,7 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ date, onClose }) => {
                                 variant="default"
                                 onClick={handleDownloadPdf}
                                 className="flex-1"
+                                disabled={downloadingPdf}
                             >
                                 📄 PDF
                             </Button>

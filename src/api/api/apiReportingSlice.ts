@@ -1,6 +1,5 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReauth } from "../baseQueryWithReauth.ts";
-import { monolith_root_url } from "../../utils/constants";
 import type {
     DailyReportAggregate,
     SummaryStatistics,
@@ -9,7 +8,6 @@ import type {
     PeriodEmailReportRequest,
     FileDownload,
     ReportsHealthStatus,
-    ReportingCommandResponse,
 } from "../../types/reporting";
 
 export const reportingApi = createApi({
@@ -32,7 +30,7 @@ export const reportingApi = createApi({
 
         // 3. Получить последние N отчетов
         getRecentReports: builder.query<DailyReportAggregate[], number | void>({
-            query: (limit = 7) => `/reports/daily/recent?limit=${limit}`,
+            query: (limit = 7) => `/reports/recent?limit=${limit}`,
             providesTags: ["DailyReport"],
         }),
 
@@ -79,7 +77,8 @@ export const reportingApi = createApi({
                         if (match) filename = decodeURIComponent(match[1] || match[2]);
                     }
                     const contentType = response.headers.get("Content-Type") || response.headers.get("content-type") || undefined;
-                    return { blob, filename, contentType } as FileDownload;
+                    const status = response.status;
+                    return { blob, filename, contentType, status } as FileDownload;
                 },
             }),
         }),
@@ -97,7 +96,8 @@ export const reportingApi = createApi({
                         if (match) filename = decodeURIComponent(match[1] || match[2]);
                     }
                     const contentType = response.headers.get("Content-Type") || response.headers.get("content-type") || undefined;
-                    return { blob, filename, contentType } as FileDownload;
+                    const status = response.status;
+                    return { blob, filename, contentType, status } as FileDownload;
                 },
             }),
         }),
@@ -115,7 +115,8 @@ export const reportingApi = createApi({
                         if (match) filename = decodeURIComponent(match[1] || match[2]);
                     }
                     const contentType = response.headers.get("Content-Type") || response.headers.get("content-type") || undefined;
-                    return { blob, filename, contentType } as FileDownload;
+                    const status = response.status;
+                    return { blob, filename, contentType, status } as FileDownload;
                 },
             }),
         }),
@@ -133,29 +134,19 @@ export const reportingApi = createApi({
                         if (match) filename = decodeURIComponent(match[1] || match[2]);
                     }
                     const contentType = response.headers.get("Content-Type") || response.headers.get("content-type") || undefined;
-                    return { blob, filename, contentType } as FileDownload;
+                    const status = response.status;
+                    return { blob, filename, contentType, status } as FileDownload;
                 },
             }),
         }),
 
-        // ========= Kafka Command Publications (internal) =========
-        generateDailyCommand: builder.mutation<ReportingCommandResponse, { date: string; regenerate?: boolean }>({
+        // ========= REST: Generate Daily Report =========
+        generateDailyReport: builder.mutation<{ status: string }, { date: string; regenerate?: boolean }>({
             query: ({ date, regenerate = false }) => ({
-                url: `${monolith_root_url}/internal/reporting/commands/generate/daily?date=${date}&regenerate=${regenerate}`,
+                url: `/reports/daily/${date}/generate?regenerate=${regenerate}`,
                 method: "POST",
             }),
-        }),
-        generateYesterdayCommand: builder.mutation<ReportingCommandResponse, { regenerate?: boolean }>({
-            query: ({ regenerate = false } = {}) => ({
-                url: `${monolith_root_url}/internal/reporting/commands/generate/yesterday?regenerate=${regenerate}`,
-                method: "POST",
-            }),
-        }),
-        generatePeriodCommand: builder.mutation<ReportingCommandResponse, { startDate: string; endDate: string; regenerate?: boolean }>({
-            query: ({ startDate, endDate, regenerate = false }) => ({
-                url: `${monolith_root_url}/internal/reporting/commands/generate/period?startDate=${startDate}&endDate=${endDate}&regenerate=${regenerate}`,
-                method: "POST",
-            }),
+            invalidatesTags: ["DailyReport"],
         }),
     }),
 });
@@ -163,16 +154,20 @@ export const reportingApi = createApi({
 export const {
     useGetDailyReportsQuery,
     useGetDailyReportByDateQuery,
+    useLazyGetDailyReportByDateQuery,
     useGetRecentReportsQuery,
+    useLazyGetRecentReportsQuery,
     useGetSummaryStatisticsQuery,
     useSendDailyReportEmailMutation,
     useSendPeriodReportEmailMutation,
     useGetReportsHealthQuery,
     useDownloadDailyExcelQuery,
+    useLazyDownloadDailyExcelQuery,
     useDownloadDailyPdfQuery,
+    useLazyDownloadDailyPdfQuery,
     useDownloadPeriodExcelQuery,
+    useLazyDownloadPeriodExcelQuery,
     useDownloadPeriodPdfQuery,
-    useGenerateDailyCommandMutation,
-    useGenerateYesterdayCommandMutation,
-    useGeneratePeriodCommandMutation,
+    useLazyDownloadPeriodPdfQuery,
+    useGenerateDailyReportMutation,
 } = reportingApi;

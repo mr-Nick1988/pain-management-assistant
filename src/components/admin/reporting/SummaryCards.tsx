@@ -11,6 +11,10 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ summary }) => {
         return null;
     }
 
+    const totalLogins = summary.users?.totalLogins ?? 0;
+    const successfulLogins = summary.users?.successfulLogins ?? 0;
+    const failedLogins = summary.users?.failedLogins ?? 0;
+
     const cards = [
         {
             title: "Patients",
@@ -46,11 +50,11 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ summary }) => {
             title: "User Activity",
             icon: "👤",
             stats: [
-                { label: "Total Logins", value: summary.users?.totalLogins ?? 0 },
+                { label: "Logins", value: `${totalLogins} (${successfulLogins}/${failedLogins})` },
                 { label: "Active Users", value: summary.users?.uniqueActiveUsers ?? 0 },
                 { label: "Period", value: `${summary.period?.daysCount ?? 0} days` },
             ],
-            color: "from-purple-500 to-pink-500",
+            color: "from-indigo-500 to-blue-500",
         },
     ];
 

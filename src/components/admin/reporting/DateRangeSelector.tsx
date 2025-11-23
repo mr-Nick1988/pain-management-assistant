@@ -1,5 +1,4 @@
 import React from "react";
-import { format, subDays } from "date-fns";
 import { Card, CardContent, Button } from "../../ui";
 
 interface DateRangeSelectorProps {
@@ -10,8 +9,11 @@ interface DateRangeSelectorProps {
 
 const DateRangeSelector: React.FC<DateRangeSelectorProps> = ({ startDate, endDate, onChange }) => {
     const handleQuickFilter = (days: number) => {
-        const end = format(new Date(), "yyyy-MM-dd");
-        const start = format(subDays(new Date(), days), "yyyy-MM-dd");
+        const endDate = new Date();
+        const end = endDate.toISOString().slice(0, 10);
+        const startDate = new Date(endDate);
+        startDate.setUTCDate(startDate.getUTCDate() - days);
+        const start = startDate.toISOString().slice(0, 10);
         onChange(start, end);
     };
 

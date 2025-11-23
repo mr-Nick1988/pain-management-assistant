@@ -2,46 +2,53 @@ import React, { useState } from "react";
 import { format } from "date-fns";
 import type { DailyReportAggregate } from "../../../types/reporting";
 import { Button } from "../../ui";
-import ReportDetailsModal from "./ReportDetailsModal.tsx";
 import ExportDialog from "./ExportDialog.tsx";
-import { monolith_root_url } from "../../../utils/constants";
+import { useLazyDownloadDailyExcelQuery, useLazyDownloadDailyPdfQuery } from "../../../api/api/apiReportingSlice";
+import { useNavigate } from "react-router-dom";
 
 interface DailyReportsTableProps {
     reports: DailyReportAggregate[];
 }
 
 const DailyReportsTable: React.FC<DailyReportsTableProps> = ({ reports }) => {
-    const [selectedReport, setSelectedReport] = useState<DailyReportAggregate | null>(null);
+    const navigate = useNavigate();
     const [exportDialogOpen, setExportDialogOpen] = useState(false);
     const [exportDate, setExportDate] = useState<string>("");
-
-    const handleViewDetails = (report: DailyReportAggregate) => {
-        setSelectedReport(report);
-    };
+    const [triggerExcel, { isFetching: downloadingExcel }] = useLazyDownloadDailyExcelQuery();
+    const [triggerPdf, { isFetching: downloadingPdf }] = useLazyDownloadDailyPdfQuery();
 
     const handleExport = (date: string) => {
         setExportDate(date);
         setExportDialogOpen(true);
     };
 
-    const handleDownloadExcel = (date: string) => {
-        const url = `${monolith_root_url}/api/reports/daily/${date}/export/excel`;
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `daily_report_${date}.xlsx`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const saveBlob = (file: Blob, filename: string) => {
+        const url = URL.createObjectURL(file);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     };
 
-    const handleDownloadPdf = (date: string) => {
-        const url = `${monolith_root_url}/api/reports/daily/${date}/export/pdf`;
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `daily_report_${date}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    const handleDownloadExcel = async (date: string) => {
+        const res = await triggerExcel(date).unwrap();
+        if (res.status === 204 || res.blob.size === 0) {
+            alert("No data available for this date (204)");
+            return;
+        }
+        saveBlob(res.blob, res.filename || `daily_report_${date}.xlsx`);
+    };
+
+    const handleDownloadPdf = async (date: string) => {
+        const res = await triggerPdf(date).unwrap();
+        if (res.status === 204 || res.blob.size === 0) {
+            alert("No data available for this date (204)");
+            return;
+        }
+        saveBlob(res.blob, res.filename || `daily_report_${date}.pdf`);
     };
 
     return (
@@ -106,7 +113,7 @@ const DailyReportsTable: React.FC<DailyReportsTableProps> = ({ reports }) => {
                                         <Button
                                             variant="outline"
                                             size="sm"
-                                            onClick={() => handleViewDetails(report)}
+                                            onClick={() => navigate(`/admin/reporting/daily/${report.reportDate}`)}
                                         >
                                             View
                                         </Button>
@@ -121,13 +128,15 @@ const DailyReportsTable: React.FC<DailyReportsTableProps> = ({ reports }) => {
                                             <div className="absolute hidden group-hover:block top-full mt-1 right-0 bg-white border border-gray-200 rounded-md shadow-lg z-10 min-w-[120px]">
                                                 <button
                                                     onClick={() => handleDownloadExcel(report.reportDate)}
-                                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                    disabled={downloadingExcel}
+                                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                                                 >
                                                     📊 Excel
                                                 </button>
                                                 <button
                                                     onClick={() => handleDownloadPdf(report.reportDate)}
-                                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                    disabled={downloadingPdf}
+                                                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                                                 >
                                                     📄 PDF
                                                 </button>
@@ -142,13 +151,6 @@ const DailyReportsTable: React.FC<DailyReportsTableProps> = ({ reports }) => {
             </div>
 
             {/* Modals */}
-            {selectedReport && (
-                <ReportDetailsModal
-                    report={selectedReport}
-                    onClose={() => setSelectedReport(null)}
-                />
-            )}
-
             {exportDialogOpen && (
                 <ExportDialog
                     date={exportDate}
@@ -160,3 +162,4 @@ const DailyReportsTable: React.FC<DailyReportsTableProps> = ({ reports }) => {
 };
 
 export default DailyReportsTable;
+

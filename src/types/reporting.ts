@@ -31,8 +31,11 @@ export interface DailyReportAggregate {
   
   // Пользователи
   totalLogins: number;
+  successfulLogins: number;
+  failedLogins: number;
   uniqueActiveUsers: number;
-  failedLoginAttempts: number;
+  
+  topDrugsJson?: string;
   
   createdAt: string;
   createdBy: string;
@@ -62,6 +65,8 @@ export interface SummaryStatistics {
   };
   users: {
     totalLogins: number;
+    successfulLogins?: number;
+    failedLogins?: number;
     uniqueActiveUsers: number;
   };
 }
@@ -91,6 +96,7 @@ export interface FileDownload {
   blob: Blob;
   filename?: string;
   contentType?: string;
+  status?: number;
 }
 
 // Health endpoint

@@ -1,0 +1,146 @@
+{
+  "info": {
+    "_postman_id": "c7d8b3d9-2c42-4a0f-9a0b-9f0e8d8b2e10",
+    "name": "Reporting API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "REST Reporting (SQL) endpoints"
+  },
+  "item": [
+    {
+      "name": "Daily Reports (range)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{base_url}}/reports/daily?startDate={{startDate}}&endDate={{endDate}}",
+          "host": ["{{base_url}}"],
+          "path": ["reports","daily"],
+          "query": [
+            {"key":"startDate","value":"{{startDate}}"},
+            {"key":"endDate","value":"{{endDate}}"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Recent Reports",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "url": {
+          "raw": "{{base_url}}/reports/recent?limit={{limit}}",
+          "host": ["{{base_url}}"],
+          "path": ["reports","recent"],
+          "query": [{"key":"limit","value":"{{limit}}"}]
+        }
+      }
+    },
+    {
+      "name": "Daily Report by Date",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "url": {
+          "raw": "{{base_url}}/reports/daily/{{date}}",
+          "host": ["{{base_url}}"],
+          "path": ["reports","daily","{{date}}"]
+        }
+      }
+    },
+    {
+      "name": "Summary (period)",
+      "request": {
+        "method": "GET",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "url": {
+          "raw": "{{base_url}}/reports/summary?startDate={{startDate}}&endDate={{endDate}}",
+          "host": ["{{base_url}}"],
+          "path": ["reports","summary"],
+          "query": [
+            {"key":"startDate","value":"{{startDate}}"},
+            {"key":"endDate","value":"{{endDate}}"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Generate Daily (REST)",
+      "request": {
+        "method": "POST",
+        "header": [{"key": "Content-Type", "value": "application/json"}],
+        "url": {
+          "raw": "{{base_url}}/reports/daily/{{date}}/generate?regenerate={{regenerate}}",
+          "host": ["{{base_url}}"],
+          "path": ["reports","daily","{{date}}","generate"],
+          "query": [{"key":"regenerate","value":"{{regenerate}}"}]
+        }
+      }
+    },
+    {
+      "name": "Export Daily Excel",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/reports/daily/{{date}}/export/excel",
+          "host": ["{{base_url}}"],
+          "path": ["reports","daily","{{date}}","export","excel"]
+        }
+      }
+    },
+    {
+      "name": "Export Daily PDF",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/reports/daily/{{date}}/export/pdf",
+          "host": ["{{base_url}}"],
+          "path": ["reports","daily","{{date}}","export","pdf"]
+        }
+      }
+    },
+    {
+      "name": "Export Period Excel",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/reports/export/excel?startDate={{startDate}}&endDate={{endDate}}",
+          "host": ["{{base_url}}"],
+          "path": ["reports","export","excel"],
+          "query": [
+            {"key":"startDate","value":"{{startDate}}"},
+            {"key":"endDate","value":"{{endDate}}"}
+          ]
+        }
+      }
+    },
+    {
+      "name": "Export Period PDF",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/reports/export/pdf?startDate={{startDate}}&endDate={{endDate}}",
+          "host": ["{{base_url}}"],
+          "path": ["reports","export","pdf"],
+          "query": [
+            {"key":"startDate","value":"{{startDate}}"},
+            {"key":"endDate","value":"{{endDate}}"}
+          ]
+        }
+      }
+    }
+  ],
+  "variable": [
+    {"key":"base_url","value":"http://localhost:8080/api"},
+    {"key":"startDate","value":"2025-01-01"},
+    {"key":"endDate","value":"2025-01-07"},
+    {"key":"date","value":"2025-01-03"},
+    {"key":"limit","value":"30"},
+    {"key":"regenerate","value":"false"}
+  ]
+}

@@ -1,30 +1,33 @@
 import React, { useState } from "react";
-import { format, subDays } from "date-fns";
 import {
     useGetDailyReportsQuery,
     useGetSummaryStatisticsQuery,
-    useGenerateDailyCommandMutation,
-    useGenerateYesterdayCommandMutation,
-    useGeneratePeriodCommandMutation,
+    useGenerateDailyReportMutation,
+    useLazyDownloadPeriodExcelQuery,
+    useLazyDownloadPeriodPdfQuery,
+    useGetReportsHealthQuery,
 } from "../../api/api/apiReportingSlice";
-import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, PageNavigation, Button } from "../ui";
-import { monolith_root_url } from "../../utils/constants";
+import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, PageNavigation, Button, Badge } from "../ui";
 import DailyReportsTable from "./reporting/DailyReportsTable";
 import SummaryCards from "./reporting/SummaryCards";
 import ChartsSection from "./reporting/ChartsSection";
 import DateRangeSelector from "./reporting/DateRangeSelector";
+import RecentReportsWidget from "./reporting/RecentReportsWidget";
 
 const ReportingDashboard: React.FC = () => {
-    // Date range state (default: last 7 days)
-    const [startDate, setStartDate] = useState(format(subDays(new Date(), 7), "yyyy-MM-dd"));
-    const [endDate, setEndDate] = useState(format(new Date(), "yyyy-MM-dd"));
-    const [generateDate, setGenerateDate] = useState(format(new Date(), "yyyy-MM-dd"));
+    // Date range state (default: last 7 days, UTC)
+    const endToday = new Date();
+    const endInit = endToday.toISOString().slice(0, 10);
+    const startInitDate = new Date(endToday);
+    startInitDate.setUTCDate(startInitDate.getUTCDate() - 7);
+    const startInit = startInitDate.toISOString().slice(0, 10);
+    const [startDate, setStartDate] = useState(startInit);
+    const [endDate, setEndDate] = useState(endInit);
+    const [generateDate, setGenerateDate] = useState(endInit);
     const [regenDaily, setRegenDaily] = useState(false);
-    const [regenYesterday, setRegenYesterday] = useState(false);
-    const [regenPeriod, setRegenPeriod] = useState(false);
 
     // API queries
-    const { data: reports, isLoading: reportsLoading, error: reportsError } = useGetDailyReportsQuery({
+    const { data: reports, isLoading: reportsLoading, error: reportsError, refetch: refetchReports } = useGetDailyReportsQuery({
         startDate,
         endDate,
     });
@@ -34,50 +37,61 @@ const ReportingDashboard: React.FC = () => {
         endDate,
     });
 
-    // Kafka commands
-    const [generateDaily, { isLoading: publishingDaily }] = useGenerateDailyCommandMutation();
-    const [generateYesterday, { isLoading: publishingYesterday }] = useGenerateYesterdayCommandMutation();
-    const [generatePeriod, { isLoading: publishingPeriod }] = useGeneratePeriodCommandMutation();
+    // REST: Generate & Exports
+    const [generateDaily, { isLoading: publishingDaily }] = useGenerateDailyReportMutation();
+    const [triggerExcel, { isFetching: exportingExcel }] = useLazyDownloadPeriodExcelQuery();
+    const [triggerPdf, { isFetching: exportingPdf }] = useLazyDownloadPeriodPdfQuery();
+    const { data: health, isLoading: healthLoading, error: healthError } = useGetReportsHealthQuery(undefined, { pollingInterval: 30000 });
+    const healthStatus = healthLoading ? "Checking..." : (health?.status || (healthError ? "DOWN" : "Unknown"));
+    type BadgeVariant = "default" | "success" | "warning" | "error" | "info" | "secondary";
+    const healthVariant: BadgeVariant = healthLoading ? "info" : (
+        healthStatus === "UP" || healthStatus === "OK" ? "success" :
+        healthStatus === "DEGRADED" ? "warning" :
+        healthStatus === "DOWN" || healthStatus === "ERROR" ? "error" : "secondary"
+    );
 
     const handleDateRangeChange = (start: string, end: string) => {
         setStartDate(start);
         setEndDate(end);
     };
 
-    const handleExportPeriodExcel = () => {
-        const url = `${monolith_root_url}/api/reports/export/excel?startDate=${startDate}&endDate=${endDate}`;
-        window.open(url, "_blank");
+    const saveBlob = (file: Blob, filename: string) => {
+        const url = URL.createObjectURL(file);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     };
 
-    const handleExportPeriodPdf = () => {
-        const url = `${monolith_root_url}/api/reports/export/pdf?startDate=${startDate}&endDate=${endDate}`;
-        window.open(url, "_blank");
+    const handleExportPeriodExcel = async () => {
+        const res = await triggerExcel({ startDate, endDate }).unwrap();
+        if (res.status === 204 || res.blob.size === 0) {
+            alert("No data available for selected period (204)");
+            return;
+        }
+        saveBlob(res.blob, res.filename || `reports_${startDate}_to_${endDate}.xlsx`);
+    };
+
+    const handleExportPeriodPdf = async () => {
+        const res = await triggerPdf({ startDate, endDate }).unwrap();
+        if (res.status === 204 || res.blob.size === 0) {
+            alert("No data available for selected period (204)");
+            return;
+        }
+        saveBlob(res.blob, res.filename || `reports_${startDate}_to_${endDate}.pdf`);
     };
 
     const handleGenerateDaily = async () => {
         try {
             const res = await generateDaily({ date: generateDate, regenerate: regenDaily }).unwrap();
-            alert(`Daily command published: ${res.status}`);
+            alert(`Daily report generated: ${res.status}`);
+            await refetchReports();
         } catch (e) {
-            alert("Failed to publish daily command");
-        }
-    };
-
-    const handleGenerateYesterday = async () => {
-        try {
-            const res = await generateYesterday({ regenerate: regenYesterday }).unwrap();
-            alert(`Yesterday command published: ${res.status}`);
-        } catch (e) {
-            alert("Failed to publish yesterday command");
-        }
-    };
-
-    const handleGeneratePeriod = async () => {
-        try {
-            const res = await generatePeriod({ startDate, endDate, regenerate: regenPeriod }).unwrap();
-            alert(`Period command published: ${res.status}`);
-        } catch (e) {
-            alert("Failed to publish period command");
+            console.error(e);
+            alert("Failed to generate daily report");
         }
     };
 
@@ -100,6 +114,9 @@ const ReportingDashboard: React.FC = () => {
                     <p className="text-gray-600 mt-2">
                         Daily reports, analytics, and system statistics
                     </p>
+                    <div className="mt-2">
+                        <Badge variant={healthVariant} title={health?.message || undefined}>Reports: {healthStatus}</Badge>
+                    </div>
                 </div>
             </div>
 
@@ -110,7 +127,7 @@ const ReportingDashboard: React.FC = () => {
                 onChange={handleDateRangeChange}
             />
 
-            {/* Period Export & Kafka Commands */}
+            {/* Period Export & Generate */}
             <Card>
                 <CardHeader>
                     <CardTitle>Operations</CardTitle>
@@ -121,11 +138,11 @@ const ReportingDashboard: React.FC = () => {
                         <div>
                             <h3 className="font-semibold mb-3">Export Period</h3>
                             <div className="flex gap-2">
-                                <Button onClick={handleExportPeriodExcel}>📊 Export Excel</Button>
-                                <Button onClick={handleExportPeriodPdf}>📄 Export PDF</Button>
+                                <Button onClick={handleExportPeriodExcel} disabled={exportingExcel}>📊 Export Excel</Button>
+                                <Button onClick={handleExportPeriodPdf} disabled={exportingPdf}>📄 Export PDF</Button>
                             </div>
                         </div>
-                        {/* Kafka Commands */}
+                        {/* Generate Daily */}
                         <div className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
                                 <div>
@@ -142,33 +159,16 @@ const ReportingDashboard: React.FC = () => {
                                     Regenerate
                                 </label>
                                 <Button onClick={handleGenerateDaily} disabled={publishingDaily}>
-                                    {publishingDaily ? "⏳ Publishing..." : "🚀 Generate Daily"}
-                                </Button>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
-                                <div className="text-sm font-medium text-gray-700">Generate Yesterday</div>
-                                <label className="flex items-center gap-2 text-sm text-gray-700">
-                                    <input type="checkbox" checked={regenYesterday} onChange={(e) => setRegenYesterday(e.target.checked)} />
-                                    Regenerate
-                                </label>
-                                <Button onClick={handleGenerateYesterday} disabled={publishingYesterday}>
-                                    {publishingYesterday ? "⏳ Publishing..." : "🚀 Generate Yesterday"}
-                                </Button>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
-                                <div className="text-sm font-medium text-gray-700">Generate Period</div>
-                                <label className="flex items-center gap-2 text-sm text-gray-700">
-                                    <input type="checkbox" checked={regenPeriod} onChange={(e) => setRegenPeriod(e.target.checked)} />
-                                    Regenerate
-                                </label>
-                                <Button onClick={handleGeneratePeriod} disabled={publishingPeriod}>
-                                    {publishingPeriod ? "⏳ Publishing..." : "🚀 Generate Period"}
+                                    {publishingDaily ? "⏳ Generating..." : "🚀 Generate Daily"}
                                 </Button>
                             </div>
                         </div>
                     </div>
                 </CardContent>
             </Card>
+
+            {/* Recent Reports */}
+            <RecentReportsWidget />
 
             {/* Debug Info */}
             <Card className="bg-yellow-50 border-yellow-200">
@@ -202,9 +202,24 @@ const ReportingDashboard: React.FC = () => {
             ) : null}
 
             {/* Charts Section */}
-            {reports && reports.length > 0 && (
+            {reportsLoading ? (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {[1, 2].map((i) => (
+                        <Card key={i}>
+                            <CardHeader>
+                                <CardTitle><div className="h-5 w-40 bg-gray-200 rounded animate-pulse"/></CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="h-64 px-4 pb-8">
+                                    <div className="h-full w-full bg-gray-100 rounded animate-pulse" />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            ) : (reports && reports.length > 0 ? (
                 <ChartsSection reports={reports} />
-            )}
+            ) : null)}
 
             {/* Daily Reports Table */}
             <Card>
@@ -213,8 +228,35 @@ const ReportingDashboard: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                     {reportsLoading ? (
-                        <div className="flex justify-center py-8">
-                            <LoadingSpinner />
+                        <div className="overflow-x-auto">
+                            <table className="w-full">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        <th className="p-3 text-left text-sm font-semibold text-gray-700">Date</th>
+                                        <th className="p-3 text-left text-sm font-semibold text-gray-700">Patients</th>
+                                        <th className="p-3 text-left text-sm font-semibold text-gray-700">VAS Records</th>
+                                        <th className="p-3 text-left text-sm font-semibold text-gray-700">Avg VAS</th>
+                                        <th className="p-3 text-left text-sm font-semibold text-gray-700">Recommendations</th>
+                                        <th className="p-3 text-left text-sm font-semibold text-gray-700">Approval %</th>
+                                        <th className="p-3 text-left text-sm font-semibold text-gray-700">Escalations</th>
+                                        <th className="p-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-200">
+                                    {[1,2,3,4,5,6,7].map((i) => (
+                                        <tr key={i}>
+                                            <td className="p-3"><div className="h-4 w-28 bg-gray-200 rounded animate-pulse"/></td>
+                                            <td className="p-3"><div className="h-4 w-12 bg-gray-200 rounded animate-pulse"/></td>
+                                            <td className="p-3"><div className="h-4 w-12 bg-gray-200 rounded animate-pulse"/></td>
+                                            <td className="p-3"><div className="h-5 w-10 bg-gray-200 rounded-full animate-pulse"/></td>
+                                            <td className="p-3"><div className="h-4 w-12 bg-gray-200 rounded animate-pulse"/></td>
+                                            <td className="p-3"><div className="h-5 w-16 bg-gray-200 rounded-full animate-pulse"/></td>
+                                            <td className="p-3"><div className="h-4 w-10 bg-gray-200 rounded animate-pulse"/></td>
+                                            <td className="p-3"><div className="h-8 w-20 bg-gray-200 rounded animate-pulse"/></td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     ) : reportsError ? (
                         <div className="text-center py-8">

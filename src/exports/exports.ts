@@ -73,6 +73,7 @@ export {default as VasDeviceSimulator} from "../components/testing_external_VAS/
 
 // REPORTING MODULE
 export {default as ReportingDashboard} from "../components/admin/ReportingDashboard.tsx"
+export {default as DailyReportView} from "../components/admin/reporting/DailyReportView.tsx"
 
 // BACKUP & RESTORE MODULE
 export {default as BackupDashboard} from "../components/admin/BackupDashboard.tsx"

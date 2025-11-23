@@ -49,6 +49,7 @@ import {
     AnesthesiologistRecommendationCreateForm,
     VasDeviceSimulator,
     ReportingDashboard,
+    DailyReportView,
     BackupDashboard,
     MicroserviceAnalytics,
     MicroserviceReporting
@@ -80,6 +81,7 @@ const AppRoutes: React.FC = () => {
                 <Route path="create-person" element={<CreatePerson/>}/>
                 <Route path="api-keys" element={<ApiKeyManagement/>}/>
                 <Route path="reporting" element={<ReportingDashboard/>}/>
+                <Route path="reporting/daily/:date" element={<DailyReportView/>}/>
                 <Route path="backup" element={<BackupDashboard/>}/>
                 <Route path="microservice-analytics" element={<MicroserviceAnalytics/>}/>
                 <Route path="microservice-reporting" element={<MicroserviceReporting/>}/>

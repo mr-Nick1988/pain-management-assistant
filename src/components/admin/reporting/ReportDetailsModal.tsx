@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import type { DailyReportAggregate } from "../../../types/reporting";
 import { Button } from "../../ui";
 import ExportDialog from "./ExportDialog";
-import { monolith_root_url } from "../../../utils/constants";
+import { useLazyDownloadDailyExcelQuery, useLazyDownloadDailyPdfQuery } from "../../../api/api/apiReportingSlice";
 
 interface ReportDetailsModalProps {
     report: DailyReportAggregate;
@@ -12,15 +12,36 @@ interface ReportDetailsModalProps {
 
 const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ report, onClose }) => {
     const [exportDialogOpen, setExportDialogOpen] = useState(false);
+    const [triggerExcel, { isFetching: downloadingExcel }] = useLazyDownloadDailyExcelQuery();
+    const [triggerPdf, { isFetching: downloadingPdf }] = useLazyDownloadDailyPdfQuery();
 
-    const handleDownloadExcel = () => {
-        const url = `${monolith_root_url}/api/reports/daily/${report.reportDate}/export/excel`;
-        window.open(url, "_blank");
+    const saveBlob = (file: Blob, filename: string) => {
+        const url = URL.createObjectURL(file);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     };
 
-    const handleDownloadPdf = () => {
-        const url = `${monolith_root_url}/api/reports/daily/${report.reportDate}/export/pdf`;
-        window.open(url, "_blank");
+    const handleDownloadExcel = async () => {
+        const res = await triggerExcel(report.reportDate).unwrap();
+        if (res.status === 204 || res.blob.size === 0) {
+            alert("No data available for this date (204)");
+            return;
+        }
+        saveBlob(res.blob, res.filename || `daily_report_${report.reportDate}.xlsx`);
+    };
+
+    const handleDownloadPdf = async () => {
+        const res = await triggerPdf(report.reportDate).unwrap();
+        if (res.status === 204 || res.blob.size === 0) {
+            alert("No data available for this date (204)");
+            return;
+        }
+        saveBlob(res.blob, res.filename || `daily_report_${report.reportDate}.pdf`);
     };
 
     return (
@@ -34,7 +55,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ report, onClose
                                 Daily Report Details
                             </h2>
                             <p className="text-sm text-gray-600 mt-1">
-                                {format(new Date(report.reportDate), "MMMM dd, yyyy")}
+                                {format(new Date(`${report.reportDate}T12:00:00Z`), "MMMM dd, yyyy")}
                             </p>
                         </div>
                         <button
@@ -150,21 +171,59 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ report, onClose
                         {/* User Activity Section */}
                         <div className="bg-pink-50 border border-pink-200 rounded-lg p-4">
                             <h3 className="text-lg font-semibold text-pink-900 mb-3">👤 User Activity</h3>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div>
                                     <p className="text-sm text-pink-700">Total Logins</p>
                                     <p className="text-2xl font-bold text-pink-900">{report.totalLogins}</p>
                                 </div>
                                 <div>
+                                    <p className="text-sm text-pink-700">Successful</p>
+                                    <p className="text-2xl font-bold text-green-700">{report.successfulLogins}</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-pink-700">Failed</p>
+                                    <p className="text-2xl font-bold text-red-600">{report.failedLogins}</p>
+                                </div>
+                                <div>
                                     <p className="text-sm text-pink-700">Unique Users</p>
                                     <p className="text-2xl font-bold text-pink-900">{report.uniqueActiveUsers}</p>
                                 </div>
-                                <div>
-                                    <p className="text-sm text-pink-700">Failed Attempts</p>
-                                    <p className="text-2xl font-bold text-red-600">{report.failedLoginAttempts}</p>
-                                </div>
                             </div>
+                            {(report.successfulLogins + report.failedLogins) !== report.totalLogins && (
+                                <p className="text-xs text-red-600 mt-2">Warning: successful + failed != total</p>
+                            )}
                         </div>
+
+                        {/* Top Drugs Section */}
+                        {(() => {
+                            let items: { drug: string; count: number }[] = [];
+                            if (report.topDrugsJson) {
+                                try {
+                                    const obj = JSON.parse(report.topDrugsJson) as Record<string, number>;
+                                    items = Object.entries(obj)
+                                        .map(([drug, count]) => ({ drug, count }))
+                                        .sort((a, b) => b.count - a.count)
+                                        .slice(0, 10);
+                                } catch {}
+                            }
+                            if (items.length === 0) return null;
+                            return (
+                                <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                                    <h3 className="text-lg font-semibold text-indigo-900 mb-3">💊 Top Drugs</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {items.map(({ drug, count }, idx) => (
+                                            <div key={drug} className="flex items-center justify-between p-3 bg-white rounded border border-indigo-100">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-indigo-600 font-bold">#{idx + 1}</span>
+                                                    <span className="text-sm font-medium text-gray-800">{drug}</span>
+                                                </div>
+                                                <span className="text-sm font-bold text-indigo-700">{count}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            );
+                        })()}
 
                         {/* Metadata */}
                         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
@@ -189,10 +248,10 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ report, onClose
                         <Button variant="outline" onClick={onClose}>
                             Close
                         </Button>
-                        <Button variant="default" onClick={handleDownloadExcel}>
+                        <Button variant="default" onClick={handleDownloadExcel} disabled={downloadingExcel}>
                             📊 Export Excel
                         </Button>
-                        <Button variant="default" onClick={handleDownloadPdf}>
+                        <Button variant="default" onClick={handleDownloadPdf} disabled={downloadingPdf}>
                             📄 Export PDF
                         </Button>
                         <Button variant="submit" onClick={() => setExportDialogOpen(true)}>

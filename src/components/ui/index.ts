@@ -25,3 +25,4 @@ export { ProgressBar } from './ProgressBar';
 export { MetricCard } from './MetricCard';
 export { Toast } from './Toast';
 export { PageNavigation } from './PageNavigation';
+export { Badge, StatusBadge, PriorityBadge } from './Badge';
