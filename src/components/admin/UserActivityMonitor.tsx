@@ -1,8 +1,29 @@
-import React, { useState } from "react";
-import { useGetUserActivityQuery } from '../../api/api/apiAdminSlice.ts';
-import { Card, CardHeader, CardTitle, CardContent, Input, LoadingSpinner, ErrorMessage, ProgressBar , PageNavigation } from "../ui";
-import { Badge } from "../ui/Badge.tsx";
-import { LineChart, Stethoscope, Syringe, UserCog, User, Target, CheckCircle2, XCircle, AlertTriangle, Clock } from "lucide-react";
+import React, {useState} from "react";
+import {useGetUserActivityQuery} from "../../api/api/apiAdminSlice";
+import {
+    Card,
+    CardHeader,
+    CardTitle,
+    CardContent,
+    Input,
+    LoadingSpinner,
+    ErrorMessage,
+    ProgressBar,
+    PageNavigation
+} from "../ui";
+import {Badge} from "../ui/Badge";
+import {
+    LineChart,
+    Stethoscope,
+    Syringe,
+    UserCog,
+    User,
+    Target,
+    CheckCircle2,
+    XCircle,
+    AlertTriangle,
+    Clock
+} from "lucide-react";
 
 const UserActivityMonitor: React.FC = () => {
     const [userId, setUserId] = useState("");
@@ -11,9 +32,9 @@ const UserActivityMonitor: React.FC = () => {
 
     // RTK Query hook - загружает активность пользователя
     // Skip запрос если userId пустой
-    const { data: activity, isLoading, error } = useGetUserActivityQuery(
-        { userId, startDate, endDate },
-        { skip: !userId.trim() }
+    const {data: activity, isLoading, error} = useGetUserActivityQuery(
+        {userId, startDate, endDate},
+        {skip: !userId.trim()}
     );
 
     /**
@@ -21,11 +42,16 @@ const UserActivityMonitor: React.FC = () => {
      */
     const getRoleColor = (role: string) => {
         switch (role) {
-            case "DOCTOR": return "bg-blue-100 text-blue-800";
-            case "NURSE": return "bg-green-100 text-green-800";
-            case "ANESTHESIOLOGIST": return "bg-purple-100 text-purple-800";
-            case "ADMIN": return "bg-red-100 text-red-800";
-            default: return "bg-gray-100 text-gray-800";
+            case "DOCTOR":
+                return "bg-blue-100 text-blue-800";
+            case "NURSE":
+                return "bg-green-100 text-green-800";
+            case "ANESTHESIOLOGIST":
+                return "bg-purple-100 text-purple-800";
+            case "ADMIN":
+                return "bg-red-100 text-red-800";
+            default:
+                return "bg-gray-100 text-gray-800";
         }
     };
 
@@ -34,11 +60,16 @@ const UserActivityMonitor: React.FC = () => {
      */
     const getRoleIcon = (role: string): React.ReactNode => {
         switch (role) {
-            case "DOCTOR": return <Stethoscope className="w-10 h-10 text-blue-600"/>;
-            case "NURSE": return <Syringe className="w-10 h-10 text-green-600"/>;
-            case "ANESTHESIOLOGIST": return <Syringe className="w-10 h-10 text-purple-600"/>;
-            case "ADMIN": return <UserCog className="w-10 h-10 text-red-600"/>;
-            default: return <User className="w-10 h-10 text-gray-600"/>;
+            case "DOCTOR":
+                return <Stethoscope className="w-10 h-10 text-blue-600"/>;
+            case "NURSE":
+                return <Syringe className="w-10 h-10 text-green-600"/>;
+            case "ANESTHESIOLOGIST":
+                return <Syringe className="w-10 h-10 text-purple-600"/>;
+            case "ADMIN":
+                return <UserCog className="w-10 h-10 text-red-600"/>;
+            default:
+                return <User className="w-10 h-10 text-gray-600"/>;
         }
     };
 
@@ -54,10 +85,10 @@ const UserActivityMonitor: React.FC = () => {
      * Определить уровень активности пользователя
      */
     const getActivityLevel = (totalActions: number) => {
-        if (totalActions > 100) return { label: "Very Active", color: "bg-green-500" };
-        if (totalActions > 50) return { label: "Active", color: "bg-blue-500" };
-        if (totalActions > 20) return { label: "Moderate", color: "bg-yellow-500" };
-        return { label: "Low Activity", color: "bg-gray-500" };
+        if (totalActions > 100) return {label: "Very Active", color: "bg-green-500"};
+        if (totalActions > 50) return {label: "Active", color: "bg-blue-500"};
+        if (totalActions > 20) return {label: "Moderate", color: "bg-yellow-500"};
+        return {label: "Low Activity", color: "bg-gray-500"};
     };
 
     return (
@@ -116,171 +147,178 @@ const UserActivityMonitor: React.FC = () => {
                         <div className="flex items-end">
                             <div className="w-full p-3 bg-green-50 border border-green-200 rounded-md">
                                 <p className="text-sm text-green-800 font-medium">Auto-loading enabled</p>
-                                <p className="text-xs text-green-600">Activity loads automatically when User ID is entered</p>
+                                <p className="text-xs text-green-600">Activity loads automatically when User ID is
+                                    entered</p>
                             </div>
                         </div>
                     </div>
-                    {error && <ErrorMessage message="Error loading employee activity" onClose={() => {}} />}
+                    {error && <ErrorMessage message="Error loading employee activity" onClose={() => {
+                    }}/>}
                 </CardContent>
             </Card>
 
             {/* Loading State */}
-            {isLoading && <LoadingSpinner message="Fetching employee activity..." />}
+            {isLoading && <LoadingSpinner message="Fetching employee activity..."/>}
 
             {/* Activity Display */}
             {activity && !isLoading && (
                 <>
-                    {/* User Info Card */}
-                    <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200">
-                        <CardContent className="py-6">
-                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                                <div className="flex items-center space-x-4">
-                                    <div className="text-4xl sm:text-5xl">{getRoleIcon(activity.userRole)}</div>
-                                    <div>
-                                        <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{activity.userId}</h2>
-                                        <Badge className={getRoleColor(activity.userRole)}>
-                                            {activity.userRole}
-                                        </Badge>
-                                    </div>
+                {/* User Info Card */}
+                <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200">
+                    <CardContent className="py-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div className="flex items-center space-x-4">
+                                <div className="text-4xl sm:text-5xl">{getRoleIcon(activity.userRole)}</div>
+                                <div>
+                                    <h2 className="text-xl sm:text-2xl font-bold text-gray-900">{activity.userId}</h2>
+                                    <Badge className={getRoleColor(activity.userRole)}>
+                                        {activity.userRole}
+                                    </Badge>
                                 </div>
-                                <div className="text-left sm:text-right">
-                                    <p className="text-sm text-gray-600">Activity Level</p>
-                                    <div className="flex items-center space-x-2 mt-1">
-                                        <div className={`w-3 h-3 rounded-full ${getActivityLevel(activity.totalActions).color}`}></div>
-                                        <span className="text-base sm:text-lg font-semibold text-gray-900">
+                            </div>
+                            <div className="text-left sm:text-right">
+                                <p className="text-sm text-gray-600">Activity Level</p>
+                                <div className="flex items-center space-x-2 mt-1">
+                                    <div
+                                        className={`w-3 h-3 rounded-full ${getActivityLevel(activity.totalActions).color}`}></div>
+                                    <span className="text-base sm:text-lg font-semibold text-gray-900">
                                             {getActivityLevel(activity.totalActions).label}
                                         </span>
-                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                {/* Statistics Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {/* Total Actions */}
+                    <Card className="bg-white border-l-4 border-l-blue-500">
+                        <CardContent className="py-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-600 mb-1">Total Actions</p>
+                                    <p className="text-2xl sm:text-3xl font-bold text-blue-600">{activity.totalActions}</p>
+                                </div>
+                                <div className="text-3xl sm:text-4xl"><Target className="w-8 h-8 text-blue-600"/></div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Successful Logins */}
+                    <Card className="bg-white border-l-4 border-l-green-500">
+                        <CardContent className="py-6">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-sm text-gray-600 mb-1">Successful Logins</p>
+                                    <p className="text-2xl sm:text-3xl font-bold text-green-600">{activity.loginCount}</p>
+                                </div>
+                                <div className="text-3xl sm:text-4xl"><CheckCircle2 className="w-8 h-8 text-green-600"/>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
 
-                    {/* Statistics Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {/* Total Actions */}
-                        <Card className="bg-white border-l-4 border-l-blue-500">
-                            <CardContent className="py-6">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm text-gray-600 mb-1">Total Actions</p>
-                                        <p className="text-2xl sm:text-3xl font-bold text-blue-600">{activity.totalActions}</p>
-                                    </div>
-                                    <div className="text-3xl sm:text-4xl"><Target className="w-8 h-8 text-blue-600"/></div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Successful Logins */}
-                        <Card className="bg-white border-l-4 border-l-green-500">
-                            <CardContent className="py-6">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm text-gray-600 mb-1">Successful Logins</p>
-                                        <p className="text-2xl sm:text-3xl font-bold text-green-600">{activity.loginCount}</p>
-                                    </div>
-                                    <div className="text-3xl sm:text-4xl"><CheckCircle2 className="w-8 h-8 text-green-600"/></div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Failed Logins */}
-                        <Card className="bg-white border-l-4 border-l-red-500">
-                            <CardContent className="py-6">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-sm text-gray-600 mb-1">Failed Logins</p>
-                                        <p className="text-2xl sm:text-3xl font-bold text-red-600">{activity.failedLoginCount}</p>
-                                    </div>
-                                    <div className="text-3xl sm:text-4xl"><XCircle className="w-8 h-8 text-red-600"/></div>
-                                </div>
-                                {activity.failedLoginCount > 5 && (
-                                    <div className="mt-2 text-xs text-red-600 font-medium inline-flex items-center gap-1">
-                                        <AlertTriangle className="w-3.5 h-3.5"/> High failure rate
-                                    </div>
-                                )}
-                            </CardContent>
-                        </Card>
-
-                        {/* Last Activity */}
-                        <Card className="bg-white border-l-4 border-l-purple-500">
-                            <CardContent className="py-6">
+                    {/* Failed Logins */}
+                    <Card className="bg-white border-l-4 border-l-red-500">
+                        <CardContent className="py-6">
+                            <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm text-gray-600 mb-1">Last Activity</p>
-                                    <p className="text-xs sm:text-sm font-bold text-purple-600">
-                                        {formatDate(activity.lastActivity)}
-                                    </p>
-                                    <div className="text-3xl sm:text-4xl mt-2"><Clock className="w-8 h-8 text-purple-600"/></div>
+                                    <p className="text-sm text-gray-600 mb-1">Failed Logins</p>
+                                    <p className="text-2xl sm:text-3xl font-bold text-red-600">{activity.failedLoginCount}</p>
                                 </div>
-                            </CardContent>
-                        </Card>
-                    </div>
+                                <div className="text-3xl sm:text-4xl"><XCircle className="w-8 h-8 text-red-600"/></div>
+                            </div>
+                            {activity.failedLoginCount > 5 && (
+                                <div className="mt-2 text-xs text-red-600 font-medium inline-flex items-center gap-1">
+                                    <AlertTriangle className="w-3.5 h-3.5"/> High failure rate
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
 
-                    {/* Activity Breakdown */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Activity Breakdown</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                {/* Login Success Rate */}
-                                <ProgressBar
-                                    value={(activity.loginCount / (activity.loginCount + activity.failedLoginCount)) * 100}
-                                    label="Login Success Rate"
-                                    color="green"
-                                    height="md"
-                                />
-
-                                {/* Actions per Login */}
-                                <div>
-                                    <div className="flex items-center justify-between mb-2">
-                                        <span className="text-sm font-medium text-gray-700">Actions per Login</span>
-                                        <span className="text-sm font-bold text-gray-900">
-                                            {(activity.totalActions / activity.loginCount).toFixed(1)}
-                                        </span>
-                                    </div>
-                                    <div className="w-full bg-gray-200 rounded-full h-3">
-                                        <div
-                                            className="bg-blue-500 h-3 rounded-full transition-all duration-500"
-                                            style={{
-                                                width: `${Math.min((activity.totalActions / activity.loginCount / 10) * 100, 100)}%`
-                                            }}
-                                        />
-                                    </div>
+                    {/* Last Activity */}
+                    <Card className="bg-white border-l-4 border-l-purple-500">
+                        <CardContent className="py-6">
+                            <div>
+                                <p className="text-sm text-gray-600 mb-1">Last Activity</p>
+                                <p className="text-xs sm:text-sm font-bold text-purple-600">
+                                    {formatDate(activity.lastActivity)}
+                                </p>
+                                <div className="text-3xl sm:text-4xl mt-2"><Clock className="w-8 h-8 text-purple-600"/>
                                 </div>
                             </div>
                         </CardContent>
-                    {/* Security Alerts */}
-                    {activity.failedLoginCount > 5 && (
-                        <Card className="bg-red-50 border-2 border-red-200">
-                            <CardHeader>
-                                <CardTitle className="text-red-700 flex items-center gap-2"><AlertTriangle className="w-5 h-5"/> Security Alert</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-sm text-red-600">
-                                    This user has {activity.failedLoginCount} failed login attempts. 
-                                    Consider reviewing account security or resetting credentials.
-                                </p>
-                            </CardContent>
-                        </Card>
-                    )}
-                </>
-            )}
+                    </Card>
+                </div>
 
-            {/* Empty State */}
-            {!activity && !isLoading && (
+                {/* Activity Breakdown */}
                 <Card>
-                    <CardContent className="py-12 text-center">
-                        <div className="mb-4 flex justify-center"><LineChart className="w-10 h-10 text-gray-500"/></div>
-                        <p className="text-gray-600 mb-4">No employee activity loaded yet</p>
-                        <p className="text-sm text-gray-500">Enter an Employee ID to view activity data</p>
+                    <CardHeader>
+                        <CardTitle>Activity Breakdown</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {/* Login Success Rate */}
+                            <ProgressBar
+                                value={(activity.loginCount / (activity.loginCount + activity.failedLoginCount)) * 100}
+                                label="Login Success Rate"
+                                color="green"
+                                height="md"
+                            />
+
+                            {/* Actions per Login */}
+                            <div>
+                                <div className="flex items-center justify-between mb-2">
+                                    <span className="text-sm font-medium text-gray-700">Actions per Login</span>
+                                    <span className="text-sm font-bold text-gray-900">
+                                            {(activity.totalActions / activity.loginCount).toFixed(1)}
+                                        </span>
+                                </div>
+                                <div className="w-full bg-gray-200 rounded-full h-3">
+                                    <div
+                                        className="bg-blue-500 h-3 rounded-full transition-all duration-500"
+                                        style={{
+                                            width: `${Math.min((activity.totalActions / activity.loginCount / 10) * 100, 100)}%`
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </CardContent>
                 </Card>
-            )}
-        <PageNavigation />
+                {/* Security Alerts */}
+                {activity.failedLoginCount > 5 && (
+                    <Card className="bg-red-50 border-2 border-red-200">
+                        <CardHeader>
+                            <CardTitle className="text-red-700 flex items-center gap-2"><AlertTriangle
+                                className="w-5 h-5"/> Security Alert</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-red-600">
+                                This user has {activity.failedLoginCount} failed login attempts.
+                                Consider reviewing account security or resetting credentials.
+                            </p>
+                        </CardContent>
+                    </Card>
+                )}
+                </>
+                )}
 
-        </div>
-    );
-};
+                {/* Empty State */}
+                {!activity && !isLoading && (
+                    <Card>
+                        <CardContent className="py-12 text-center">
+                            <div className="mb-4 flex justify-center"><LineChart className="w-10 h-10 text-gray-500"/>
+                            </div>
+                            <p className="text-gray-600 mb-4">No employee activity loaded yet</p>
+                            <p className="text-sm text-gray-500">Enter an Employee ID to view activity data</p>
+                        </CardContent>
+                    </Card>
+                )}
+                <PageNavigation />
+            </div>
+        );
+    };
 
 export default UserActivityMonitor;
