@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useGetRecentEventsQuery, useGetEventsByTypeQuery } from '../../api/api/apiAdminSlice.ts';
 import { Card, CardHeader, CardTitle, CardContent, Input, LoadingSpinner, ErrorMessage, Select , PageNavigation } from "../ui";
 import {Badge} from "../ui/Badge.tsx";
+import { CalendarDays, Pill, AlertTriangle, User, Users, BarChart3, Lock, ClipboardList, FileText } from "lucide-react";
 
 const EventsTimeline: React.FC = () => {
     const [limit, setLimit] = useState(50);
@@ -43,15 +44,15 @@ const EventsTimeline: React.FC = () => {
     /**
      * Получить иконку для типа события
      */
-    const getEventIcon = (type: string) => {
-        if (type.includes("RECOMMENDATION")) return "💊";
-        if (type.includes("ESCALATION")) return "🚨";
-        if (type.includes("PATIENT")) return "👤";
-        if (type.includes("VAS")) return "📊";
-        if (type.includes("LOGIN")) return "🔐";
-        if (type.includes("PERSON")) return "👥";
-        if (type.includes("EMR")) return "📋";
-        return "📝";
+    const getEventIcon = (type: string): React.ReactNode => {
+        if (type.includes("RECOMMENDATION")) return <Pill className="w-5 h-5 text-green-700"/>;
+        if (type.includes("ESCALATION")) return <AlertTriangle className="w-5 h-5 text-orange-700"/>;
+        if (type.includes("PATIENT")) return <User className="w-5 h-5 text-blue-700"/>;
+        if (type.includes("VAS")) return <BarChart3 className="w-5 h-5 text-indigo-700"/>;
+        if (type.includes("LOGIN")) return <Lock className="w-5 h-5 text-purple-700"/>;
+        if (type.includes("PERSON")) return <Users className="w-5 h-5 text-gray-700"/>;
+        if (type.includes("EMR")) return <ClipboardList className="w-5 h-5 text-teal-700"/>;
+        return <FileText className="w-5 h-5 text-gray-600"/>;
     };
 
     /**
@@ -87,7 +88,7 @@ const EventsTimeline: React.FC = () => {
                             <h1 className="text-2xl font-bold mb-1">Events Timeline</h1>
                             <p className="text-indigo-100">Real-time system events and activity log</p>
                         </div>
-                        <div className="text-4xl sm:text-5xl">📅</div>
+                        <div className="text-4xl sm:text-5xl"><CalendarDays className="w-10 h-10"/></div>
                     </div>
                 </CardContent>
             </Card>
@@ -166,7 +167,7 @@ const EventsTimeline: React.FC = () => {
                                         {/* Event Info */}
                                         <div className="flex-1">
                                             <div className="flex items-center space-x-2 mb-2">
-                                                <span className="text-2xl">{getEventIcon(event.eventType)}</span>
+                                                <span className="inline-flex items-center justify-center">{getEventIcon(event.eventType)}</span>
                                                 <h3 className="text-base font-semibold text-gray-900">
                                                     {event.eventType}
                                                 </h3>
@@ -242,7 +243,7 @@ const EventsTimeline: React.FC = () => {
             {events && events.length === 0 && !isLoading && (
                 <Card>
                     <CardContent className="py-12 text-center">
-                        <div className="text-6xl mb-4">📅</div>
+                        <div className="mb-4 flex justify-center"><CalendarDays className="w-12 h-12 text-gray-500"/></div>
                         <p className="text-gray-600 mb-4">No events found</p>
                         <p className="text-sm text-gray-500">Try adjusting your filters</p>
                     </CardContent>
@@ -252,7 +253,7 @@ const EventsTimeline: React.FC = () => {
             {!events && !isLoading && (
                 <Card>
                     <CardContent className="py-12 text-center">
-                        <div className="text-6xl mb-4">📅</div>
+                        <div className="mb-4 flex justify-center"><CalendarDays className="w-12 h-12 text-gray-500"/></div>
                         <p className="text-gray-600 mb-4">No events loaded yet</p>
                         <p className="text-sm text-gray-500">Events will load automatically</p>
                     </CardContent>

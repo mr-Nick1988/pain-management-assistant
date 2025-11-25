@@ -2,6 +2,7 @@ import React from "react";
 import { format } from "date-fns";
 import type { BackupResponseDTO, BackupType, BackupStatus, BackupTrigger } from "../../../types/backup";
 import { Button } from "../../ui";
+import { HardDrive, Leaf, Globe, Loader2, CheckCircle2, XCircle, AlertTriangle, Clock, User, RefreshCw } from "lucide-react";
 
 interface BackupHistoryTableProps {
     backups: BackupResponseDTO[];
@@ -11,10 +12,10 @@ interface BackupHistoryTableProps {
 const BackupHistoryTable: React.FC<BackupHistoryTableProps> = ({ backups, onRestoreClick }) => {
     const getTypeBadge = (type: BackupType) => {
         const badges = {
-            H2_DATABASE: { color: "bg-blue-100 text-blue-800", icon: "🗄️", label: "H2 DB" },
-            MONGODB: { color: "bg-green-100 text-green-800", icon: "🍃", label: "MongoDB" },
-            FULL_SYSTEM: { color: "bg-purple-100 text-purple-800", icon: "🌐", label: "Full System" },
-        };
+            H2_DATABASE: { color: "bg-blue-100 text-blue-800", icon: <HardDrive className="w-3.5 h-3.5"/>, label: "H2 DB" },
+            MONGODB: { color: "bg-green-100 text-green-800", icon: <Leaf className="w-3.5 h-3.5"/>, label: "MongoDB" },
+            FULL_SYSTEM: { color: "bg-purple-100 text-purple-800", icon: <Globe className="w-3.5 h-3.5"/>, label: "Full System" },
+        } as const;
         const badge = badges[type];
         return (
             <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${badge.color}`}>
@@ -25,10 +26,10 @@ const BackupHistoryTable: React.FC<BackupHistoryTableProps> = ({ backups, onRest
 
     const getStatusBadge = (status: BackupStatus) => {
         const badges = {
-            IN_PROGRESS: { color: "bg-yellow-100 text-yellow-800", icon: "⏳", label: "In Progress" },
-            SUCCESS: { color: "bg-green-100 text-green-800", icon: "✅", label: "Success" },
-            FAILED: { color: "bg-red-100 text-red-800", icon: "❌", label: "Failed" },
-        };
+            IN_PROGRESS: { color: "bg-yellow-100 text-yellow-800", icon: <Loader2 className="w-3.5 h-3.5 animate-spin"/>, label: "In Progress" },
+            SUCCESS: { color: "bg-green-100 text-green-800", icon: <CheckCircle2 className="w-3.5 h-3.5"/>, label: "Success" },
+            FAILED: { color: "bg-red-100 text-red-800", icon: <XCircle className="w-3.5 h-3.5"/>, label: "Failed" },
+        } as const;
         const badge = badges[status];
         return (
             <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${badge.color}`}>
@@ -39,10 +40,10 @@ const BackupHistoryTable: React.FC<BackupHistoryTableProps> = ({ backups, onRest
 
     const getTriggerBadge = (trigger: BackupTrigger) => {
         const badges = {
-            SCHEDULED: { color: "bg-indigo-100 text-indigo-800", icon: "🕐", label: "Scheduled" },
-            MANUAL: { color: "bg-orange-100 text-orange-800", icon: "👤", label: "Manual" },
-            PRE_OPERATION: { color: "bg-pink-100 text-pink-800", icon: "⚠️", label: "Pre-Op" },
-        };
+            SCHEDULED: { color: "bg-indigo-100 text-indigo-800", icon: <Clock className="w-3.5 h-3.5"/>, label: "Scheduled" },
+            MANUAL: { color: "bg-orange-100 text-orange-800", icon: <User className="w-3.5 h-3.5"/>, label: "Manual" },
+            PRE_OPERATION: { color: "bg-pink-100 text-pink-800", icon: <AlertTriangle className="w-3.5 h-3.5"/>, label: "Pre-Op" },
+        } as const;
         const badge = badges[trigger];
         return (
             <span className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium ${badge.color}`}>
@@ -121,12 +122,12 @@ const BackupHistoryTable: React.FC<BackupHistoryTableProps> = ({ backups, onRest
                                             size="sm"
                                             onClick={() => onRestoreClick(backup)}
                                         >
-                                            🔄 Restore
+                                            <RefreshCw className="w-4 h-4 mr-2"/> Restore
                                         </Button>
                                     )}
                                     {backup.errorMessage && (
                                         <div className="text-xs text-red-600 max-w-xs">
-                                            <p className="font-semibold">❌ Error:</p>
+                                            <p className="font-semibold inline-flex items-center gap-1"><XCircle className="w-3.5 h-3.5"/> Error:</p>
                                             <p className="break-words">{backup.errorMessage}</p>
                                         </div>
                                     )}

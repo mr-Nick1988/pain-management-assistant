@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import {useGetPatientStatsQuery} from '../../api/api/apiAdminSlice.ts';
 import {Card, CardHeader, CardTitle, CardContent, Input, LoadingSpinner, ErrorMessage, PageNavigation } from "../ui";
+import { Hospital, BarChart3, AlertTriangle, TrendingUp, CheckCircle2, Venus, Mars } from "lucide-react";
 
 
 const PatientStatistics: React.FC = () => {
@@ -34,7 +35,7 @@ const PatientStatistics: React.FC = () => {
                             <h1 className="text-2xl font-bold mb-1">Patient Statistics</h1>
                             <p className="text-pink-100">Patient registration and VAS records analysis</p>
                         </div>
-                        <div className="text-4xl sm:text-5xl">🏥</div>
+                        <div className="text-4xl sm:text-5xl"><Hospital className="w-10 h-10"/></div>
                     </div>
                 </CardContent>
             </Card>
@@ -97,8 +98,8 @@ const PatientStatistics: React.FC = () => {
                                         key={gender}
                                         className="p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border-2 border-blue-200 text-center"
                                     >
-                                        <div className="text-5xl mb-3">
-                                            {gender === "MALE" ? "👨" : "👩"}
+                                        <div className="mb-3 flex justify-center">
+                                            {gender === "MALE" ? <Mars className="w-8 h-8 text-blue-700"/> : <Venus className="w-8 h-8 text-pink-700"/>}
                                         </div>
                                         <p className="text-sm font-medium text-gray-700 mb-2">{gender}</p>
                                         <p className="text-4xl font-bold text-blue-600">{count}</p>
@@ -168,14 +169,14 @@ const PatientStatistics: React.FC = () => {
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 {/* Total VAS Records */}
                                 <div className="p-6 bg-blue-50 rounded-lg border-2 border-blue-200 text-center">
-                                    <div className="text-4xl mb-2">📊</div>
+                                    <div className="mb-2 flex justify-center"><BarChart3 className="w-7 h-7 text-blue-600"/></div>
                                     <p className="text-sm text-gray-600 mb-1">Total VAS Records</p>
                                     <p className="text-4xl font-bold text-blue-600">{stats.totalVasRecords}</p>
                                 </div>
 
                                 {/* Critical VAS */}
                                 <div className="p-6 bg-red-50 rounded-lg border-2 border-red-200 text-center">
-                                    <div className="text-4xl mb-2">🚨</div>
+                                    <div className="mb-2 flex justify-center"><AlertTriangle className="w-7 h-7 text-red-600"/></div>
                                     <p className="text-sm text-gray-600 mb-1">Critical VAS (≥7)</p>
                                     <p className="text-4xl font-bold text-red-600">{stats.criticalVasRecords}</p>
                                     <p className="text-xs text-gray-500 mt-2">
@@ -187,7 +188,7 @@ const PatientStatistics: React.FC = () => {
                                 {/* Average VAS Level */}
                                 <div
                                     className={`p-6 rounded-lg border-2 text-center ${getVasLevelBg(stats.averageVasLevel)}`}>
-                                    <div className="text-4xl mb-2">📈</div>
+                                    <div className="mb-2 flex justify-center"><TrendingUp className="w-7 h-7 text-purple-600"/></div>
                                     <p className="text-sm text-gray-600 mb-1">Average VAS Level</p>
                                     <p className={`text-4xl font-bold ${getVasLevelColor(stats.averageVasLevel)}`}>
                                         {stats.averageVasLevel.toFixed(1)}
@@ -251,7 +252,7 @@ const PatientStatistics: React.FC = () => {
                                 {stats.averageVasLevel >= 6 && (
                                     <div
                                         className="flex items-start space-x-3 p-3 bg-red-50 rounded-lg border border-red-200">
-                                        <span className="text-2xl">⚠️</span>
+                                        <AlertTriangle className="w-5 h-5 text-red-700 mt-0.5"/>
                                         <div>
                                             <p className="text-sm font-medium text-red-800">High Average Pain Level</p>
                                             <p className="text-xs text-red-600">Average VAS level
@@ -264,7 +265,7 @@ const PatientStatistics: React.FC = () => {
                                 {((stats.criticalVasRecords / stats.totalVasRecords) * 100) > 20 && (
                                     <div
                                         className="flex items-start space-x-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                                        <span className="text-2xl">🚨</span>
+                                        <AlertTriangle className="w-5 h-5 text-orange-700 mt-0.5"/>
                                         <div>
                                             <p className="text-sm font-medium text-orange-800">High Critical VAS
                                                 Rate</p>
@@ -279,7 +280,7 @@ const PatientStatistics: React.FC = () => {
                                 {stats.totalPatients > 100 && (
                                     <div
                                         className="flex items-start space-x-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                                        <span className="text-2xl">✅</span>
+                                        <CheckCircle2 className="w-5 h-5 text-green-700 mt-0.5"/>
                                         <div>
                                             <p className="text-sm font-medium text-green-800">Good Patient Coverage</p>
                                             <p className="text-xs text-green-600">System
@@ -297,7 +298,7 @@ const PatientStatistics: React.FC = () => {
             {!stats && !isLoading && (
                 <Card>
                     <CardContent className="py-12 text-center">
-                        <div className="text-6xl mb-4">🏥</div>
+                        <div className="mb-4 flex justify-center"><Hospital className="w-12 h-12 text-gray-500"/></div>
                         <p className="text-gray-600 mb-4">No patient statistics loaded yet</p>
                         <p className="text-sm text-gray-500">Statistics will load automatically</p>
                     </CardContent>

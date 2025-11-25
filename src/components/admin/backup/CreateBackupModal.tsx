@@ -3,6 +3,7 @@ import { useCreateBackupMutation } from "../../../api/api/apiBackupSlice";
 import { Button, Input, Label } from "../../ui";
 import { useToast } from "../../../contexts/ToastContext";
 import type { BackupType } from "../../../types/backup";
+import { HardDrive, Leaf, Globe, Info, Save } from "lucide-react";
 
 interface CreateBackupModalProps {
     onClose: () => void;
@@ -26,7 +27,7 @@ const CreateBackupModal: React.FC<CreateBackupModalProps> = ({ onClose, onSucces
                 metadata: metadata.trim() || undefined,
             }).unwrap();
 
-            toast.success(`✅ Backup created successfully! Check the table below for details.`);
+            toast.success(`Backup created successfully! Check the table below for details.`);
             onSuccess();
             onClose();
         } catch (error) {
@@ -43,7 +44,7 @@ const CreateBackupModal: React.FC<CreateBackupModalProps> = ({ onClose, onSucces
                 {/* Header */}
                 <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
                     <h2 className="text-2xl font-bold text-gray-900">
-                        💾 Create Backup
+                        <span className="inline-flex items-center gap-2"><HardDrive className="w-5 h-5"/> Create Backup</span>
                     </h2>
                     <button
                         onClick={onClose}
@@ -74,7 +75,7 @@ const CreateBackupModal: React.FC<CreateBackupModalProps> = ({ onClose, onSucces
                                     checked={backupType === "H2_DATABASE"}
                                     onChange={(e) => setBackupType(e.target.value as BackupType)}
                                 />
-                                <span className="text-2xl">🗄️</span>
+                                <HardDrive className="w-5 h-5 text-blue-700"/>
                                 <div className="flex-1">
                                     <p className="font-semibold text-gray-900">H2 Database</p>
                                     <p className="text-xs text-gray-600">SQL database (users, patients, EMR)</p>
@@ -94,7 +95,7 @@ const CreateBackupModal: React.FC<CreateBackupModalProps> = ({ onClose, onSucces
                                     checked={backupType === "MONGODB"}
                                     onChange={(e) => setBackupType(e.target.value as BackupType)}
                                 />
-                                <span className="text-2xl">🍃</span>
+                                <Leaf className="w-5 h-5 text-green-700"/>
                                 <div className="flex-1">
                                     <p className="font-semibold text-gray-900">MongoDB</p>
                                     <p className="text-xs text-gray-600">NoSQL collections (logs, analytics)</p>
@@ -114,7 +115,7 @@ const CreateBackupModal: React.FC<CreateBackupModalProps> = ({ onClose, onSucces
                                     checked={backupType === "FULL_SYSTEM"}
                                     onChange={(e) => setBackupType(e.target.value as BackupType)}
                                 />
-                                <span className="text-2xl">🌐</span>
+                                <Globe className="w-5 h-5 text-purple-700"/>
                                 <div className="flex-1">
                                     <p className="font-semibold text-gray-900">Full System Backup</p>
                                     <p className="text-xs text-gray-600">Complete backup of both databases</p>
@@ -140,7 +141,7 @@ const CreateBackupModal: React.FC<CreateBackupModalProps> = ({ onClose, onSucces
 
                     {/* Info Box */}
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                        <p className="text-xs text-blue-900 font-semibold mb-1">ℹ️ Info</p>
+                        <p className="text-xs text-blue-900 font-semibold mb-1 inline-flex items-center gap-1"><Info className="w-3.5 h-3.5"/> Info</p>
                         <ul className="text-xs text-blue-800 space-y-0.5">
                             <li>• Retention: 30 days (auto-cleanup)</li>
                             <li>• Storage: ./backups/ directory</li>
@@ -159,7 +160,7 @@ const CreateBackupModal: React.FC<CreateBackupModalProps> = ({ onClose, onSucces
                         onClick={handleSubmit}
                         disabled={isLoading}
                     >
-                        {isLoading ? "Creating..." : "💾 Create Backup"}
+                        {isLoading ? "Creating..." : (<span className="inline-flex items-center"><Save className="w-4 h-4 mr-2"/> Create Backup</span>)}
                     </Button>
                 </div>
             </div>

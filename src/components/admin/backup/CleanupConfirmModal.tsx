@@ -2,6 +2,7 @@ import React from "react";
 import { useCleanupOldBackupsMutation } from "../../../api/api/apiBackupSlice";
 import { Button } from "../../ui";
 import { useToast } from "../../../contexts/ToastContext";
+import { Trash2, AlertTriangle, ClipboardList, Info } from "lucide-react";
 
 interface CleanupConfirmModalProps {
     onClose: () => void;
@@ -32,7 +33,7 @@ const CleanupConfirmModal: React.FC<CleanupConfirmModalProps> = ({ onClose, onSu
                 {/* Header */}
                 <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
                     <h2 className="text-xl font-bold text-gray-900">
-                        🗑️ Cleanup Old Backups
+                        <span className="inline-flex items-center gap-2"><Trash2 className="w-5 h-5"/> Cleanup Old Backups</span>
                     </h2>
                     <button
                         onClick={onClose}
@@ -46,7 +47,7 @@ const CleanupConfirmModal: React.FC<CleanupConfirmModalProps> = ({ onClose, onSu
                 <div className="p-6 space-y-4">
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                         <div className="flex items-start gap-3">
-                            <span className="text-2xl">⚠️</span>
+                            <AlertTriangle className="w-6 h-6 text-yellow-700"/>
                             <div>
                                 <h3 className="font-semibold text-yellow-900 mb-2">
                                     Cleanup Confirmation
@@ -67,7 +68,7 @@ const CleanupConfirmModal: React.FC<CleanupConfirmModalProps> = ({ onClose, onSu
                     </div>
 
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                        <h3 className="font-semibold text-blue-900 mb-2">📋 Retention Policy</h3>
+                        <h3 className="font-semibold text-blue-900 mb-2 inline-flex items-center gap-2"><ClipboardList className="w-4 h-4"/> Retention Policy</h3>
                         <div className="text-sm text-blue-800 space-y-1">
                             <p>• <strong>Retention Period:</strong> 30 days</p>
                             <p>• <strong>Automatic Cleanup:</strong> Daily at 04:00</p>
@@ -76,7 +77,7 @@ const CleanupConfirmModal: React.FC<CleanupConfirmModalProps> = ({ onClose, onSu
                     </div>
 
                     <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded">
-                        <p className="font-semibold mb-1">ℹ️ Note:</p>
+                        <p className="font-semibold mb-1 inline-flex items-center gap-1"><Info className="w-3.5 h-3.5"/> Note:</p>
                         <p>
                             This is a safe operation that follows the configured retention policy. 
                             Recent backups (less than 30 days old) will not be affected.
@@ -94,7 +95,7 @@ const CleanupConfirmModal: React.FC<CleanupConfirmModalProps> = ({ onClose, onSu
                         onClick={handleCleanup}
                         disabled={isLoading}
                     >
-                        {isLoading ? "Cleaning up..." : "🗑️ Cleanup Old Backups"}
+                        {isLoading ? "Cleaning up..." : (<span className="inline-flex items-center"><Trash2 className="w-4 h-4 mr-2"/> Cleanup Old Backups</span>)}
                     </Button>
                 </div>
             </div>

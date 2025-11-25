@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useGetUserActivityQuery } from '../../api/api/apiAdminSlice.ts';
 import { Card, CardHeader, CardTitle, CardContent, Input, LoadingSpinner, ErrorMessage, ProgressBar , PageNavigation } from "../ui";
 import { Badge } from "../ui/Badge.tsx";
+import { LineChart, Stethoscope, Syringe, UserCog, User, Target, CheckCircle2, XCircle, AlertTriangle, Clock } from "lucide-react";
 
 const UserActivityMonitor: React.FC = () => {
     const [userId, setUserId] = useState("");
@@ -31,13 +32,13 @@ const UserActivityMonitor: React.FC = () => {
     /**
      * Получить иконку для роли пользователя
      */
-    const getRoleIcon = (role: string) => {
+    const getRoleIcon = (role: string): React.ReactNode => {
         switch (role) {
-            case "DOCTOR": return "👨‍⚕️";
-            case "NURSE": return "👩‍⚕️";
-            case "ANESTHESIOLOGIST": return "💉";
-            case "ADMIN": return "👨‍💼";
-            default: return "👤";
+            case "DOCTOR": return <Stethoscope className="w-10 h-10 text-blue-600"/>;
+            case "NURSE": return <Syringe className="w-10 h-10 text-green-600"/>;
+            case "ANESTHESIOLOGIST": return <Syringe className="w-10 h-10 text-purple-600"/>;
+            case "ADMIN": return <UserCog className="w-10 h-10 text-red-600"/>;
+            default: return <User className="w-10 h-10 text-gray-600"/>;
         }
     };
 
@@ -69,7 +70,7 @@ const UserActivityMonitor: React.FC = () => {
                             <h1 className="text-2xl font-bold mb-1">Employee Activity Monitor</h1>
                             <p className="text-green-100">Track employee actions, logins, and behavior patterns</p>
                         </div>
-                        <div className="text-4xl sm:text-5xl">📈</div>
+                        <div className="text-4xl sm:text-5xl"><LineChart className="w-10 h-10"/></div>
                     </div>
                 </CardContent>
             </Card>
@@ -165,7 +166,7 @@ const UserActivityMonitor: React.FC = () => {
                                         <p className="text-sm text-gray-600 mb-1">Total Actions</p>
                                         <p className="text-2xl sm:text-3xl font-bold text-blue-600">{activity.totalActions}</p>
                                     </div>
-                                    <div className="text-3xl sm:text-4xl">🎯</div>
+                                    <div className="text-3xl sm:text-4xl"><Target className="w-8 h-8 text-blue-600"/></div>
                                 </div>
                             </CardContent>
                         </Card>
@@ -178,7 +179,7 @@ const UserActivityMonitor: React.FC = () => {
                                         <p className="text-sm text-gray-600 mb-1">Successful Logins</p>
                                         <p className="text-2xl sm:text-3xl font-bold text-green-600">{activity.loginCount}</p>
                                     </div>
-                                    <div className="text-3xl sm:text-4xl">✅</div>
+                                    <div className="text-3xl sm:text-4xl"><CheckCircle2 className="w-8 h-8 text-green-600"/></div>
                                 </div>
                             </CardContent>
                         </Card>
@@ -191,11 +192,11 @@ const UserActivityMonitor: React.FC = () => {
                                         <p className="text-sm text-gray-600 mb-1">Failed Logins</p>
                                         <p className="text-2xl sm:text-3xl font-bold text-red-600">{activity.failedLoginCount}</p>
                                     </div>
-                                    <div className="text-3xl sm:text-4xl">❌</div>
+                                    <div className="text-3xl sm:text-4xl"><XCircle className="w-8 h-8 text-red-600"/></div>
                                 </div>
                                 {activity.failedLoginCount > 5 && (
-                                    <div className="mt-2 text-xs text-red-600 font-medium">
-                                        ⚠️ High failure rate
+                                    <div className="mt-2 text-xs text-red-600 font-medium inline-flex items-center gap-1">
+                                        <AlertTriangle className="w-3.5 h-3.5"/> High failure rate
                                     </div>
                                 )}
                             </CardContent>
@@ -209,7 +210,7 @@ const UserActivityMonitor: React.FC = () => {
                                     <p className="text-xs sm:text-sm font-bold text-purple-600">
                                         {formatDate(activity.lastActivity)}
                                     </p>
-                                    <div className="text-3xl sm:text-4xl mt-2">🕐</div>
+                                    <div className="text-3xl sm:text-4xl mt-2"><Clock className="w-8 h-8 text-purple-600"/></div>
                                 </div>
                             </CardContent>
                         </Card>
@@ -249,13 +250,11 @@ const UserActivityMonitor: React.FC = () => {
                                 </div>
                             </div>
                         </CardContent>
-                    </Card>
-
                     {/* Security Alerts */}
                     {activity.failedLoginCount > 5 && (
                         <Card className="bg-red-50 border-2 border-red-200">
                             <CardHeader>
-                                <CardTitle className="text-red-700">⚠️ Security Alert</CardTitle>
+                                <CardTitle className="text-red-700 flex items-center gap-2"><AlertTriangle className="w-5 h-5"/> Security Alert</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <p className="text-sm text-red-600">
@@ -272,7 +271,7 @@ const UserActivityMonitor: React.FC = () => {
             {!activity && !isLoading && (
                 <Card>
                     <CardContent className="py-12 text-center">
-                        <div className="text-6xl mb-4">📈</div>
+                        <div className="mb-4 flex justify-center"><LineChart className="w-10 h-10 text-gray-500"/></div>
                         <p className="text-gray-600 mb-4">No employee activity loaded yet</p>
                         <p className="text-sm text-gray-500">Enter an Employee ID to view activity data</p>
                     </CardContent>

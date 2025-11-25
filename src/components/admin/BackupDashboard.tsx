@@ -7,6 +7,7 @@ import CreateBackupModal from "./backup/CreateBackupModal";
 import RestoreBackupModal from "./backup/RestoreBackupModal";
 import CleanupConfirmModal from "./backup/CleanupConfirmModal";
 import type { BackupResponseDTO } from "../../types/backup";
+import { HardDrive, RefreshCw, Plus, Trash2, Settings, ScrollText } from "lucide-react";
 
 const BackupDashboard: React.FC = () => {
     const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -25,11 +26,11 @@ const BackupDashboard: React.FC = () => {
     });
 
     const handleRefresh = () => {
-        console.log("🔄 Refreshing backup data...");
+        console.log("Refreshing backup data...");
         // Force refetch - returns promises
         Promise.all([refetchStats(), refetchHistory()])
-            .then(() => console.log("✅ Refresh completed"))
-            .catch((err) => console.error("❌ Refresh failed:", err));
+            .then(() => console.log("Refresh completed"))
+            .catch((err) => console.error("Refresh failed:", err));
     };
 
     const handleRestoreClick = (backup: BackupResponseDTO) => {
@@ -42,8 +43,8 @@ const BackupDashboard: React.FC = () => {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">
-                        💾 Backup & Restore
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-2">
+                        <HardDrive className="w-8 h-8"/> Backup & Restore
                     </h1>
                     <p className="text-gray-600 mt-2">
                         Automated backup management and data recovery system
@@ -51,13 +52,13 @@ const BackupDashboard: React.FC = () => {
                 </div>
                 <div className="flex gap-3">
                     <Button variant="outline" onClick={handleRefresh}>
-                        🔄 Refresh
+                        <RefreshCw className="w-4 h-4 mr-2"/> Refresh
                     </Button>
                     <Button variant="default" onClick={() => setCreateModalOpen(true)}>
-                        ➕ Create Backup
+                        <Plus className="w-4 h-4 mr-2"/> Create Backup
                     </Button>
                     <Button variant="cancel" onClick={() => setCleanupModalOpen(true)}>
-                        🗑️ Cleanup Old
+                        <Trash2 className="w-4 h-4 mr-2"/> Cleanup Old
                     </Button>
                 </div>
             </div>
@@ -86,28 +87,28 @@ const BackupDashboard: React.FC = () => {
             {/* Backup Configuration Info */}
             <Card className="bg-blue-50 border-blue-200">
                 <CardHeader>
-                    <CardTitle className="text-blue-900">⚙️ Backup Configuration & Requirements</CardTitle>
+                    <CardTitle className="text-blue-900 flex items-center gap-2"><Settings className="w-5 h-5"/> Backup Configuration & Requirements</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div>
-                            <p className="font-semibold text-blue-900 mb-1">📅 Schedule</p>
+                            <p className="font-semibold text-blue-900 mb-1">Schedule</p>
                             <p className="text-blue-700">H2: Daily at 02:00</p>
                             <p className="text-blue-700">MongoDB: Daily at 03:00</p>
                             <p className="text-blue-700">Cleanup: Daily at 04:00</p>
                         </div>
                         <div>
-                            <p className="font-semibold text-blue-900 mb-1">📦 Retention Policy</p>
+                            <p className="font-semibold text-blue-900 mb-1">Retention Policy</p>
                             <p className="text-blue-700">30 days automatic retention</p>
                             <p className="text-blue-700">Old backups auto-deleted</p>
                         </div>
                         <div>
-                            <p className="font-semibold text-blue-900 mb-1">💾 Storage Locations</p>
+                            <p className="font-semibold text-blue-900 mb-1">Storage Locations</p>
                             <p className="text-blue-700">H2: ./backups/h2/</p>
                             <p className="text-blue-700">MongoDB: ./backups/mongodb/</p>
                         </div>
                         <div>
-                            <p className="font-semibold text-blue-900 mb-1">⚠️ MongoDB Requirements</p>
+                            <p className="font-semibold text-blue-900 mb-1">MongoDB Requirements</p>
                             <p className="text-blue-700">mongodump utility required</p>
                             <p className="text-blue-700">Install: MongoDB Database Tools</p>
                             <p className="text-blue-700">Check: mongodump --version</p>
@@ -119,7 +120,7 @@ const BackupDashboard: React.FC = () => {
             {/* Backup History Table */}
             <Card>
                 <CardHeader>
-                    <CardTitle>📜 Backup History</CardTitle>
+                    <CardTitle className="flex items-center gap-2"><ScrollText className="w-5 h-5"/> Backup History</CardTitle>
                 </CardHeader>
                 <CardContent>
                     {historyLoading ? (

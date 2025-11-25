@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, CardContent } from "../../ui";
 import type { BackupStatisticsDTO } from "../../../types/backup";
+import { HardDrive, CheckCircle2, Package, Timer, Database, Leaf, Globe } from "lucide-react";
 
 interface BackupStatisticsCardsProps {
     statistics: BackupStatisticsDTO;
@@ -16,28 +17,28 @@ const BackupStatisticsCards: React.FC<BackupStatisticsCardsProps> = ({ statistic
     const cards = [
         {
             title: "Total Backups",
-            icon: "💾",
+            icon: <HardDrive className="w-5 h-5 text-blue-700" />,
             value: statistics.totalBackups,
             subtitle: `${statistics.successfulBackups} successful, ${statistics.failedBackups} failed`,
             color: "from-blue-500 to-cyan-500",
         },
         {
             title: "Success Rate",
-            icon: "✅",
+            icon: <CheckCircle2 className="w-5 h-5 text-green-700" />,
             value: `${successRate}%`,
             subtitle: `${statistics.successfulBackups} out of ${statistics.totalBackups}`,
             color: "from-green-500 to-emerald-500",
         },
         {
             title: "Total Storage",
-            icon: "📦",
+            icon: <Package className="w-5 h-5 text-purple-700" />,
             value: statistics.totalSizeGB,
             subtitle: statistics.totalSizeMB,
             color: "from-purple-500 to-pink-500",
         },
         {
             title: "Avg Duration",
-            icon: "⏱️",
+            icon: <Timer className="w-5 h-5 text-orange-700" />,
             value: `${avgDurationSec}s`,
             subtitle: `${statistics.averageBackupDurationMs.toFixed(0)}ms`,
             color: "from-orange-500 to-red-500",
@@ -54,7 +55,7 @@ const BackupStatisticsCards: React.FC<BackupStatisticsCardsProps> = ({ statistic
                         <CardContent className="p-6">
                             <div className="flex items-center justify-between mb-3">
                                 <h3 className="text-sm font-semibold text-gray-700">{card.title}</h3>
-                                <span className="text-3xl">{card.icon}</span>
+                                <span className="inline-flex items-center justify-center">{card.icon}</span>
                             </div>
                             <p className="text-3xl font-bold text-gray-900 mb-1">{card.value}</p>
                             <p className="text-xs text-gray-600">{card.subtitle}</p>
@@ -67,21 +68,21 @@ const BackupStatisticsCards: React.FC<BackupStatisticsCardsProps> = ({ statistic
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
                     <CardContent className="p-4 text-center">
-                        <p className="text-4xl mb-2">🗄️</p>
+                        <div className="mb-2 flex justify-center"><Database className="w-7 h-7 text-blue-700"/></div>
                         <p className="text-2xl font-bold text-blue-900">{statistics.h2BackupsCount}</p>
                         <p className="text-sm text-blue-700">H2 Database Backups</p>
                     </CardContent>
                 </Card>
                 <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
                     <CardContent className="p-4 text-center">
-                        <p className="text-4xl mb-2">🍃</p>
+                        <div className="mb-2 flex justify-center"><Leaf className="w-7 h-7 text-green-700"/></div>
                         <p className="text-2xl font-bold text-green-900">{statistics.mongoBackupsCount}</p>
                         <p className="text-sm text-green-700">MongoDB Backups</p>
                     </CardContent>
                 </Card>
                 <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
                     <CardContent className="p-4 text-center">
-                        <p className="text-4xl mb-2">🌐</p>
+                        <div className="mb-2 flex justify-center"><Globe className="w-7 h-7 text-purple-700"/></div>
                         <p className="text-2xl font-bold text-purple-900">{statistics.fullSystemBackupsCount}</p>
                         <p className="text-sm text-purple-700">Full System Backups</p>
                     </CardContent>

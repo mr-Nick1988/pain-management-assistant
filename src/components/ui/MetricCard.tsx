@@ -6,6 +6,7 @@ interface MetricCardProps {
     value: string | number;
     subtitle?: string;
     icon?: string;
+    iconNode?: React.ReactNode;
     color?: 'blue' | 'green' | 'red' | 'yellow' | 'purple' | 'orange' | 'indigo';
     className?: string;
 }
@@ -15,6 +16,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     value,
     subtitle,
     icon,
+    iconNode,
     color = 'blue',
     className = ''
 }) => {
@@ -42,7 +44,11 @@ export const MetricCard: React.FC<MetricCardProps> = ({
         <Card className={`${colorClasses[color]} border-2 ${className}`}>
             <CardContent className="p-6">
                 <div className="text-center">
-                    {icon && <div className="text-4xl mb-2">{icon}</div>}
+                    {iconNode ? (
+                        <div className="mb-2 flex justify-center">{iconNode}</div>
+                    ) : (
+                        icon && <div className="text-4xl mb-2">{icon}</div>
+                    )}
                     <p className="text-sm text-gray-600 mb-1">{title}</p>
                     <p className={`text-4xl font-bold ${textColorClasses[color]} mb-1`}>
                         {value}

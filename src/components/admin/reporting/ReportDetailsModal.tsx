@@ -4,6 +4,7 @@ import type { DailyReportAggregate } from "../../../types/reporting";
 import { Button } from "../../ui";
 import ExportDialog from "./ExportDialog";
 import { useLazyDownloadDailyExcelQuery, useLazyDownloadDailyPdfQuery } from "../../../api/api/apiReportingSlice";
+import { Users, ClipboardList, AlertTriangle, Settings, User as UserIcon, Pill, FileSpreadsheet, FileText, Mail, Info } from "lucide-react";
 
 interface ReportDetailsModalProps {
     report: DailyReportAggregate;
@@ -70,7 +71,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ report, onClose
                     <div className="p-6 space-y-6">
                         {/* Patients Section */}
                         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                            <h3 className="text-lg font-semibold text-blue-900 mb-3">👥 Patients</h3>
+                            <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2"><Users className="w-5 h-5" /> Patients</h3>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div>
                                     <p className="text-sm text-blue-700">Registered</p>
@@ -93,7 +94,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ report, onClose
 
                         {/* Recommendations Section */}
                         <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                            <h3 className="text-lg font-semibold text-green-900 mb-3">📋 Recommendations</h3>
+                            <h3 className="text-lg font-semibold text-green-900 mb-3 flex items-center gap-2"><ClipboardList className="w-5 h-5" /> Recommendations</h3>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div>
                                     <p className="text-sm text-green-700">Total</p>
@@ -116,7 +117,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ report, onClose
 
                         {/* Escalations Section */}
                         <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                            <h3 className="text-lg font-semibold text-orange-900 mb-3">⚠️ Escalations</h3>
+                            <h3 className="text-lg font-semibold text-orange-900 mb-3 flex items-center gap-2"><AlertTriangle className="w-5 h-5" /> Escalations</h3>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div>
                                     <p className="text-sm text-orange-700">Total</p>
@@ -141,7 +142,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ report, onClose
 
                         {/* System Performance Section */}
                         <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                            <h3 className="text-lg font-semibold text-purple-900 mb-3">⚙️ System Performance</h3>
+                            <h3 className="text-lg font-semibold text-purple-900 mb-3 flex items-center gap-2"><Settings className="w-5 h-5" /> System Performance</h3>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div>
                                     <p className="text-sm text-purple-700">Total Operations</p>
@@ -170,7 +171,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ report, onClose
 
                         {/* User Activity Section */}
                         <div className="bg-pink-50 border border-pink-200 rounded-lg p-4">
-                            <h3 className="text-lg font-semibold text-pink-900 mb-3">👤 User Activity</h3>
+                            <h3 className="text-lg font-semibold text-pink-900 mb-3 flex items-center gap-2"><UserIcon className="w-5 h-5" /> User Activity</h3>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                 <div>
                                     <p className="text-sm text-pink-700">Total Logins</p>
@@ -209,7 +210,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ report, onClose
                             if (items.length === 0) return null;
                             return (
                                 <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
-                                    <h3 className="text-lg font-semibold text-indigo-900 mb-3">💊 Top Drugs</h3>
+                                    <h3 className="text-lg font-semibold text-indigo-900 mb-3 flex items-center gap-2"><Pill className="w-5 h-5" /> Top Drugs</h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                         {items.map(({ drug, count }, idx) => (
                                             <div key={drug} className="flex items-center justify-between p-3 bg-white rounded border border-indigo-100">
@@ -227,7 +228,7 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ report, onClose
 
                         {/* Metadata */}
                         <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3">ℹ️ Report Metadata</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2"><Info className="w-5 h-5" /> Report Metadata</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                 <div>
                                     <p className="text-gray-600">Created At</p>
@@ -249,13 +250,13 @@ const ReportDetailsModal: React.FC<ReportDetailsModalProps> = ({ report, onClose
                             Close
                         </Button>
                         <Button variant="default" onClick={handleDownloadExcel} disabled={downloadingExcel}>
-                            📊 Export Excel
+                            <FileSpreadsheet className="w-4 h-4 mr-2" /> Export Excel
                         </Button>
                         <Button variant="default" onClick={handleDownloadPdf} disabled={downloadingPdf}>
-                            📄 Export PDF
+                            <FileText className="w-4 h-4 mr-2" /> Export PDF
                         </Button>
                         <Button variant="submit" onClick={() => setExportDialogOpen(true)}>
-                            📧 Send Email
+                            <Mail className="w-4 h-4 mr-2" /> Send Email
                         </Button>
                     </div>
                 </div>

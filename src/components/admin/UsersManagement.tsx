@@ -2,6 +2,7 @@ import {useNavigate} from "react-router-dom";
 import React, {useState} from "react";
 import {useDeletePersonMutation, useGetPersonsQuery} from "../../api/api/apiAdminSlice.ts";
 import { Button, Card, CardContent, CardHeader, CardTitle, Modal, ModalHeader, ModalBody, ModalFooter, ErrorMessage, LoadingSpinner , PageNavigation } from "../ui";
+import { Users as UsersIcon, UserPlus, ArrowLeft } from "lucide-react";
 
 /**
  * Компонент управления сотрудниками больницы
@@ -62,7 +63,7 @@ const UsersManagement: React.FC = () => {
                             <h1 className="text-2xl font-bold mb-1">Employee Management</h1>
                             <p className="text-blue-100">Manage hospital staff and permissions</p>
                         </div>
-                        <div className="text-4xl sm:text-5xl">👥</div>
+                        <div className="text-4xl sm:text-5xl"><UsersIcon className="w-10 h-10"/></div>
                     </div>
                 </CardContent>
             </Card>
@@ -74,14 +75,14 @@ const UsersManagement: React.FC = () => {
                     variant="approve"
                     className="flex-1 sm:flex-none"
                 >
-                    ➕ Add New Employee
+                    <UserPlus className="w-4 h-4 mr-2"/> Add New Employee
                 </Button>
                 <Button
                     onClick={() => navigate('/admin')}
                     variant="cancel"
                     className="flex-1 sm:flex-none"
                 >
-                    ← Back to Dashboard
+                    <ArrowLeft className="w-4 h-4 mr-2"/> Back to Dashboard
                 </Button>
             </div>
 
@@ -177,7 +178,7 @@ const UsersManagement: React.FC = () => {
                         </div>
                     ) : (
                         <div className="text-center py-12">
-                            <div className="text-6xl mb-4">👥</div>
+                            <div className="mb-4 flex justify-center"><UsersIcon className="w-12 h-12 text-gray-500"/></div>
                             <p className="text-gray-600 mb-4">No employees found</p>
                             <Button
                                 onClick={() => navigate('/admin/create-person')}

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useLazyDownloadDailyExcelQuery, useLazyDownloadDailyPdfQuery, useSendDailyReportEmailMutation } from "../../../api/api/apiReportingSlice";
 import { Button, Input, Label } from "../../ui";
 import { useToast } from "../../../contexts/ToastContext";
+import { Download, FileSpreadsheet, FileText, Mail } from "lucide-react";
 
 interface ExportDialogProps {
     date: string;
@@ -99,7 +100,7 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ date, onClose }) => {
                     {/* Download Section */}
                     <div>
                         <h3 className="text-sm font-semibold text-gray-700 mb-3">
-                            📥 Download
+                            <span className="inline-flex items-center gap-2"><Download className="w-4 h-4" /> Download</span>
                         </h3>
                         <div className="flex gap-3">
                             <Button
@@ -108,7 +109,7 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ date, onClose }) => {
                                 className="flex-1"
                                 disabled={downloadingExcel}
                             >
-                                📊 Excel
+                                <FileSpreadsheet className="w-4 h-4 mr-2" /> Excel
                             </Button>
                             <Button
                                 variant="default"
@@ -116,14 +117,14 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ date, onClose }) => {
                                 className="flex-1"
                                 disabled={downloadingPdf}
                             >
-                                📄 PDF
+                                <FileText className="w-4 h-4 mr-2" /> PDF
                             </Button>
                         </div>
                     </div>
 
                     <div className="border-t border-gray-200 pt-6">
                         <h3 className="text-sm font-semibold text-gray-700 mb-3">
-                            📧 Send via Email
+                            <span className="inline-flex items-center gap-2"><Mail className="w-4 h-4" /> Send via Email</span>
                         </h3>
                         
                         {/* Email Input */}
@@ -167,7 +168,7 @@ const ExportDialog: React.FC<ExportDialogProps> = ({ date, onClose }) => {
                             disabled={isLoading}
                             className="w-full"
                         >
-                            {isLoading ? "Sending..." : "📧 Send Email"}
+                            {isLoading ? "Sending..." : (<span className="inline-flex items-center"><Mail className="w-4 h-4 mr-2" /> Send Email</span>)}
                         </Button>
                     </div>
                 </div>

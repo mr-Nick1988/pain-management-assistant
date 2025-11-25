@@ -5,6 +5,7 @@ import { Button } from "../../ui";
 import ExportDialog from "./ExportDialog.tsx";
 import { useLazyDownloadDailyExcelQuery, useLazyDownloadDailyPdfQuery } from "../../../api/api/apiReportingSlice";
 import { useNavigate } from "react-router-dom";
+import { FileSpreadsheet, FileText } from "lucide-react";
 
 interface DailyReportsTableProps {
     reports: DailyReportAggregate[];
@@ -131,14 +132,14 @@ const DailyReportsTable: React.FC<DailyReportsTableProps> = ({ reports }) => {
                                                     disabled={downloadingExcel}
                                                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                                                 >
-                                                    📊 Excel
+                                                    <span className="inline-flex items-center gap-2"><FileSpreadsheet className="w-4 h-4"/> Excel</span>
                                                 </button>
                                                 <button
                                                     onClick={() => handleDownloadPdf(report.reportDate)}
                                                     disabled={downloadingPdf}
                                                     className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                                                 >
-                                                    📄 PDF
+                                                    <span className="inline-flex items-center gap-2"><FileText className="w-4 h-4"/> PDF</span>
                                                 </button>
                                             </div>
                                         </div>

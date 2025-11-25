@@ -7,6 +7,7 @@ import {
     useTriggerMonthlyAggregationMutation,
 } from "../../api/api/apiAnalyticsMicroserviceSlice";
 import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, PageNavigation, Button } from "../ui";
+import { BarChart3, Users, AlertTriangle, CheckCircle2, TrendingUp, Zap, User as UserIcon, Pill, Syringe, RefreshCw, Loader2, CalendarDays, CalendarRange, FileText } from "lucide-react";
 
 type ReportType = "daily" | "weekly" | "monthly";
 
@@ -97,12 +98,12 @@ const MicroserviceReporting: React.FC = () => {
                 <CardContent className="py-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold mb-2">📈 Microservice Reporting</h1>
+                            <h1 className="text-3xl font-bold mb-2 flex items-center gap-2"><BarChart3 className="w-8 h-8"/> Microservice Reporting</h1>
                             <p className="text-cyan-100">
                                 Aggregated reports from Analytics Microservice (Port 8091)
                             </p>
                         </div>
-                        <div className="text-5xl">📊</div>
+                        <div className="text-5xl"><BarChart3 className="w-10 h-10"/></div>
                     </div>
                 </CardContent>
             </Card>
@@ -120,19 +121,19 @@ const MicroserviceReporting: React.FC = () => {
                                 variant={reportType === "daily" ? "default" : "secondary"}
                                 onClick={() => setReportType("daily")}
                             >
-                                📅 Daily
+                                <CalendarDays className="w-4 h-4 mr-2"/> Daily
                             </Button>
                             <Button
                                 variant={reportType === "weekly" ? "default" : "secondary"}
                                 onClick={() => setReportType("weekly")}
                             >
-                                📆 Weekly
+                                <CalendarRange className="w-4 h-4 mr-2"/> Weekly
                             </Button>
                             <Button
                                 variant={reportType === "monthly" ? "default" : "secondary"}
                                 onClick={() => setReportType("monthly")}
                             >
-                                📊 Monthly
+                                <BarChart3 className="w-4 h-4 mr-2"/> Monthly
                             </Button>
                         </div>
 
@@ -171,7 +172,7 @@ const MicroserviceReporting: React.FC = () => {
                                     disabled={triggeringDaily}
                                     className="bg-blue-600 hover:bg-blue-700"
                                 >
-                                    {triggeringDaily ? "⏳ Aggregating..." : "🔄 Run Daily Aggregation"}
+                                    {triggeringDaily ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin"/> Aggregating...</>) : (<><RefreshCw className="w-4 h-4 mr-2"/> Run Daily Aggregation</>)}
                                 </Button>
                             )}
                             {reportType === "weekly" && (
@@ -180,7 +181,7 @@ const MicroserviceReporting: React.FC = () => {
                                     disabled={triggeringWeekly}
                                     className="bg-purple-600 hover:bg-purple-700"
                                 >
-                                    {triggeringWeekly ? "⏳ Aggregating..." : "🔄 Run Weekly Aggregation"}
+                                    {triggeringWeekly ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin"/> Aggregating...</>) : (<><RefreshCw className="w-4 h-4 mr-2"/> Run Weekly Aggregation</>)}
                                 </Button>
                             )}
                             {reportType === "monthly" && (
@@ -189,7 +190,7 @@ const MicroserviceReporting: React.FC = () => {
                                     disabled={triggeringMonthly}
                                     className="bg-green-600 hover:bg-green-700"
                                 >
-                                    {triggeringMonthly ? "⏳ Aggregating..." : "🔄 Run Monthly Aggregation"}
+                                    {triggeringMonthly ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin"/> Aggregating...</>) : (<><RefreshCw className="w-4 h-4 mr-2"/> Run Monthly Aggregation</>)}
                                 </Button>
                             )}
                         </div>
@@ -205,7 +206,7 @@ const MicroserviceReporting: React.FC = () => {
                 <Card className="bg-red-50 border-2 border-red-200">
                     <CardContent className="p-6">
                         <div className="text-center">
-                            <div className="text-5xl mb-4">❌</div>
+                            <div className="mb-4 flex justify-center"><AlertTriangle className="w-10 h-10 text-red-600"/></div>
                             <h3 className="text-xl font-bold text-red-800 mb-2">Report Not Available</h3>
                             <p className="text-red-600 mb-4">
                                 No report found for {selectedDate}. Try running aggregation first.
@@ -222,14 +223,14 @@ const MicroserviceReporting: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200">
                             <CardContent className="p-6 text-center">
-                                <div className="text-4xl mb-2">👥</div>
+                                <div className="mb-2 flex justify-center"><Users className="w-8 h-8 text-blue-600"/></div>
                                 <p className="text-sm text-gray-600 mb-1">Patients Registered</p>
                                 <p className="text-3xl font-bold text-blue-600">{dailyReport.totalPatientsRegistered}</p>
                             </CardContent>
                         </Card>
                         <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200">
                             <CardContent className="p-6 text-center">
-                                <div className="text-4xl mb-2">📊</div>
+                                <div className="mb-2 flex justify-center"><BarChart3 className="w-8 h-8 text-purple-600"/></div>
                                 <p className="text-sm text-gray-600 mb-1">Avg VAS Level</p>
                                 <p className="text-3xl font-bold text-purple-600">{dailyReport.averageVasLevel.toFixed(1)}</p>
                                 <p className="text-xs text-gray-500 mt-1">{dailyReport.totalVasRecords} records</p>
@@ -237,7 +238,7 @@ const MicroserviceReporting: React.FC = () => {
                         </Card>
                         <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200">
                             <CardContent className="p-6 text-center">
-                                <div className="text-4xl mb-2">🚨</div>
+                                <div className="mb-2 flex justify-center"><AlertTriangle className="w-8 h-8 text-orange-600"/></div>
                                 <p className="text-sm text-gray-600 mb-1">Critical VAS</p>
                                 <p className="text-3xl font-bold text-orange-600">{dailyReport.criticalVasCount}</p>
                                 <p className="text-xs text-gray-500 mt-1">VAS ≥ 7</p>
@@ -245,7 +246,7 @@ const MicroserviceReporting: React.FC = () => {
                         </Card>
                         <Card className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
                             <CardContent className="p-6 text-center">
-                                <div className="text-4xl mb-2">✅</div>
+                                <div className="mb-2 flex justify-center"><CheckCircle2 className="w-8 h-8 text-green-600"/></div>
                                 <p className="text-sm text-gray-600 mb-1">Approval Rate</p>
                                 <p className="text-3xl font-bold text-green-600">{dailyReport.approvalRate.toFixed(1)}%</p>
                                 <p className="text-xs text-gray-500 mt-1">
@@ -260,7 +261,7 @@ const MicroserviceReporting: React.FC = () => {
                         {/* Recommendations */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>💊 Recommendations</CardTitle>
+                                <CardTitle className="flex items-center gap-2"><Pill className="w-5 h-5"/> Recommendations</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-3">
@@ -283,7 +284,7 @@ const MicroserviceReporting: React.FC = () => {
                         {/* Escalations */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>🚨 Escalations</CardTitle>
+                                <CardTitle className="flex items-center gap-2"><AlertTriangle className="w-5 h-5"/> Escalations</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-3">
@@ -312,7 +313,7 @@ const MicroserviceReporting: React.FC = () => {
                         {/* System Performance */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>⚡ System Performance</CardTitle>
+                                <CardTitle className="flex items-center gap-2"><Zap className="w-5 h-5"/> System Performance</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-3">
@@ -337,7 +338,7 @@ const MicroserviceReporting: React.FC = () => {
                         {/* User Activity */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>👤 User Activity</CardTitle>
+                                <CardTitle className="flex items-center gap-2"><UserIcon className="w-5 h-5"/> User Activity</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-3">
@@ -362,7 +363,7 @@ const MicroserviceReporting: React.FC = () => {
                     {topDrugs.length > 0 && (
                         <Card>
                             <CardHeader>
-                                <CardTitle>💊 Top Prescribed Drugs</CardTitle>
+                                <CardTitle className="flex items-center gap-2"><Pill className="w-5 h-5"/> Top Prescribed Drugs</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -384,7 +385,7 @@ const MicroserviceReporting: React.FC = () => {
                     {doseAdjustments.length > 0 && (
                         <Card>
                             <CardHeader>
-                                <CardTitle>⚕️ Dose Adjustments</CardTitle>
+                                <CardTitle className="flex items-center gap-2"><Syringe className="w-5 h-5"/> Dose Adjustments</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -416,10 +417,10 @@ const MicroserviceReporting: React.FC = () => {
             {reportType === "daily" && !dailyReport && !dailyLoading && !dailyError && (
                 <Card>
                     <CardContent className="py-12 text-center">
-                        <div className="text-6xl mb-4">📊</div>
+                        <div className="mb-4 flex justify-center"><BarChart3 className="w-10 h-10 text-gray-500"/></div>
                         <p className="text-gray-600 mb-4">No report available for {selectedDate}</p>
                         <Button onClick={handleDailyAggregation} disabled={triggeringDaily}>
-                            {triggeringDaily ? "⏳ Aggregating..." : "🔄 Run Aggregation"}
+                            {triggeringDaily ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin"/> Aggregating...</>) : (<><RefreshCw className="w-4 h-4 mr-2"/> Run Aggregation</>)}
                         </Button>
                     </CardContent>
                 </Card>

@@ -8,6 +8,7 @@ import {
     useGetReportsHealthQuery,
 } from "../../api/api/apiReportingSlice";
 import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, PageNavigation, Button, Badge } from "../ui";
+import { BarChart3, FileSpreadsheet, FileText, Rocket, Loader2, Search, CalendarDays, ClipboardList, TrendingUp } from "lucide-react";
 import DailyReportsTable from "./reporting/DailyReportsTable";
 import SummaryCards from "./reporting/SummaryCards";
 import ChartsSection from "./reporting/ChartsSection";
@@ -96,7 +97,7 @@ const ReportingDashboard: React.FC = () => {
     };
 
     // Debug: log data
-    console.log("📊 Reporting Dashboard Debug:");
+    console.log("Reporting Dashboard Debug:");
     console.log("Reports:", reports);
     console.log("Reports count:", reports?.length);
     console.log("Summary:", summary);
@@ -108,8 +109,9 @@ const ReportingDashboard: React.FC = () => {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                        📊 Reporting Dashboard
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center gap-2">
+                        <BarChart3 className="w-8 h-8" />
+                        Reporting Dashboard
                     </h1>
                     <p className="text-gray-600 mt-2">
                         Daily reports, analytics, and system statistics
@@ -138,8 +140,12 @@ const ReportingDashboard: React.FC = () => {
                         <div>
                             <h3 className="font-semibold mb-3">Export Period</h3>
                             <div className="flex gap-2">
-                                <Button onClick={handleExportPeriodExcel} disabled={exportingExcel}>📊 Export Excel</Button>
-                                <Button onClick={handleExportPeriodPdf} disabled={exportingPdf}>📄 Export PDF</Button>
+                                <Button onClick={handleExportPeriodExcel} disabled={exportingExcel}>
+                                    <FileSpreadsheet className="w-4 h-4 mr-2" /> Export Excel
+                                </Button>
+                                <Button onClick={handleExportPeriodPdf} disabled={exportingPdf}>
+                                    <FileText className="w-4 h-4 mr-2" /> Export PDF
+                                </Button>
                             </div>
                         </div>
                         {/* Generate Daily */}
@@ -159,7 +165,11 @@ const ReportingDashboard: React.FC = () => {
                                     Regenerate
                                 </label>
                                 <Button onClick={handleGenerateDaily} disabled={publishingDaily}>
-                                    {publishingDaily ? "⏳ Generating..." : "🚀 Generate Daily"}
+                                    {publishingDaily ? (
+                                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Generating...</>
+                                    ) : (
+                                        <><Rocket className="w-4 h-4 mr-2" /> Generate Daily</>
+                                    )}
                                 </Button>
                             </div>
                         </div>
@@ -173,14 +183,14 @@ const ReportingDashboard: React.FC = () => {
             {/* Debug Info */}
             <Card className="bg-yellow-50 border-yellow-200">
                 <CardContent className="p-4">
-                    <h3 className="font-semibold text-yellow-900 mb-2">🔍 Debug Information</h3>
+                    <h3 className="font-semibold text-yellow-900 mb-2 inline-flex items-center gap-2"><Search className="w-5 h-5"/> Debug Information</h3>
                     <div className="text-sm text-yellow-800 space-y-1">
-                        <p>📅 Date Range: {startDate} to {endDate}</p>
-                        <p>📊 Reports Loading: {reportsLoading ? "Yes" : "No"}</p>
-                        <p>📈 Reports Count: {reports?.length ?? 0}</p>
-                        <p>📋 Summary Available: {summary ? "Yes" : "No"}</p>
+                        <p className="inline-flex items-center gap-2"><CalendarDays className="w-4 h-4"/> Date Range: {startDate} to {endDate}</p>
+                        <p className="inline-flex items-center gap-2"><BarChart3 className="w-4 h-4"/> Reports Loading: {reportsLoading ? "Yes" : "No"}</p>
+                        <p className="inline-flex items-center gap-2"><TrendingUp className="w-4 h-4"/> Reports Count: {reports?.length ?? 0}</p>
+                        <p className="inline-flex items-center gap-2"><ClipboardList className="w-4 h-4"/> Summary Available: {summary ? "Yes" : "No"}</p>
                         {reportsError && (
-                            <p className="text-red-600">❌ Error: {JSON.stringify(reportsError)}</p>
+                            <p className="text-red-600">Error: {JSON.stringify(reportsError)}</p>
                         )}
                     </div>
                 </CardContent>

@@ -9,6 +9,7 @@ import {
 import type { ApiKeyDTO } from "../../types/externalVas";
 import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label, LoadingSpinner, PageNavigation } from "../ui";
 import { useToast } from "../../contexts/ToastContext";
+import { Key as KeyIcon, CheckCircle2, XCircle, AlertTriangle, Plus } from "lucide-react";
 
 const ApiKeyManagement: React.FC = () => {
     const toast = useToast();
@@ -132,11 +133,11 @@ const ApiKeyManagement: React.FC = () => {
 
     const getStatusBadge = (key: ApiKeyDTO) => {
         if (!key.active) {
-            return <span className="px-2 py-1 rounded text-xs font-semibold bg-gray-100 text-gray-800">❌ Deactivated</span>;
+            return <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold bg-gray-100 text-gray-800"><XCircle className="w-3.5 h-3.5"/> Deactivated</span>;
         }
 
         if (!key.expiresAt) {
-            return <span className="px-2 py-1 rounded text-xs font-semibold bg-green-100 text-green-800">✅ Active</span>;
+            return <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold bg-green-100 text-green-800"><CheckCircle2 className="w-3.5 h-3.5"/> Active</span>;
         }
 
         const expiresDate = new Date(key.expiresAt);
@@ -144,11 +145,11 @@ const ApiKeyManagement: React.FC = () => {
         const daysUntilExpiry = Math.floor((expiresDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
         if (daysUntilExpiry < 0) {
-            return <span className="px-2 py-1 rounded text-xs font-semibold bg-red-100 text-red-800">❌ Expired</span>;
+            return <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold bg-red-100 text-red-800"><XCircle className="w-3.5 h-3.5"/> Expired</span>;
         } else if (daysUntilExpiry < 30) {
-            return <span className="px-2 py-1 rounded text-xs font-semibold bg-yellow-100 text-yellow-800">⚠️ Expiring Soon</span>;
+            return <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold bg-yellow-100 text-yellow-800"><AlertTriangle className="w-3.5 h-3.5"/> Expiring Soon</span>;
         } else {
-            return <span className="px-2 py-1 rounded text-xs font-semibold bg-green-100 text-green-800">✅ Active</span>;
+            return <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold bg-green-100 text-green-800"><CheckCircle2 className="w-3.5 h-3.5"/> Active</span>;
         }
     };
 
@@ -165,15 +166,15 @@ const ApiKeyManagement: React.FC = () => {
             {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent">
-                        🔑 API Key Management
+                    <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent flex items-center gap-2">
+                        <KeyIcon className="w-8 h-8"/> API Key Management
                     </h1>
                     <p className="text-gray-600 mt-2">
                         Manage API keys for external VAS device integration
                     </p>
                 </div>
                 <Button variant="approve" onClick={() => setShowGenerateModal(true)}>
-                    + Generate New API Key
+                    <Plus className="w-4 h-4 mr-2"/> Generate New API Key
                 </Button>
             </div>
 
@@ -358,7 +359,7 @@ const ApiKeyManagement: React.FC = () => {
                 <div className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                     <Card className="w-full max-w-2xl shadow-2xl">
                         <CardHeader>
-                            <CardTitle className="text-red-600">⚠️ SAVE THIS KEY NOW!</CardTitle>
+                            <CardTitle className="text-red-600 flex items-center gap-2"><AlertTriangle className="w-5 h-5"/> SAVE THIS KEY NOW!</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="p-4 bg-red-50 border-2 border-red-300 rounded">

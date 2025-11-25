@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useGetPerformanceStatsQuery } from '../../api/api/apiAdminSlice.ts';
 import { Card, CardHeader, CardTitle, CardContent, Input, LoadingSpinner, ErrorMessage, MetricCard, ProgressBar, StatCard , PageNavigation } from "../ui";
+import { Zap, Pill, CheckCircle2, XCircle, AlertTriangle, Timer } from "lucide-react";
 
 const PerformanceMetrics: React.FC = () => {
     const [startDate, setStartDate] = useState("");
@@ -35,7 +36,7 @@ const PerformanceMetrics: React.FC = () => {
                             <h1 className="text-2xl font-bold mb-1">Performance Metrics</h1>
                             <p className="text-yellow-100">System performance and processing times</p>
                         </div>
-                        <div className="text-4xl sm:text-5xl">⚡</div>
+                        <div className="text-4xl sm:text-5xl"><Zap className="w-10 h-10"/></div>
                     </div>
                 </CardContent>
             </Card>
@@ -103,21 +104,21 @@ const PerformanceMetrics: React.FC = () => {
                                 <MetricCard
                                     title="Total Recommendations"
                                     value={stats.totalRecommendations}
-                                    icon="💊"
+                                    iconNode={<Pill className="w-6 h-6 text-blue-600"/>}
                                     color="blue"
                                 />
                                 <MetricCard
                                     title="Approved"
                                     value={stats.approvedRecommendations}
                                     subtitle={`${((stats.approvedRecommendations / stats.totalRecommendations) * 100).toFixed(1)}% approval rate`}
-                                    icon="✅"
+                                    iconNode={<CheckCircle2 className="w-6 h-6 text-green-600"/>}
                                     color="green"
                                 />
                                 <MetricCard
                                     title="Rejected"
                                     value={stats.rejectedRecommendations}
                                     subtitle={`${((stats.rejectedRecommendations / stats.totalRecommendations) * 100).toFixed(1)}% rejection rate`}
-                                    icon="❌"
+                                    iconNode={<XCircle className="w-6 h-6 text-red-600"/>}
                                     color="red"
                                 />
                             </div>
@@ -142,14 +143,14 @@ const PerformanceMetrics: React.FC = () => {
                                     title="Total Escalations"
                                     value={stats.totalEscalations}
                                     subtitle={`${((stats.totalEscalations / stats.totalRecommendations) * 100).toFixed(1)}% of recommendations escalated`}
-                                    icon="🚨"
+                                    iconNode={<AlertTriangle className="w-6 h-6 text-orange-600"/>}
                                     color="orange"
                                 />
                                 <MetricCard
                                     title="Resolved"
                                     value={stats.resolvedEscalations}
                                     subtitle={`${((stats.resolvedEscalations / stats.totalEscalations) * 100).toFixed(1)}% resolution rate`}
-                                    icon="✔️"
+                                    iconNode={<CheckCircle2 className="w-6 h-6 text-purple-600"/>}
                                     color="purple"
                                 />
                             </div>
@@ -165,7 +166,7 @@ const PerformanceMetrics: React.FC = () => {
                             <StatCard
                                 title="Average Resolution Time"
                                 value={formatTime(stats.averageEscalationResolutionTimeMs)}
-                                icon="⏱️"
+                                iconNode={<Timer className="w-4 h-4"/>}
                                 iconBgColor="bg-indigo-100"
                                 iconTextColor="text-indigo-600"
                             />
@@ -181,7 +182,7 @@ const PerformanceMetrics: React.FC = () => {
                             <div className="space-y-3">
                                 {stats.averageProcessingTimeMs > 2000 && (
                                     <div className="flex items-start space-x-3 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
-                                        <span className="text-2xl">⚠️</span>
+                                        <AlertTriangle className="w-5 h-5 text-yellow-700 mt-0.5"/>
                                         <div>
                                             <p className="text-sm font-medium text-yellow-800">Slow Processing Detected</p>
                                             <p className="text-xs text-yellow-600">Average processing time is above 2 seconds. Consider optimization.</p>
@@ -191,7 +192,7 @@ const PerformanceMetrics: React.FC = () => {
 
                                 {((stats.approvedRecommendations / stats.totalRecommendations) * 100) > 90 && (
                                     <div className="flex items-start space-x-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                                        <span className="text-2xl">✅</span>
+                                        <CheckCircle2 className="w-5 h-5 text-green-700 mt-0.5"/>
                                         <div>
                                             <p className="text-sm font-medium text-green-800">Excellent Approval Rate</p>
                                             <p className="text-xs text-green-600">Over 90% of recommendations are being approved.</p>
@@ -201,7 +202,7 @@ const PerformanceMetrics: React.FC = () => {
 
                                 {((stats.totalEscalations / stats.totalRecommendations) * 100) > 20 && (
                                     <div className="flex items-start space-x-3 p-3 bg-orange-50 rounded-lg border border-orange-200">
-                                        <span className="text-2xl">🚨</span>
+                                        <AlertTriangle className="w-5 h-5 text-orange-700 mt-0.5"/>
                                         <div>
                                             <p className="text-sm font-medium text-orange-800">High Escalation Rate</p>
                                             <p className="text-xs text-orange-600">More than 20% of recommendations are escalated. Review protocols.</p>
@@ -211,7 +212,7 @@ const PerformanceMetrics: React.FC = () => {
 
                                 {stats.averageEscalationResolutionTimeMs > 7200000 && (
                                     <div className="flex items-start space-x-3 p-3 bg-red-50 rounded-lg border border-red-200">
-                                        <span className="text-2xl">⏰</span>
+                                        <Timer className="w-5 h-5 text-red-700 mt-0.5"/>
                                         <div>
                                             <p className="text-sm font-medium text-red-800">Slow Escalation Resolution</p>
                                             <p className="text-xs text-red-600">Average resolution time exceeds 2 hours. Improve response time.</p>
@@ -228,7 +229,7 @@ const PerformanceMetrics: React.FC = () => {
             {!stats && !isLoading && (
                 <Card>
                     <CardContent className="py-12 text-center">
-                        <div className="text-6xl mb-4">⚡</div>
+                        <div className="mb-4 flex justify-center"><Zap className="w-12 h-12 text-gray-500"/></div>
                         <p className="text-gray-600 mb-4">No performance metrics loaded yet</p>
                         <p className="text-sm text-gray-500">Metrics will load automatically</p>
                     </CardContent>

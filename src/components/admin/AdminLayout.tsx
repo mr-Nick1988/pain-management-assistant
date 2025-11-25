@@ -1,23 +1,24 @@
 import React from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "../ui";
+import { ShieldCheck, Home, BarChart3, LineChart, Save, Users, User, Zap, Hospital, FileText, Clock, Key } from "lucide-react";
 
 const AdminLayout: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
     const navItems = [
-        { path: "/admin", label: "Dashboard", icon: "🏠" },
-        { path: "/admin/analytics", label: "Analytics", icon: "📊" },
-        { path: "/admin/reporting", label: "Reporting", icon: "📈" },
-        { path: "/admin/backup", label: "Backup & Restore", icon: "💾" },
-        { path: "/admin/users", label: "Employees", icon: "👥" },
-        { path: "/admin/activity", label: "Employee Activity", icon: "👤" },
-        { path: "/admin/performance", label: "Performance", icon: "⚡" },
-        { path: "/admin/patients-stats", label: "Patient Stats", icon: "🏥" },
-        { path: "/admin/logs", label: "Technical Logs", icon: "📝" },
-        { path: "/admin/events", label: "Events Timeline", icon: "🕐" },
-        { path: "/admin/api-keys", label: "API Keys", icon: "🔑" },
+        { path: "/admin", label: "Dashboard", icon: <Home className="w-4 h-4" /> },
+        { path: "/admin/analytics", label: "Analytics", icon: <BarChart3 className="w-4 h-4" /> },
+        { path: "/admin/reporting", label: "Reporting", icon: <LineChart className="w-4 h-4" /> },
+        { path: "/admin/backup", label: "Backup & Restore", icon: <Save className="w-4 h-4" /> },
+        { path: "/admin/users", label: "Employees", icon: <Users className="w-4 h-4" /> },
+        { path: "/admin/activity", label: "Employee Activity", icon: <User className="w-4 h-4" /> },
+        { path: "/admin/performance", label: "Performance", icon: <Zap className="w-4 h-4" /> },
+        { path: "/admin/patients-stats", label: "Patient Stats", icon: <Hospital className="w-4 h-4" /> },
+        { path: "/admin/logs", label: "Technical Logs", icon: <FileText className="w-4 h-4" /> },
+        { path: "/admin/events", label: "Events Timeline", icon: <Clock className="w-4 h-4" /> },
+        { path: "/admin/api-keys", label: "API Keys", icon: <Key className="w-4 h-4" /> },
     ];
 
     const isActive = (path: string) => location.pathname === path;
@@ -29,7 +30,7 @@ const AdminLayout: React.FC = () => {
                 <div className="container mx-auto px-4">
                     <div className="flex items-center justify-between h-16">
                         <div className="flex items-center space-x-2">
-                            <span className="text-2xl">👨‍💼</span>
+                            <ShieldCheck className="w-6 h-6 text-blue-600" />
                             <h1 className="text-xl font-bold text-gray-800">Admin Panel</h1>
                         </div>
                         <Button
@@ -63,7 +64,7 @@ const AdminLayout: React.FC = () => {
                                     }
                                 `}
                             >
-                                <span>{item.icon}</span>
+                                <span className="inline-flex items-center justify-center">{item.icon}</span>
                                 <span>{item.label}</span>
                             </button>
                         ))}

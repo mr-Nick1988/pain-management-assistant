@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, Button } from "../../ui";
 import ExportDialog from "./ExportDialog";
 import { useGetDailyReportByDateQuery, useLazyDownloadDailyExcelQuery, useLazyDownloadDailyPdfQuery } from "../../../api/api/apiReportingSlice";
+import { Users, ClipboardList, AlertTriangle, Settings, User as UserIcon, Pill, FileSpreadsheet, FileText, Mail, ArrowLeft, BarChart3 } from "lucide-react";
+import type { FetchBaseQueryError } from "@reduxjs/toolkit/query";
 
 const DailyReportView: React.FC = () => {
   const { date } = useParams<{ date: string }>();
@@ -13,6 +15,8 @@ const DailyReportView: React.FC = () => {
   const { data: report, isLoading, error } = useGetDailyReportByDateQuery(date as string, { skip });
   const [triggerExcel, { isFetching: downloadingExcel }] = useLazyDownloadDailyExcelQuery();
   const [triggerPdf, { isFetching: downloadingPdf }] = useLazyDownloadDailyPdfQuery();
+  const fbqError = error as FetchBaseQueryError | undefined;
+  const is404 = typeof fbqError?.status === "number" && fbqError.status === 404;
 
   const saveBlob = (file: Blob, filename: string) => {
     const url = URL.createObjectURL(file);
@@ -45,50 +49,30 @@ const DailyReportView: React.FC = () => {
     saveBlob(res.blob, res.filename || `daily_report_${date}.pdf`);
   };
 
-  const renderTopDrugs = () => {
-    if (!report?.topDrugsJson) return null;
-    try {
-      const obj = JSON.parse(report.topDrugsJson) as Record<string, number>;
-      const items = Object.entries(obj)
-        .map(([drug, count]) => ({ drug, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
-      if (items.length === 0) return null;
-      return (
-        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
-          <h3 className="text-lg font-semibold text-indigo-900 mb-3">💊 Top Drugs</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {items.map(({ drug, count }, idx) => (
-              <div key={drug} className="flex items-center justify-between p-3 bg-white rounded border border-indigo-100">
-                <div className="flex items-center gap-2">
-                  <span className="text-indigo-600 font-bold">#{idx + 1}</span>
-                  <span className="text-sm font-medium text-gray-800">{drug}</span>
-                </div>
-                <span className="text-sm font-bold text-indigo-700">{count}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    } catch {
-      return null;
-    }
-  };
 
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent flex items-center gap-2">
+            <BarChart3 className="w-8 h-8" />
             Daily Report
           </h1>
           <p className="text-gray-600 mt-2">Date: {date}</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => navigate(-1)}>Back</Button>
-          <Button variant="default" onClick={handleDownloadExcel} disabled={downloadingExcel}>📊 Export Excel</Button>
-          <Button variant="default" onClick={handleDownloadPdf} disabled={downloadingPdf}>📄 Export PDF</Button>
-          <Button variant="submit" onClick={() => setExportDialogOpen(true)}>📧 Send Email</Button>
+          <Button variant="outline" onClick={() => navigate(-1)}>
+            <ArrowLeft className="w-4 h-4 mr-2" /> Back
+          </Button>
+          <Button variant="default" onClick={handleDownloadExcel} disabled={downloadingExcel}>
+            <FileSpreadsheet className="w-4 h-4 mr-2" /> Export Excel
+          </Button>
+          <Button variant="default" onClick={handleDownloadPdf} disabled={downloadingPdf}>
+            <FileText className="w-4 h-4 mr-2" /> Export PDF
+          </Button>
+          <Button variant="submit" onClick={() => setExportDialogOpen(true)}>
+            <Mail className="w-4 h-4 mr-2" /> Send Email
+          </Button>
         </div>
       </div>
 
@@ -144,7 +128,7 @@ const DailyReportView: React.FC = () => {
           ) : error ? (
             <div className="text-center py-12">
               <h2 className="text-xl font-semibold text-gray-800 mb-2">Failed to load report</h2>
-              <p className="text-gray-600">{(error as any)?.status === 404 ? "Report not found (404)" : "Unexpected error"}</p>
+              <p className="text-gray-600">{is404 ? "Report not found (404)" : "Unexpected error"}</p>
             </div>
           ) : !report ? (
             <div className="text-center py-12 text-gray-500">No data</div>
@@ -152,7 +136,7 @@ const DailyReportView: React.FC = () => {
             <div className="space-y-6">
               {/* Patients */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-blue-900 mb-3">👥 Patients</h3>
+                <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center gap-2"><Users className="w-5 h-5" /> Patients</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
                     <p className="text-sm text-blue-700">Registered</p>
@@ -175,7 +159,7 @@ const DailyReportView: React.FC = () => {
 
               {/* Recommendations */}
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-green-900 mb-3">📋 Recommendations</h3>
+                <h3 className="text-lg font-semibold text-green-900 mb-3 flex items-center gap-2"><ClipboardList className="w-5 h-5" /> Recommendations</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
                     <p className="text-sm text-green-700">Total</p>
@@ -198,7 +182,7 @@ const DailyReportView: React.FC = () => {
 
               {/* Escalations */}
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-orange-900 mb-3">⚠️ Escalations</h3>
+                <h3 className="text-lg font-semibold text-orange-900 mb-3 flex items-center gap-2"><AlertTriangle className="w-5 h-5" /> Escalations</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
                     <p className="text-sm text-orange-700">Total</p>
@@ -221,7 +205,7 @@ const DailyReportView: React.FC = () => {
 
               {/* System Performance */}
               <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-purple-900 mb-3">⚙️ System Performance</h3>
+                <h3 className="text-lg font-semibold text-purple-900 mb-3 flex items-center gap-2"><Settings className="w-5 h-5" /> System Performance</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
                     <p className="text-sm text-purple-700">Total Operations</p>
@@ -246,7 +230,7 @@ const DailyReportView: React.FC = () => {
 
               {/* User Activity */}
               <div className="bg-pink-50 border border-pink-200 rounded-lg p-4">
-                <h3 className="text-lg font-semibold text-pink-900 mb-3">👤 User Activity</h3>
+                <h3 className="text-lg font-semibold text-pink-900 mb-3 flex items-center gap-2"><UserIcon className="w-5 h-5" /> User Activity</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
                     <p className="text-sm text-pink-700">Total Logins</p>
@@ -270,7 +254,35 @@ const DailyReportView: React.FC = () => {
                 )}
               </div>
 
-              {renderTopDrugs()}
+              {(() => {
+                if (!report?.topDrugsJson) return null;
+                try {
+                  const obj = JSON.parse(report.topDrugsJson) as Record<string, number>;
+                  const items = Object.entries(obj)
+                    .map(([drug, count]) => ({ drug, count }))
+                    .sort((a, b) => b.count - a.count)
+                    .slice(0, 10);
+                  if (items.length === 0) return null;
+                  return (
+                    <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+                      <h3 className="text-lg font-semibold text-indigo-900 mb-3 flex items-center gap-2"><Pill className="w-5 h-5" /> Top Drugs</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {items.map(({ drug, count }, idx) => (
+                          <div key={drug} className="flex items-center justify-between p-3 bg-white rounded border border-indigo-100">
+                            <div className="flex items-center gap-2">
+                              <span className="text-indigo-600 font-bold">#{idx + 1}</span>
+                              <span className="text-sm font-medium text-gray-800">{drug}</span>
+                            </div>
+                            <span className="text-sm font-bold text-indigo-700">{count}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                } catch {
+                  return null;
+                }
+              })()}
             </div>
           )}
         </CardContent>

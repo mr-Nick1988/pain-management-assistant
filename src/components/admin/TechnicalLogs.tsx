@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useGetRecentLogsQuery, useGetLogsByLevelQuery } from '../../api/api/apiAdminSlice.ts';
 import { Card, CardHeader, CardTitle, CardContent, Input, LoadingSpinner, ErrorMessage, Select , PageNavigation } from "../ui";
 import {Badge} from "../ui/Badge.tsx";
+import { Wrench, XCircle, AlertTriangle, Info, Bug, FileText } from "lucide-react";
 
 const TechnicalLogs: React.FC = () => {
     const [limit, setLimit] = useState(100);
@@ -56,13 +57,13 @@ const TechnicalLogs: React.FC = () => {
     /**
      * Получить иконку для уровня лога
      */
-    const getLogLevelIcon = (level: string) => {
+    const getLogLevelIcon = (level: string): React.ReactNode => {
         switch (level) {
-            case "ERROR": return "❌";
-            case "WARN": return "⚠️";
-            case "INFO": return "ℹ️";
-            case "DEBUG": return "🔍";
-            default: return "📝";
+            case "ERROR": return <XCircle className="w-5 h-5 text-red-700"/>;
+            case "WARN": return <AlertTriangle className="w-5 h-5 text-yellow-700"/>;
+            case "INFO": return <Info className="w-5 h-5 text-blue-700"/>;
+            case "DEBUG": return <Bug className="w-5 h-5 text-gray-700"/>;
+            default: return <FileText className="w-5 h-5 text-gray-600"/>;
         }
     };
 
@@ -92,7 +93,7 @@ const TechnicalLogs: React.FC = () => {
                             <h1 className="text-2xl font-bold mb-1">Technical Logs</h1>
                             <p className="text-gray-300">System logs and error tracking</p>
                         </div>
-                        <div className="text-4xl sm:text-5xl">🔧</div>
+                        <div className="text-4xl sm:text-5xl"><Wrench className="w-10 h-10"/></div>
                     </div>
                 </CardContent>
             </Card>
@@ -169,7 +170,7 @@ const TechnicalLogs: React.FC = () => {
                                     {/* Log Header */}
                                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
                                         <div className="flex items-center space-x-2">
-                                            <span className="text-xl">{getLogLevelIcon(log.logLevel)}</span>
+                                            <span className="inline-flex items-center justify-center">{getLogLevelIcon(log.logLevel)}</span>
                                             <Badge className={`${getLogLevelColor(log.logLevel)} border`}>
                                                 {log.logLevel}
                                             </Badge>
@@ -269,7 +270,7 @@ const TechnicalLogs: React.FC = () => {
             {logs && logs.length === 0 && !isLoading && (
                 <Card>
                     <CardContent className="py-12 text-center">
-                        <div className="text-6xl mb-4">🔧</div>
+                        <div className="mb-4 flex justify-center"><Wrench className="w-12 h-12 text-gray-500"/></div>
                         <p className="text-gray-600 mb-4">No logs found</p>
                         <p className="text-sm text-gray-500">Try adjusting your filters</p>
                     </CardContent>
@@ -279,7 +280,7 @@ const TechnicalLogs: React.FC = () => {
             {!logs && !isLoading && (
                 <Card>
                     <CardContent className="py-12 text-center">
-                        <div className="text-6xl mb-4">🔧</div>
+                        <div className="mb-4 flex justify-center"><Wrench className="w-12 h-12 text-gray-500"/></div>
                         <p className="text-gray-600 mb-4">No logs loaded yet</p>
                         <p className="text-sm text-gray-500">Logs will load automatically</p>
                     </CardContent>

@@ -3,6 +3,7 @@ import { format, subDays } from "date-fns";
 import { useGetMicroserviceEventsQuery } from "../../api/api/apiAnalyticsMicroserviceSlice";
 import { Card, CardContent, CardHeader, CardTitle, LoadingSpinner, PageNavigation, Input, Button } from "../ui";
 import type { MicroserviceEventType } from "../../types/analytics";
+import { BarChart3, Microscope, RefreshCw, FileText, AlertTriangle, Users, Lock, Pill, ClipboardList, User, Syringe } from "lucide-react";
 
 const MicroserviceAnalytics: React.FC = () => {
     // Date range state (default: today)
@@ -48,16 +49,16 @@ const MicroserviceAnalytics: React.FC = () => {
     ).length;
 
     // Event type icon
-    const getEventTypeIcon = (type: MicroserviceEventType) => {
-        if (type.includes("RECOMMENDATION")) return "💊";
-        if (type.includes("ESCALATION")) return "🚨";
-        if (type.includes("PATIENT")) return "👤";
-        if (type.includes("VAS")) return "📊";
-        if (type.includes("LOGIN")) return "🔐";
-        if (type.includes("PERSON")) return "👥";
-        if (type.includes("EMR")) return "📋";
-        if (type.includes("DOSE")) return "💉";
-        return "📝";
+    const getEventTypeIcon = (type: MicroserviceEventType): React.ReactNode => {
+        if (type.includes("RECOMMENDATION")) return <Pill className="w-4 h-4 text-green-700"/>;
+        if (type.includes("ESCALATION")) return <AlertTriangle className="w-4 h-4 text-orange-700"/>;
+        if (type.includes("PATIENT")) return <User className="w-4 h-4 text-blue-700"/>;
+        if (type.includes("VAS")) return <BarChart3 className="w-4 h-4 text-indigo-700"/>;
+        if (type.includes("LOGIN")) return <Lock className="w-4 h-4 text-purple-700"/>;
+        if (type.includes("PERSON")) return <Users className="w-4 h-4 text-gray-700"/>;
+        if (type.includes("EMR")) return <ClipboardList className="w-4 h-4 text-teal-700"/>;
+        if (type.includes("DOSE")) return <Syringe className="w-4 h-4 text-rose-700"/>;
+        return <FileText className="w-4 h-4 text-gray-600"/>;
     };
 
     // Event type color
@@ -86,12 +87,12 @@ const MicroserviceAnalytics: React.FC = () => {
                 <CardContent className="py-6">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold mb-2">📊 Microservice Analytics</h1>
+                            <h1 className="text-3xl font-bold mb-2 flex items-center gap-2"><BarChart3 className="w-8 h-8"/> Microservice Analytics</h1>
                             <p className="text-purple-100">
                                 Real-time events from Analytics Microservice (Port 8091)
                             </p>
                         </div>
-                        <div className="text-5xl">🔬</div>
+                        <div className="text-5xl"><Microscope className="w-10 h-10"/></div>
                     </div>
                 </CardContent>
             </Card>
@@ -123,7 +124,7 @@ const MicroserviceAnalytics: React.FC = () => {
                             </div>
                             <div className="flex items-end">
                                 <Button onClick={() => refetch()} className="w-full">
-                                    🔄 Refresh
+                                    <RefreshCw className="w-4 h-4 mr-2"/> Refresh
                                 </Button>
                             </div>
                         </div>
@@ -184,28 +185,28 @@ const MicroserviceAnalytics: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-2 border-blue-200">
                     <CardContent className="p-6 text-center">
-                        <div className="text-4xl mb-2">📊</div>
+                        <div className="mb-2 flex justify-center"><BarChart3 className="w-8 h-8 text-blue-600"/></div>
                         <p className="text-sm text-gray-600 mb-1">Total Events</p>
                         <p className="text-3xl font-bold text-blue-600">{totalEvents}</p>
                     </CardContent>
                 </Card>
                 <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200">
                     <CardContent className="p-6 text-center">
-                        <div className="text-4xl mb-2">📝</div>
+                        <div className="mb-2 flex justify-center"><FileText className="w-8 h-8 text-purple-600"/></div>
                         <p className="text-sm text-gray-600 mb-1">Event Types</p>
                         <p className="text-3xl font-bold text-purple-600">{Object.keys(eventsByType).length}</p>
                     </CardContent>
                 </Card>
                 <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-2 border-orange-200">
                     <CardContent className="p-6 text-center">
-                        <div className="text-4xl mb-2">🚨</div>
+                        <div className="mb-2 flex justify-center"><AlertTriangle className="w-8 h-8 text-orange-600"/></div>
                         <p className="text-sm text-gray-600 mb-1">Critical Events</p>
                         <p className="text-3xl font-bold text-orange-600">{criticalEvents}</p>
                     </CardContent>
                 </Card>
                 <Card className="bg-gradient-to-br from-green-50 to-green-100 border-2 border-green-200">
                     <CardContent className="p-6 text-center">
-                        <div className="text-4xl mb-2">👥</div>
+                        <div className="mb-2 flex justify-center"><Users className="w-8 h-8 text-green-600"/></div>
                         <p className="text-sm text-gray-600 mb-1">User Roles</p>
                         <p className="text-3xl font-bold text-green-600">{Object.keys(eventsByRole).length}</p>
                     </CardContent>
@@ -220,7 +221,7 @@ const MicroserviceAnalytics: React.FC = () => {
                 <Card className="bg-red-50 border-2 border-red-200">
                     <CardContent className="p-6">
                         <div className="text-center">
-                            <div className="text-5xl mb-4">❌</div>
+                            <div className="mb-4 flex justify-center"><AlertTriangle className="w-10 h-10 text-red-600"/></div>
                             <h3 className="text-xl font-bold text-red-800 mb-2">Microservice Unavailable</h3>
                             <p className="text-red-600 mb-4">
                                 Cannot connect to Analytics Microservice (Port 8091)
@@ -242,7 +243,7 @@ const MicroserviceAnalytics: React.FC = () => {
                     <CardContent>
                         {filteredEvents.length === 0 ? (
                             <div className="text-center py-12">
-                                <div className="text-6xl mb-4">📭</div>
+                                <div className="mb-4 flex justify-center"><ClipboardList className="w-10 h-10 text-gray-500"/></div>
                                 <p className="text-gray-600 mb-2">No events found</p>
                                 <p className="text-sm text-gray-500">Try adjusting your filters or date range</p>
                             </div>

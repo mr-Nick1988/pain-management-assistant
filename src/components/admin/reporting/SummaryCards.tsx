@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, CardContent } from "../../ui";
 import type { SummaryStatistics } from "../../../types/reporting";
+import { Users, ClipboardList, AlertTriangle, User as UserIcon } from "lucide-react";
 
 interface SummaryCardsProps {
     summary: SummaryStatistics | undefined;
@@ -18,7 +19,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ summary }) => {
     const cards = [
         {
             title: "Patients",
-            icon: "👥",
+            icon: <Users className="w-6 h-6 text-gray-700" />,
             stats: [
                 { label: "Registered", value: summary.patients?.totalRegistered ?? 0 },
                 { label: "VAS Records", value: summary.patients?.totalVasRecords ?? 0 },
@@ -28,7 +29,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ summary }) => {
         },
         {
             title: "Recommendations",
-            icon: "📋",
+            icon: <ClipboardList className="w-6 h-6 text-gray-700" />,
             stats: [
                 { label: "Total", value: summary.recommendations?.total ?? 0 },
                 { label: "Approved", value: summary.recommendations?.approved ?? 0 },
@@ -38,7 +39,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ summary }) => {
         },
         {
             title: "Escalations",
-            icon: "⚠️",
+            icon: <AlertTriangle className="w-6 h-6 text-gray-700" />,
             stats: [
                 { label: "Total", value: summary.escalations?.total ?? 0 },
                 { label: "Resolved", value: summary.escalations?.resolved ?? 0 },
@@ -48,7 +49,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ summary }) => {
         },
         {
             title: "User Activity",
-            icon: "👤",
+            icon: <UserIcon className="w-6 h-6 text-gray-700" />,
             stats: [
                 { label: "Logins", value: `${totalLogins} (${successfulLogins}/${failedLogins})` },
                 { label: "Active Users", value: summary.users?.uniqueActiveUsers ?? 0 },
@@ -66,7 +67,7 @@ const SummaryCards: React.FC<SummaryCardsProps> = ({ summary }) => {
                     <CardContent className="p-6">
                         <div className="flex items-center justify-between mb-4">
                             <h3 className="text-lg font-semibold text-gray-800">{card.title}</h3>
-                            <span className="text-3xl">{card.icon}</span>
+                            <span>{card.icon}</span>
                         </div>
                         <div className="space-y-2">
                             {card.stats.map((stat, idx) => (

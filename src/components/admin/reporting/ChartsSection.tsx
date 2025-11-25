@@ -2,6 +2,7 @@ import React from "react";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "../../ui";
 import type { DailyReportAggregate } from "../../../types/reporting";
+import { BarChart3, PieChart, Users } from "lucide-react";
 
 interface ChartsSectionProps {
     reports: DailyReportAggregate[];
@@ -30,7 +31,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ reports }) => {
             {/* VAS Level Trend - Line Chart */}
             <Card>
                 <CardHeader>
-                    <CardTitle>📈 VAS Level Trend</CardTitle>
+                    <CardTitle className="flex items-center gap-2"><BarChart3 className="w-5 h-5"/> VAS Level Trend</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="h-64 flex items-end justify-between gap-1 px-4 pb-8 relative">
@@ -71,7 +72,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ reports }) => {
             {/* Approved vs Rejected - Bar Chart */}
             <Card>
                 <CardHeader>
-                    <CardTitle>📊 Approved vs Rejected Recommendations</CardTitle>
+                    <CardTitle className="flex items-center gap-2"><BarChart3 className="w-5 h-5"/> Approved vs Rejected Recommendations</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="h-64 flex items-end justify-between gap-1 px-4 pb-8 relative">
@@ -121,7 +122,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ reports }) => {
             {/* Escalations - Pie Chart */}
             <Card>
                 <CardHeader>
-                    <CardTitle>🥧 Escalations Status</CardTitle>
+                    <CardTitle className="flex items-center gap-2"><PieChart className="w-5 h-5"/> Escalations Status</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="flex items-center justify-center h-64">
@@ -177,7 +178,7 @@ const ChartsSection: React.FC<ChartsSectionProps> = ({ reports }) => {
             {/* User Activity - Area Chart */}
             <Card>
                 <CardHeader>
-                    <CardTitle>👥 User Activity (Logins)</CardTitle>
+                    <CardTitle className="flex items-center gap-2"><Users className="w-5 h-5"/> User Activity (Logins)</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="h-64 flex items-end justify-between gap-1 px-4 pb-8 relative">

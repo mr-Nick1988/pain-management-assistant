@@ -4,6 +4,7 @@ import { useRestoreBackupMutation } from "../../../api/api/apiBackupSlice";
 import { Button } from "../../ui";
 import { useToast } from "../../../contexts/ToastContext";
 import type { BackupResponseDTO } from "../../../types/backup";
+import { RefreshCw, AlertTriangle, Info, Loader2, FileText } from "lucide-react";
 
 interface RestoreBackupModalProps {
     backup: BackupResponseDTO;
@@ -26,15 +27,15 @@ const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({ backup, onClose
         const currentUser = localStorage.getItem("userLogin") || "admin";
 
         try {
-            console.log("🔄 Starting restore for backup:", backup.id);
+            console.log("Starting restore for backup:", backup.id);
             const message = await restoreBackup({
                 backupId: backup.id,
                 initiatedBy: currentUser,
                 confirmed: true,
             }).unwrap();
 
-            console.log("✅ Restore response:", message);
-            toast.success(message || "✅ Restore completed successfully! Refreshing backup history...");
+            console.log("Restore response:", message);
+            toast.success(message || "Restore completed successfully! Refreshing backup history...");
             
             // Wait 2 seconds before refreshing to allow backend to update status
             setTimeout(() => {
@@ -42,7 +43,7 @@ const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({ backup, onClose
                 onClose();
             }, 2000);
         } catch (error: any) {
-            console.error("❌ Restore error:", error);
+            console.error("Restore error:", error);
             
             // Handle different error types
             let errorMessage = 'Failed to restore backup';
@@ -69,7 +70,7 @@ const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({ backup, onClose
                 {/* Header */}
                 <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10">
                     <h2 className="text-2xl font-bold text-gray-900">
-                        🔄 Restore Backup
+                        <span className="inline-flex items-center gap-2"><RefreshCw className="w-5 h-5"/> Restore Backup</span>
                     </h2>
                     <button
                         onClick={onClose}
@@ -83,7 +84,7 @@ const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({ backup, onClose
                 <div className="p-6 space-y-6">
                     {/* Backup Details */}
                     <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                        <h3 className="font-semibold text-gray-900 mb-3">📋 Backup Details</h3>
+                        <h3 className="font-semibold text-gray-900 mb-3 inline-flex items-center gap-2"><FileText className="w-4 h-4"/> Backup Details</h3>
                         <div className="grid grid-cols-2 gap-3 text-sm">
                             <div>
                                 <p className="text-gray-600">Type:</p>
@@ -110,7 +111,7 @@ const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({ backup, onClose
                     {isH2Backup && (
                         <div className="bg-red-50 border-2 border-red-300 rounded-lg p-4">
                             <div className="flex items-start gap-3">
-                                <span className="text-3xl">⚠️</span>
+                                <AlertTriangle className="w-6 h-6 text-red-700"/>
                                 <div>
                                     <h3 className="font-bold text-red-900 mb-2">
                                         CRITICAL: H2 Database Restore Warning
@@ -125,8 +126,8 @@ const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({ backup, onClose
                                         <li>Restart the application</li>
                                         <li>Verify data integrity</li>
                                     </ol>
-                                    <p className="text-xs text-red-700 mt-3 font-semibold">
-                                        ⚠️ This operation will overwrite current database files!
+                                    <p className="text-xs text-red-700 mt-3 font-semibold inline-flex items-center gap-1">
+                                        <AlertTriangle className="w-3.5 h-3.5"/> This operation will overwrite current database files!
                                     </p>
                                 </div>
                             </div>
@@ -137,7 +138,7 @@ const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({ backup, onClose
                     {backup.backupType === "MONGODB" && (
                         <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4">
                             <div className="flex items-start gap-3">
-                                <span className="text-3xl">⚠️</span>
+                                <AlertTriangle className="w-6 h-6 text-yellow-700"/>
                                 <div>
                                     <h3 className="font-bold text-yellow-900 mb-2">
                                         MongoDB Restore Warning
@@ -169,8 +170,8 @@ const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({ backup, onClose
                                 className="mt-1 w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
                             />
                             <div className="flex-1">
-                                <p className={`font-bold mb-1 ${confirmed ? "text-green-900" : "text-blue-900"}`}>
-                                    {confirmed ? "✅ " : "⚠️ "}I understand the risks and consequences
+                                <p className={`font-bold mb-1 ${confirmed ? "text-green-900" : "text-blue-900"} inline-flex items-center gap-2`}>
+                                    {!confirmed ? <AlertTriangle className="w-4 h-4"/> : <RefreshCw className="w-4 h-4"/>} I understand the risks and consequences
                                 </p>
                                 <p className={`text-sm ${confirmed ? "text-green-800" : "text-blue-800"}`}>
                                     I confirm that I want to restore this backup and understand that:
@@ -182,8 +183,8 @@ const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({ backup, onClose
                                     {isH2Backup && <li>I will follow manual steps for H2 restore</li>}
                                 </ul>
                                 {!confirmed && (
-                                    <p className="text-xs font-bold text-blue-900 mt-3 bg-blue-100 px-2 py-1 rounded">
-                                        👆 Please check this box to enable the Restore button
+                                    <p className="text-xs font-bold text-blue-900 mt-3 bg-blue-100 px-2 py-1 rounded inline-flex items-center gap-1">
+                                        <Info className="w-3.5 h-3.5"/> Please check this box to enable the Restore button
                                     </p>
                                 )}
                             </div>
@@ -192,7 +193,7 @@ const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({ backup, onClose
 
                     {/* Additional Info */}
                     <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded">
-                        <p className="font-semibold mb-1">📝 Backup File Path:</p>
+                        <p className="font-semibold mb-1 inline-flex items-center gap-1"><FileText className="w-3.5 h-3.5"/> Backup File Path:</p>
                         <code className="bg-gray-200 px-2 py-1 rounded text-xs">
                             {backup.backupFilePath}
                         </code>
@@ -222,7 +223,7 @@ const RestoreBackupModal: React.FC<RestoreBackupModalProps> = ({ backup, onClose
                             disabled={isLoading || !confirmed}
                             className={!confirmed ? "opacity-50 cursor-not-allowed" : ""}
                         >
-                            {isLoading ? "⏳ Restoring..." : "🔄 Restore Backup"}
+                            {isLoading ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin"/> Restoring...</>) : (<><RefreshCw className="w-4 h-4 mr-2"/> Restore Backup</>)}
                         </Button>
                     </div>
                 </div>

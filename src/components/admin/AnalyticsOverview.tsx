@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import {useGetEventStatsQuery} from '../../api/api/apiAdminSlice.ts';
 import {Card, CardContent, CardHeader, CardTitle, ErrorMessage, Input, LoadingSpinner, PageNavigation } from "../ui";
+import { BarChart3, Pill, AlertTriangle, User, Users, ShieldCheck, FileText, Lock, Activity } from "lucide-react";
 
 
 const AnalyticsOverview: React.FC = () => {
@@ -12,28 +13,28 @@ const AnalyticsOverview: React.FC = () => {
         startDate || endDate ? {startDate, endDate} : undefined
     );
 
-    const getEventTypeIcon = (type: string) => {
-        if (type.includes("RECOMMENDATION")) return "💊";
-        if (type.includes("ESCALATION")) return "🚨";
-        if (type.includes("PATIENT")) return "👤";
-        if (type.includes("VAS")) return "📊";
-        if (type.includes("LOGIN")) return "🔐";
-        if (type.includes("PERSON")) return "👥";
-        return "📝";
+    const getEventTypeIcon = (type: string): React.ReactNode => {
+        if (type.includes("RECOMMENDATION")) return <Pill className="w-5 h-5 text-green-700"/>;
+        if (type.includes("ESCALATION")) return <AlertTriangle className="w-5 h-5 text-orange-700"/>;
+        if (type.includes("PATIENT")) return <User className="w-5 h-5 text-blue-700"/>;
+        if (type.includes("VAS")) return <BarChart3 className="w-5 h-5 text-indigo-700"/>;
+        if (type.includes("LOGIN")) return <Lock className="w-5 h-5 text-purple-700"/>;
+        if (type.includes("PERSON")) return <Users className="w-5 h-5 text-gray-700"/>;
+        return <FileText className="w-5 h-5 text-gray-600"/>;
     };
 
-    const getRoleIcon = (role: string) => {
+    const getRoleIcon = (role: string): React.ReactNode => {
         switch (role) {
             case "DOCTOR":
-                return "👨‍⚕️";
+                return <Activity className="w-7 h-7 text-blue-700"/>;
             case "NURSE":
-                return "👩‍⚕️";
+                return <Users className="w-7 h-7 text-green-700"/>;
             case "ANESTHESIOLOGIST":
-                return "💉";
+                return <AlertTriangle className="w-7 h-7 text-orange-700"/>;
             case "ADMIN":
-                return "👨‍💼";
+                return <ShieldCheck className="w-7 h-7 text-purple-700"/>;
             default:
-                return "👤";
+                return <User className="w-7 h-7 text-gray-700"/>;
         }
     };
 
@@ -47,7 +48,7 @@ const AnalyticsOverview: React.FC = () => {
                             <h1 className="text-2xl font-bold mb-1">Analytics Overview</h1>
                             <p className="text-purple-100">System-wide event statistics and insights</p>
                         </div>
-                        <div className="text-4xl sm:text-5xl">📊</div>
+                        <div className="text-4xl sm:text-5xl"><BarChart3 className="w-10 h-10"/></div>
                     </div>
                 </CardContent>
             </Card>
@@ -121,7 +122,8 @@ const AnalyticsOverview: React.FC = () => {
                                             className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:shadow-md transition-shadow"
                                         >
                                             <div className="flex items-center space-x-3">
-                                                <span className="text-2xl">{getEventTypeIcon(type)}</span>
+                                                <span
+                                                    className="inline-flex items-center justify-center">{getEventTypeIcon(type)}</span>
                                                 <div>
                                                     <p className="text-sm font-medium text-gray-900">
                                                         {type.replace(/_/g, " ")}
@@ -152,7 +154,7 @@ const AnalyticsOverview: React.FC = () => {
                                             key={role}
                                             className="p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg border-2 border-blue-200 text-center"
                                         >
-                                            <div className="text-4xl mb-2">{getRoleIcon(role)}</div>
+                                            <div className="mb-2 flex justify-center">{getRoleIcon(role)}</div>
                                             <p className="text-sm font-medium text-gray-700 mb-1">{role}</p>
                                             <p className="text-2xl font-bold text-blue-600">{count}</p>
                                             <p className="text-xs text-gray-500 mt-1">
@@ -208,16 +210,15 @@ const AnalyticsOverview: React.FC = () => {
             {!stats && !isLoading && (
                 <Card>
                     <CardContent className="py-12 text-center">
-                        <div className="text-6xl mb-4">📊</div>
+                        <div className="mb-4 flex justify-center"><BarChart3 className="w-12 h-12 text-gray-500"/></div>
                         <p className="text-gray-600 mb-4">No statistics loaded yet</p>
                         <p className="text-sm text-gray-500">Statistics will load automatically</p>
                     </CardContent>
                 </Card>
             )}
-        <PageNavigation />
+            <PageNavigation/>
 
         </div>
     );
-};
-
+}
 export default AnalyticsOverview;
